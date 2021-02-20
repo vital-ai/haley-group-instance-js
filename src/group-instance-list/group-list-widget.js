@@ -1,5 +1,3 @@
-import GroupInstanceWidget from '../group-instance/group-instance-widget';
-
 /** Handle rendering a group of tabs. Click event of the tabs. Managing the organization of the objects of groupInstances.
  * @author Wei
  * @version 1.0
@@ -16,7 +14,7 @@ import GroupInstanceWidget from '../group-instance/group-instance-widget';
  *                       isSummaryInformationVisible: boolean
  * 					}
  */
-GroupListWidget = function(dom, giw, config) {
+const GroupListWidget = function(dom, giw, config) {
 	this.dom = dom;
 	this.giw = giw;
 	this.config = config || {};
@@ -448,5 +446,5 @@ GroupListWidget._groupToHTML = function(obj, index) {
 }
 
 
-export default GroupListWidget;
+module.exports = GroupListWidget;
 

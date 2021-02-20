@@ -1,4 +1,4 @@
-QuestionAbstract = function(obj) {
+const QuestionAbstract = function(obj) {
 	this.answerType = obj.answerType;
 	this.questionURI = obj.questionURI;
 	this.questionCode = obj.questionCode;
@@ -2198,4 +2198,6 @@ RowEnhancementDependencyWrapper.prototype.displayEnhancementButtons = function(e
 
 	})
 }
+
+module.exports = QuestionAbstract;
 

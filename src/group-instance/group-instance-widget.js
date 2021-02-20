@@ -1,4 +1,4 @@
-GroupInstanceWidget = function (config) {
+const GroupInstanceWidget = function (config) {
     this.config = config || {};
     this.eventMessageHandler = null; // handle false input type message notification.
     this.MNW = config.MNW;
@@ -5113,4 +5113,4 @@ GroupInstanceWidget.prototype._onTestButtonClick = function (e) {
     _this._submitEnhancementRequest();
 };
 
-export default GroupInstanceWidget;
+module.exports = GroupInstanceWidget;

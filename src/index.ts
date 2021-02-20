@@ -1,5 +1,9 @@
-function component_add(i: number) {
-   return i + 1;
-}
+const GroupListWidget = require('./group-instance-list/group-list-widget');
+const GroupInstanceWidget = require('./group-instance/group-instance-widget');
+const QuestionModule = require('./questions/question-module');
 
-export default component_add;
+module.exports = {
+   GroupListWidget,
+   GroupInstanceWidget,
+   QuestionModule,
+}
