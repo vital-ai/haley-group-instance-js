@@ -12,6 +12,11 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.js$/,
+        use: ["source-map-loader"],
+        enforce: "pre"
+      },
     ],
   },
   resolve: {
@@ -19,7 +24,7 @@ module.exports = {
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, './'),
     libraryTarget: 'umd',
   },
   externals: [nodeExternals()],

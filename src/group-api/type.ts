@@ -17,3 +17,14 @@ export interface GraphObject {
     URI: string;
     type: string; 
 }
+
+export interface SetValueProp extends GetValueProp {
+    value: any;
+    key: string;
+}
+
+export interface GetValueProp {
+    rowCounter?: string;
+    rowType?: string;
+    answerType?: string;
+}
