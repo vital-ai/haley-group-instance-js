@@ -71,7 +71,7 @@ export class GroupAPI {
         return answerInstance;
     }
 
-    static getAnswerAndAnswerInstance(getValueProp: GetValueProp, msgRL: MsgRL) {
+    private static getAnswerAndAnswerInstance(getValueProp: GetValueProp, msgRL: MsgRL) {
         const { rowType, rowCounter, answerType } = getValueProp;
         const answers: GraphObject[] = msgRL.iterator(TYPE_HALEY_ANSWER);
         const answerInstances: GraphObject[] = msgRL.iterator(TYPE_HALEY_ANSWER_INSTANCE);
