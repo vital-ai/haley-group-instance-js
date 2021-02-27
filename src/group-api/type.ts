@@ -27,6 +27,7 @@ export interface GetValueProp {
     rowCounter?: string;
     rowType?: string;
     answerType?: string;
+    msgRL?: MsgRL;
 }
 
 export interface Logger {

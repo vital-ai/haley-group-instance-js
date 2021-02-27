@@ -16,47 +16,65 @@ import {
     TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE,
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
 } from './constant';
-
 export class GroupAPI {
 
-    vitaljs: VitalJs;
+    static logger: Logger;
+    static vitaljs: VitalJs;
     logger: Logger;
+    vitaljs: VitalJs;
     objList: GraphObject[];
     instanceList: GraphObject[];
     msgRL: MsgRL;
     
-    constructor(vitaljs: VitalJs, logger: Logger, objList: GraphObject[], instanceList: GraphObject[]) {
-        this.vitaljs = vitaljs;
+    constructor(vitaljs: VitalJs, logger?: Logger, ) {
+        GroupAPI.logger = logger;
+        if (!GroupAPI.vitaljs) {
+            GroupAPI.vitaljs = vitaljs;
+        } else if (GroupAPI.logger) {
+            GroupAPI.logger.info('vitaljs has already been initialized');
+        }
+
         this.logger = logger;
-        this.objList = objList;
-        this.instanceList = instanceList;
+        this.vitaljs = vitaljs || GroupAPI.vitaljs;
         this.msgRL = vitaljs.resultList();
-        (objList || []).forEach(obj => this.msgRL.addResult(obj));
-        (instanceList || []).forEach(obj => this.msgRL.addResult(obj));
     }
 
-    setValue(setValueProp: SetValueProp) {
-        const { value, key } = setValueProp;
-        const [answer, answerInstance] = this.getAnswerAndAnswerInstance(setValueProp);
-        this.logger.info(`setting value ${value} for instance: `, answerInstance?.URI)
-        this.setAnswerValue(answerInstance, answer, value);
+    static getValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string) {
+        if (!GroupAPI.vitaljs) {
+            throw new Error('vitaljs should be initialize first either by the constructor or by assign the value to the class directly');
+        }
+        const msgRL = GroupAPI.vitaljs.resultList();
+        (qaObjects || []).forEach(obj => msgRL.addResult(obj));
+        (qaInstanceObjects || []).forEach(obj => msgRL.addResult(obj));
+
+        const [answer, answerInstance] = GroupAPI.getAnswerAndAnswerInstance({ answerType }, msgRL);
+
+        if (GroupAPI.logger) GroupAPI.logger.info('getting value from answerInstance: ', answerInstance?.URI);
+
+        return GroupAPI.getAnswerValue(answerInstance, answer);
+    }
+
+    static setValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string, value: any) {
+        if (!GroupAPI.vitaljs) {
+            throw new Error('vitaljs should be initialize first either by the constructor or by assign the value to the class directly');
+        }
+        const msgRL = GroupAPI.vitaljs.resultList();
+        (qaObjects || []).forEach(obj => msgRL.addResult(obj));
+        (qaInstanceObjects || []).forEach(obj => msgRL.addResult(obj));
+
+        const [answer, answerInstance] =  GroupAPI.getAnswerAndAnswerInstance({ answerType }, msgRL);
+
+        if (GroupAPI.logger) GroupAPI.logger.info(`setting value ${value} for instance: `, answerInstance?.URI)
+
+        GroupAPI.setAnswerValue(answerInstance, answer, value);
+
         return answerInstance;
     }
 
-    getValue(getValueProp: GetValueProp) {
-        const [answer, answerInstance] = this.getAnswerAndAnswerInstance(getValueProp);
-        this.logger.info('getting value from answerInstance: ', answerInstance?.URI)
-        return this.getAnswerValue(answerInstance, answer);
-    }
-
-    getAll() {
-        return this.msgRL.iterator();
-    }
-
-    getAnswerAndAnswerInstance(getValueProp: GetValueProp) {
+    static getAnswerAndAnswerInstance(getValueProp: GetValueProp, msgRL: MsgRL) {
         const { rowType, rowCounter, answerType } = getValueProp;
-        const answers: GraphObject[] = this.msgRL.iterator(TYPE_HALEY_ANSWER);
-        const answerInstances: GraphObject[] = this.msgRL.iterator(TYPE_HALEY_ANSWER_INSTANCE);
+        const answers: GraphObject[] = msgRL.iterator(TYPE_HALEY_ANSWER);
+        const answerInstances: GraphObject[] = msgRL.iterator(TYPE_HALEY_ANSWER_INSTANCE);
 
         let answer: GraphObject;
         let answerInstance: GraphObject;
@@ -66,14 +84,13 @@ export class GroupAPI {
             answerInstance = answerInstances.find(ins => ins.get(SHORT_NAME_HALEY_ANSWER) === answer.URI);
         }
 
-        this.logger.info('get answerURI', answer?.URI);
-        this.logger.info('get answerInstanceURI', answerInstance?.URI);
+        if (GroupAPI.logger) GroupAPI.logger.info('get answerURI', answer?.URI);
+        if (GroupAPI.logger) GroupAPI.logger.info('get answerInstanceURI', answerInstance?.URI);
 
         return [answer, answerInstance];
     }
 
-
-    private getAnswerValue(answerInstance: GraphObject, answerObj: GraphObject) {
+    private static getAnswerValue(answerInstance: GraphObject, answerObj: GraphObject) {
         // console.log('_getAnswerValue');
         if (answerInstance) {
             switch (answerInstance.type) {
@@ -127,7 +144,7 @@ export class GroupAPI {
         return null;
     };
 
-    private setAnswerValue(answerInstance: GraphObject, answerObj: GraphObject, value: any) {
+    private static setAnswerValue(answerInstance: GraphObject, answerObj: GraphObject, value: any) {
         // console.log('_getAnswerValue');
         if (answerInstance) {
             switch (answerInstance.type) {
@@ -180,5 +197,42 @@ export class GroupAPI {
         }
         return null;
     };
+
+    setValue(setValueProp: SetValueProp) {
+        const { value } = setValueProp;
+        const [answer, answerInstance] = this.getAnswerAndAnswerInstance(setValueProp);
+        this.logger.info(`setting value ${value} for instance: `, answerInstance?.URI)
+        GroupAPI.setAnswerValue(answerInstance, answer, value);
+        return answerInstance;
+    }
+
+    getValue(getValueProp: GetValueProp) {
+        const [answer, answerInstance] = this.getAnswerAndAnswerInstance(getValueProp);
+        this.logger.info('getting value from answerInstance: ', answerInstance?.URI)
+        return GroupAPI.getAnswerValue(answerInstance, answer);
+    }
+
+    getAll() {
+        return this.msgRL.iterator();
+    }
+
+    getAnswerAndAnswerInstance(getValueProp: GetValueProp) {
+        const { rowType, rowCounter, answerType } = getValueProp;
+        const answers: GraphObject[] = this.msgRL.iterator(TYPE_HALEY_ANSWER);
+        const answerInstances: GraphObject[] = this.msgRL.iterator(TYPE_HALEY_ANSWER_INSTANCE);
+
+        let answer: GraphObject;
+        let answerInstance: GraphObject;
+
+        if (!rowType && !rowCounter && answerType) {
+            answer = answers.find(ans => ans.get(SHORT_NAME_HALEY_ANSWER_TYPE) === answerType);
+            answerInstance = answerInstances.find(ins => ins.get(SHORT_NAME_HALEY_ANSWER) === answer.URI);
+        }
+
+        this.logger.info('get answerURI', answer?.URI);
+        this.logger.info('get answerInstanceURI', answerInstance?.URI);
+
+        return [answer, answerInstance];
+    }
 
 }
