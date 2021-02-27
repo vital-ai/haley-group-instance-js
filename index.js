@@ -37,9 +37,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _constant__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 
 var GroupAPI = /** @class */ (function () {
-    function GroupAPI(vitaljs, objList, instanceList) {
+    function GroupAPI(vitaljs, logger, objList, instanceList) {
         var _this = this;
         this.vitaljs = vitaljs;
+        this.logger = logger;
         this.objList = objList;
         this.instanceList = instanceList;
         this.msgRL = vitaljs.resultList();
@@ -49,12 +50,17 @@ var GroupAPI = /** @class */ (function () {
     GroupAPI.prototype.setValue = function (setValueProp) {
         var value = setValueProp.value, key = setValueProp.key;
         var _a = this.getAnswerAndAnswerInstance(setValueProp), answer = _a[0], answerInstance = _a[1];
-        answerInstance.set(key, value);
+        this.logger.info("setting value " + value + " for instance: ", answerInstance === null || answerInstance === void 0 ? void 0 : answerInstance.URI);
+        this.setAnswerValue(answerInstance, answer, value);
         return answerInstance;
     };
     GroupAPI.prototype.getValue = function (getValueProp) {
         var _a = this.getAnswerAndAnswerInstance(getValueProp), answer = _a[0], answerInstance = _a[1];
+        this.logger.info('getting value from answerInstance: ', answerInstance === null || answerInstance === void 0 ? void 0 : answerInstance.URI);
         return this.getAnswerValue(answerInstance, answer);
+    };
+    GroupAPI.prototype.getAll = function () {
+        return this.msgRL.iterator();
     };
     GroupAPI.prototype.getAnswerAndAnswerInstance = function (getValueProp) {
         var rowType = getValueProp.rowType, rowCounter = getValueProp.rowCounter, answerType = getValueProp.answerType;
@@ -62,10 +68,12 @@ var GroupAPI = /** @class */ (function () {
         var answerInstances = this.msgRL.iterator(_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER_INSTANCE);
         var answer;
         var answerInstance;
-        if (!rowType && !rowCounter && answer) {
+        if (!rowType && !rowCounter && answerType) {
             answer = answers.find(function (ans) { return ans.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
             answerInstance = answerInstances.find(function (ins) { return ins.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
         }
+        this.logger.info('get answerURI', answer === null || answer === void 0 ? void 0 : answer.URI);
+        this.logger.info('get answerInstanceURI', answerInstance === null || answerInstance === void 0 ? void 0 : answerInstance.URI);
         return [answer, answerInstance];
     };
     GroupAPI.prototype.getAnswerValue = function (answerInstance, answerObj) {
@@ -111,11 +119,52 @@ var GroupAPI = /** @class */ (function () {
         return null;
     };
     ;
-    GroupAPI.aaaa = 'aaaaaaaaaaaaa';
+    GroupAPI.prototype.setAnswerValue = function (answerInstance, answerObj, value) {
+        // console.log('_getAnswerValue');
+        if (answerInstance) {
+            switch (answerInstance.type) {
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TEXT_ANSWER_INSTANCE:
+                    return answerInstance.set("textAnswerValue", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
+                    return answerInstance.set("booleanAnswerValue", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
+                    return answerInstance.set("choiceAnswerValue", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
+                    return new Date(answerInstance.set("dateTimeAnswerValue", value));
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
+                    return answerInstance.set("longTextAnswerValue", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
+                    return answerInstance.set("fileAnswerValueURI", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
+                    var answer = answerObj;
+                    var answerDataType = answer.set("haleyAnswerDataType", value);
+                    if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
+                        return answerInstance.set("integerAnswerValue", value);
+                    }
+                    else {
+                        return answerInstance.set("doubleAnswerValue", value);
+                    }
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
+                    return answerInstance.set("multiChoiceAnswerValue", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE:
+                    return answerInstance.set("signatureAnswerValue", value);
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
+                    var taxonomy = answerInstance.set("taxonomyAnswerValue", value);
+                    return taxonomy || "";
+                case _constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
+                    var taxonomies = answerInstance.set("multiTaxonomyAnswerValue", value);
+                    taxonomies = taxonomies ? taxonomies : [];
+                    return taxonomies.toString();
+                default:
+                    console.error("No such questionType exists", answerInstance);
+            }
+        }
+        return null;
+    };
+    ;
     return GroupAPI;
 }());
 
-// module.exports = GroupAPI;
 
 
 /***/ }),

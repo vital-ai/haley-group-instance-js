@@ -28,3 +28,8 @@ export interface GetValueProp {
     rowType?: string;
     answerType?: string;
 }
+
+export interface Logger {
+    info: any;
+    error: any;
+}
