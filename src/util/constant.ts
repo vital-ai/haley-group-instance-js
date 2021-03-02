@@ -2,6 +2,7 @@ export const TYPE_HALEY_SECTION = 'http://vital.ai/ontology/haley-ai-question#Ha
 export const TYPE_HALEY_ROW = 'http://vital.ai/ontology/haley-ai-question#HaleyRow';
 export const TYPE_HALEY_QUESTION = 'http://vital.ai/ontology/haley-ai-question#HaleyQuestion';
 export const TYPE_HALEY_ANSWER = 'http://vital.ai/ontology/haley-ai-question#HaleyAnswer';
+export const TYPE_HALEY_GROUP = 'http://vital.ai/ontology/haley-ai-question#HaleyGroup';
 export const TYPE_HALEY_GROUP_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#HaleyGroupInstance';
 export const TYPE_HALEY_SECTION_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#HaleySectionInstance';
 export const TYPE_HALEY_ROW_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#HaleyRowInstance';
@@ -28,6 +29,8 @@ export const SHORT_NAME_HALEY_ANSWER_TYPE = 'haleyAnswerType';
 export const SHORT_NAME_HALEY_ROW_TYPE_URI = 'haleyRowTypeURI';
 export const SHORT_NAME_HALEY_ANSWER_DATA_TYPE = 'haleyAnswerDataType';
 export const SHORT_NAME_HALEY_ANSWER = 'haleyAnswer';
+export const SHORT_NAME_EDGE_SOURCE = 'edgeSource';
+export const SHORT_NAME_EDGE_DESTINATION = 'edgeDestination';
 
 
 export const EDGE_GROUP_INSTANCE = "http://vital.ai/ontology/haley-ai-question#Edge_hasGroupInstance";

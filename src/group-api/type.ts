@@ -34,3 +34,8 @@ export interface Logger {
     info: any;
     error: any;
 }
+
+export interface CreateInstancesResult {
+    createdInstances: GraphObject[],
+    qaObjectsLeft: GraphObject[],
+}

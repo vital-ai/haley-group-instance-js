@@ -1,4 +1,5 @@
-import { VitalJs, GraphObject, MsgRL, SetValueProp, GetValueProp, Logger } from './type';
+import { VitalJs, GraphObject, MsgRL, SetValueProp, GetValueProp, Logger, CreateInstancesResult } from './type';
+import { TYPE_HALEY_GROUP, SHORT_NAME_EDGE_SOURCE, EDGE_SECTION, TYPE_HALEY_SECTION, SHORT_NAME_EDGE_DESTINATION } from '../util/constant';
 import {
     TYPE_HALEY_ANSWER,
     TYPE_HALEY_ANSWER_INSTANCE,
@@ -15,7 +16,8 @@ import {
     TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE,
     TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE,
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
-} from './constant';
+} from '../util/constant';
+import { SectionAPI } from '../section-api/section-api';
 export class GroupAPI {
 
     static logger: Logger;
@@ -69,6 +71,46 @@ export class GroupAPI {
         GroupAPI.setAnswerValue(answerInstance, answer, value);
 
         return answerInstance;
+    }
+
+    static createQaInstanceObjects(qaObjects: GraphObject[]): CreateInstancesResult {
+        let createQaInstances: GraphObject[] = [];
+
+        const groups = qaObjects.filter(obj => obj.type === TYPE_HALEY_GROUP);
+
+        if (groups.length !== 1) {
+            if (groups.length === 0) throw new Error('Passed in qaObjects should includes 1 HaleyGroup object. No detected');
+            throw new Error(`More than on HaleyGroup object detected. Groups URI: ${groups.map(obj => obj.URI)}`);
+        }
+
+        const group = groups[0];
+        const edgeToSections = qaObjects.filter(obj => obj.type === EDGE_SECTION && obj.get(SHORT_NAME_EDGE_SOURCE) === group.URI);
+        const edgeToSectionURIs = edgeToSections.map(obj => obj.URI);
+        const sectionURIs = edgeToSections.map(edge => edge.get(SHORT_NAME_EDGE_DESTINATION));
+        const allSections = qaObjects.filter(obj => obj.type === TYPE_HALEY_SECTION);
+        const sections = qaObjects.filter(obj => obj.type === TYPE_HALEY_SECTION && sectionURIs.includes(obj.URI));
+
+        if (edgeToSections.length !== allSections.length) {
+            throw new Error(`Edge to section and section objects do not match. There are ${edgeToSections.length} edges that connected to sectionObject, and there are ${allSections.length} sectionObjects all together. `);
+        }
+
+        if (allSections.length !== sections.length) {
+            throw new Error(`Section object does not match. There are ${allSections.length} section objects and only ${sections.length} of then connected to the group object.`);
+        }
+
+        let qaObjectsLeft: GraphObject[] = qaObjects.filter(obj => obj.URI !== group.URI || edgeToSectionURIs.includes(obj.URI));
+        
+        for (const section of sections) {
+            const { qaObjectsLeft: sectionQaObjectsLeft, createdInstances } : CreateInstancesResult = SectionAPI.createQaInstanceObjects(section, qaObjectsLeft);
+            qaObjectsLeft = sectionQaObjectsLeft;
+        }
+
+
+        return {
+            createdInstances: [],
+            qaObjectsLeft: [],
+        };
+
     }
 
     private static getAnswerAndAnswerInstance(getValueProp: GetValueProp, msgRL: MsgRL) {
@@ -197,6 +239,10 @@ export class GroupAPI {
         }
         return null;
     };
+
+    private static createGroupInstance(group: GraphObject) {
+        
+    }
 
     setValue(setValueProp: SetValueProp) {
         const { value } = setValueProp;
