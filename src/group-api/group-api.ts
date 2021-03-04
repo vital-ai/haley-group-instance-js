@@ -1,5 +1,5 @@
-import { VitalJs, GraphObject, MsgRL, SetValueProp, GetValueProp, Logger, CreateInstancesResult } from './type';
-import { TYPE_HALEY_GROUP, SHORT_NAME_EDGE_SOURCE, EDGE_SECTION, TYPE_HALEY_SECTION, SHORT_NAME_EDGE_DESTINATION } from '../util/constant';
+import { VitalJs, GraphObject, MsgRL, SetValueProp, GetValueProp, Logger, CreateInstancesResult, CreateSectionInstancesResult } from './type';
+import { TYPE_HALEY_GROUP, SHORT_NAME_EDGE_SOURCE, EDGE_SECTION, TYPE_HALEY_SECTION, SHORT_NAME_EDGE_DESTINATION, TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP, EDGE_SECTION_INSTANCE } from '../util/constant';
 import {
     TYPE_HALEY_ANSWER,
     TYPE_HALEY_ANSWER_INSTANCE,
@@ -18,6 +18,8 @@ import {
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
 } from '../util/constant';
 import { SectionAPI } from '../section-api/section-api';
+import { createVitalObject, createEdgeObject } from '../util/util';
+
 export class GroupAPI {
 
     static logger: Logger;
@@ -73,9 +75,10 @@ export class GroupAPI {
         return answerInstance;
     }
 
-    static createQaInstanceObjects(qaObjects: GraphObject[]): CreateInstancesResult {
-        let createQaInstances: GraphObject[] = [];
+    createQaInstanceObjects(qaObjects: GraphObject[]) {
+        let createdQaInstances: GraphObject[] = [];
 
+        // 1 get group and create groupInstance.
         const groups = qaObjects.filter(obj => obj.type === TYPE_HALEY_GROUP);
 
         if (groups.length !== 1) {
@@ -84,6 +87,9 @@ export class GroupAPI {
         }
 
         const group = groups[0];
+        const groupInstance = this.createGroupInstance(group);
+        createdQaInstances = [groupInstance, ...createdQaInstances];
+
         const edgeToSections = qaObjects.filter(obj => obj.type === EDGE_SECTION && obj.get(SHORT_NAME_EDGE_SOURCE) === group.URI);
         const edgeToSectionURIs = edgeToSections.map(obj => obj.URI);
         const sectionURIs = edgeToSections.map(edge => edge.get(SHORT_NAME_EDGE_DESTINATION));
@@ -101,15 +107,19 @@ export class GroupAPI {
         let qaObjectsLeft: GraphObject[] = qaObjects.filter(obj => obj.URI !== group.URI || edgeToSectionURIs.includes(obj.URI));
         
         for (const section of sections) {
-            const { qaObjectsLeft: sectionQaObjectsLeft, createdInstances } : CreateInstancesResult = SectionAPI.createQaInstanceObjects(section, qaObjectsLeft);
+            const { qaObjectsLeft: sectionQaObjectsLeft, createdInstances, sectionInstance } :  CreateSectionInstancesResult = SectionAPI.createQaInstanceObjects(this.vitaljs, section, qaObjectsLeft);
             qaObjectsLeft = sectionQaObjectsLeft;
+
+            const edgeToSectionInstance = createEdgeObject(this.vitaljs, EDGE_SECTION_INSTANCE, groupInstance, sectionInstance);
+
+            createdQaInstances = [...createdQaInstances, edgeToSectionInstance, ...createdInstances];
         }
 
+        if (qaObjectsLeft.length !== 0) {
+            throw new Error(`Some additional objects exist that are not in the qa-tree. Redundant objects: ${qaObjectsLeft.map(obj => obj.URI)}`);
+        }
 
-        return {
-            createdInstances: [],
-            qaObjectsLeft: [],
-        };
+        return createdQaInstances;
 
     }
 
@@ -240,8 +250,10 @@ export class GroupAPI {
         return null;
     };
 
-    private static createGroupInstance(group: GraphObject) {
-        
+    private createGroupInstance(group: GraphObject) {
+        const obj = createVitalObject(this.vitaljs, TYPE_HALEY_GROUP_INSTANCE);
+        obj.set(SHORT_NAME_HALEY_GROUP, group.URI);
+        return obj;
     }
 
     setValue(setValueProp: SetValueProp) {

@@ -1,5 +1,5 @@
 export interface VitalJs {
-    graphObject: (obj: any) => void;
+    graphObject: (obj: any) => GraphObject;
     isSubclassOf: (childClass: string, parentClass: string) => boolean;
     resultList: () => MsgRL;
 }
@@ -38,4 +38,16 @@ export interface Logger {
 export interface CreateInstancesResult {
     createdInstances: GraphObject[],
     qaObjectsLeft: GraphObject[],
+}
+
+export interface CreateSectionInstancesResult extends CreateInstancesResult {
+    sectionInstance: GraphObject,
+}
+
+export interface CreateQuestionInstancesResult extends CreateInstancesResult {
+    questionInstance: GraphObject,
+}
+
+export interface CreateRowInstancesResult extends CreateInstancesResult {
+    rowInstance: GraphObject,
 }

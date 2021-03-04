@@ -28,9 +28,15 @@ export const TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE = 'http://vital.ai/ontolo
 export const SHORT_NAME_HALEY_ANSWER_TYPE = 'haleyAnswerType';
 export const SHORT_NAME_HALEY_ROW_TYPE_URI = 'haleyRowTypeURI';
 export const SHORT_NAME_HALEY_ANSWER_DATA_TYPE = 'haleyAnswerDataType';
-export const SHORT_NAME_HALEY_ANSWER = 'haleyAnswer';
 export const SHORT_NAME_EDGE_SOURCE = 'edgeSource';
 export const SHORT_NAME_EDGE_DESTINATION = 'edgeDestination';
+
+
+// GroupInstance
+export const SHORT_NAME_HALEY_GROUP = 'haleyGroup';
+export const SHORT_NAME_HALEY_ROW = 'haleyRow';
+export const SHORT_NAME_HALEY_QUESTION = 'haleyQuestion';
+export const SHORT_NAME_HALEY_ANSWER = 'haleyAnswer';
 
 
 export const EDGE_GROUP_INSTANCE = "http://vital.ai/ontology/haley-ai-question#Edge_hasGroupInstance";
