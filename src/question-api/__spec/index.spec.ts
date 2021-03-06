@@ -33,7 +33,7 @@ import {
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
 } from '../../util/constant';
 
-const { vitaljs } = require('../../../vitalservice/haley');
+const { vitaljs } = require('../../../test-util');
 
 describe('QuestionAPI', () => {
 

@@ -2,7 +2,7 @@ import { GroupAPI } from '../group-api';
 import { GraphObject } from '../../util/type';
 import { data } from './mock.data';
 
-const { vitaljs } = require('../../../vitalservice/haley');
+const { vitaljs } = require('../../../test-util');
 
 describe('GroupAPI', () => {
 
