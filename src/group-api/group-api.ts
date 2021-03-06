@@ -1,4 +1,4 @@
-import { VitalJs, GraphObject, MsgRL, SetValueProp, GetValueProp, Logger, CreateInstancesResult, CreateSectionInstancesResult } from './type';
+import { VitalJs, GraphObject, MsgRL, SetValueProp, GetValueProp, Logger, CreateInstancesResult, CreateSectionInstancesResult } from '../util/type';
 import { TYPE_HALEY_GROUP, SHORT_NAME_EDGE_SOURCE, EDGE_SECTION, TYPE_HALEY_SECTION, SHORT_NAME_EDGE_DESTINATION, TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP, EDGE_SECTION_INSTANCE } from '../util/constant';
 import {
     TYPE_HALEY_ANSWER,

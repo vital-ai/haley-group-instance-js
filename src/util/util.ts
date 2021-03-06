@@ -1,4 +1,4 @@
-import { VitalJs, GraphObject } from '../group-api/type';
+import { VitalJs, GraphObject } from './type';
 import { SHORT_NAME_EDGE_SOURCE, SHORT_NAME_EDGE_DESTINATION } from './constant';
 
 /**
@@ -29,11 +29,11 @@ export const createEdgeObject = function(vitaljs: VitalJs, type: string, source?
     const edge = createVitalObject(vitaljs, type);
 
     if (source) {
-        edge.set(SHORT_NAME_EDGE_SOURCE, source.URI);
+        edge.set(SHORT_NAME_EDGE_SOURCE, source?.URI || null);
     }
 
     if (destination) {
-        edge.set(SHORT_NAME_EDGE_DESTINATION, source.URI);
+        edge.set(SHORT_NAME_EDGE_DESTINATION, destination?.URI || null);
     }
 
     return edge;

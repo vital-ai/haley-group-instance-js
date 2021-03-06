@@ -1,4 +1,4 @@
-import { GraphObject, CreateSectionInstancesResult, VitalJs } from '../group-api/type';
+import { GraphObject, CreateSectionInstancesResult, VitalJs } from '../util/type';
 import { QuestionAPI } from '../question-api/index';
 import { RowAPI } from '../row-api/index';
 import { EDGE_ROW,

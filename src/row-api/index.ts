@@ -1,4 +1,4 @@
-import { GraphObject, CreateRowInstancesResult, VitalJs } from '../group-api/type';
+import { GraphObject, CreateRowInstancesResult, VitalJs } from '../util/type';
 import { QuestionAPI } from '../question-api/index';
 import { EDGE_ROW,
     SHORT_NAME_EDGE_DESTINATION,
@@ -15,7 +15,7 @@ import { createEdgeObject, createVitalObject } from '../util/util';
 
 export class RowAPI {
 
-    static readonly maxLevel: number = 2;
+    private static maxLevel: number = 2;
 
     static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], level: number = 1):  CreateRowInstancesResult {
 

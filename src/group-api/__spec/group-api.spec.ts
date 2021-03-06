@@ -1,5 +1,5 @@
 import { GroupAPI } from '../group-api';
-import { GraphObject } from '../type';
+import { GraphObject } from '../../util/type';
 import { data } from './mock.data';
 
 const { vitaljs } = require('../../../vitalservice/haley');
