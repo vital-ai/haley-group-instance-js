@@ -2,7 +2,6 @@ global.VITAL_JSON_SCHEMAS = [];
 			
 global.VITAL_LOGGING = true;
 
-// global.tv4 = require('./vitalservice/haley/lib-vital/vitalservice-js/tv4.min.js');
 global.tv4 = require('@vital-ai/haley/lib-vital/vitalservice-js/tv4.min.js');
 
 global.LRUCache = require('@vital-ai/haley/lib-vital/vitalservice-js/lru.js').LRUCache;

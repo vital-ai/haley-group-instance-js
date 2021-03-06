@@ -4,12 +4,11 @@ import { RowAPI } from '../row-api/index';
 import { EDGE_ROW,
     SHORT_NAME_EDGE_DESTINATION,
     SHORT_NAME_EDGE_SOURCE,
-    SHORT_NAME_HALEY_ROW,
-    TYPE_HALEY_ROW_INSTANCE,
     EDGE_QUESTION,
-    TYPE_HALEY_QUESTION,
     EDGE_QUESTION_INSTANCE,
-    TYPE_HALEY_ROW
+    EDGE_ROW_INSTANCE,
+    TYPE_HALEY_SECTION_INSTANCE,
+    SHORT_NAME_HALEY_SECTION
 } from '../util/constant';
 import { createEdgeObject, createVitalObject } from '../util/util';
 
@@ -24,10 +23,21 @@ export class SectionAPI {
 
         const edgeToQuestions = qaObjects.filter(obj => obj.type === EDGE_QUESTION && obj.get(SHORT_NAME_EDGE_SOURCE) === section.URI);
         const edgeToQuestionURIs = edgeToQuestions.map(obj => obj.URI);
-        const questionURIs = edgeToQuestions.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const questions = qaObjects.filter(obj => obj.type === TYPE_HALEY_QUESTION && questionURIs.includes(obj.URI));
 
-        let qaObjectsLeft: GraphObject[] = qaObjects.filter(obj => obj.URI !== section.URI || edgeToQuestionURIs.includes(obj.URI));
+        const questions = edgeToQuestions.map(edge => {
+            const findQuestions = qaObjects.filter(obj => obj.URI === edge.get(SHORT_NAME_EDGE_DESTINATION));
+            if (!findQuestions.length) {
+                throw new Error(`Could not find the question object connected to edge ${edge.URI}, questionURI: ${edge.get(SHORT_NAME_EDGE_DESTINATION)}`);
+            }
+
+            if (findQuestions.length > 1) {
+                throw new Error(`Multiple question objects connected to edge ${edge.URI}}`);
+            }
+
+            return findQuestions[0];
+        });
+
+        let qaObjectsLeft: GraphObject[] = qaObjects.filter(obj => obj.URI !== section.URI && !edgeToQuestionURIs.includes(obj.URI));
 
         for (const question of questions) {
             const { qaObjectsLeft: questionQaObjectsLeft, createdInstances, questionInstance } = QuestionAPI.createQaInstanceObjects(vitaljs, question, qaObjectsLeft);
@@ -38,15 +48,25 @@ export class SectionAPI {
 
         const edgeToRows = qaObjects.filter(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_SOURCE) === section.URI);
         const edgeToRowURIs = edgeToRows.map(obj => obj.URI);
-        const rowURIs = edgeToRows.map(edge => edge.get(SHORT_NAME_EDGE_DESTINATION));
-        const rows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && rowURIs.includes(obj.URI));
 
-        qaObjectsLeft = qaObjectsLeft.filter(obj => edgeToRowURIs.includes(obj.URI));
+        const rows = edgeToRows.map(edge => {
+            const rowURI = edge.get(SHORT_NAME_EDGE_DESTINATION);
+            const findRows = qaObjects.filter(obj => obj.URI === rowURI);
+            if (!findRows.length) {
+                throw new Error(`Could not find the row object connected to edge ${edge.URI}, rowURI ${rowURI}`);
+            }
+            if (findRows.length > 1) {
+                throw new Error(`Multiple row objects connected to edge ${edge.URI}}`);
+            }
+            return findRows[0];
+        });
+
+        qaObjectsLeft = qaObjectsLeft.filter(obj => !edgeToRowURIs.includes(obj.URI));
 
         for (const row of rows) {
             const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, 1);
             qaObjectsLeft = rowQaObjectsLeft;
-            const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_QUESTION_INSTANCE, sectionInstance, rowInstance);
+            const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
             createdQaInstances = [...createdQaInstances, edgeToRowInstance, ...createdInstances];
         }
 
@@ -57,11 +77,9 @@ export class SectionAPI {
         };
     }
 
-    static createSectionInstance(vitaljs: VitalJs, group: GraphObject) {
-        const obj = createVitalObject(vitaljs, TYPE_HALEY_ROW_INSTANCE);
-        obj.set(SHORT_NAME_HALEY_ROW, group.URI);
+    static createSectionInstance(vitaljs: VitalJs, section: GraphObject) {
+        const obj = createVitalObject(vitaljs, TYPE_HALEY_SECTION_INSTANCE);
+        obj.set(SHORT_NAME_HALEY_SECTION, section.URI);
         return obj;
     }
-
-
 }

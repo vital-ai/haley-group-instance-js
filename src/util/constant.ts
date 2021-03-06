@@ -57,13 +57,12 @@ export const SHORT_NAME_HALEY_ANSWER_DATA_TYPE = 'haleyAnswerDataType';
 export const SHORT_NAME_EDGE_SOURCE = 'edgeSource';
 export const SHORT_NAME_EDGE_DESTINATION = 'edgeDestination';
 
-
 // GroupInstance
 export const SHORT_NAME_HALEY_GROUP = 'haleyGroup';
 export const SHORT_NAME_HALEY_ROW = 'haleyRow';
 export const SHORT_NAME_HALEY_QUESTION = 'haleyQuestion';
 export const SHORT_NAME_HALEY_ANSWER = 'haleyAnswer';
-
+export const SHORT_NAME_HALEY_SECTION = 'haleySection';
 
 export const EDGE_GROUP_INSTANCE = "http://vital.ai/ontology/haley-ai-question#Edge_hasGroupInstance";
 export const EDGE_SECTION = 'http://vital.ai/ontology/haley-ai-question#Edge_hasSection';
