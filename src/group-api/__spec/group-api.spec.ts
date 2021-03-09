@@ -1,6 +1,38 @@
 import { GroupAPI } from '../group-api';
 import { GraphObject } from '../../util/type';
-import { data } from './mock.data';
+import { data,
+    dataTestGroup,
+    dataTestGroupMissingSection,
+    firstLevelAnswer1,
+    firstLevelQuestion1,
+    group1,
+    rootAnswer1,
+    rootQuestion1,
+    rootRow,
+    rootSection1,
+    secondLevelAnswer1,
+    secondLevelQuestion1,
+    secondLevelRow
+} from './mock.data';
+import {
+    SHORT_NAME_HALEY_SECTION,
+    TYPE_HALEY_SECTION_INSTANCE,
+    EDGE_QUESTION_INSTANCE,
+    SHORT_NAME_EDGE_SOURCE,
+    TYPE_HALEY_QUESTION_INSTANCE,
+    SHORT_NAME_EDGE_DESTINATION,
+    SHORT_NAME_HALEY_QUESTION,
+    EDGE_ANSWER_INSTANCE,
+    TYPE_HALEY_TEXT_ANSWER_INSTANCE,
+    SHORT_NAME_HALEY_ANSWER,
+    EDGE_ROW_INSTANCE,
+    TYPE_HALEY_ROW_INSTANCE,
+    SHORT_NAME_HALEY_ROW,
+    TYPE_HALEY_GROUP,
+    TYPE_HALEY_GROUP_INSTANCE,
+    SHORT_NAME_HALEY_GROUP,
+    EDGE_SECTION_INSTANCE
+} from '../../util/constant';
 
 const { vitaljs } = require('../../../test-util');
 
@@ -9,6 +41,7 @@ describe('GroupAPI', () => {
     let qaObjects: GraphObject[] = [];
     let qaInstanceObjects: GraphObject[] = [];
     let answerType = '';
+    let groupAPI: GroupAPI = null;
 
     describe('Throw error if vitaljs is not initialized', () => {
         it('Should throw error if vitaljs is not initialized if getValueByAnswerType called', () => {
@@ -37,7 +70,7 @@ describe('GroupAPI', () => {
             error: console.error,
         };
         beforeAll(() => {
-            new GroupAPI(vitaljs);
+           groupAPI = new GroupAPI(vitaljs);
         });
 
         it('Should get the value', () => {
@@ -48,6 +81,94 @@ describe('GroupAPI', () => {
             GroupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaa@bbbb.com');
             expect(GroupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType)).toEqual('aaaa@bbbb.com');
         });
+    });
+
+    describe('createQaInstanceObjects', () => {
+
+        it('Should throw error if no section found to connected to the edge_hasHaleySection', () => {
+            dataTestGroupMissingSection.forEach(obj => vitaljs.graphObject(obj));
+             const group = dataTestGroupMissingSection.find(obj => obj.type === TYPE_HALEY_GROUP) as any as GraphObject;
+             try {
+                 groupAPI.createQaInstanceObjects(dataTestGroupMissingSection as any as GraphObject[]);
+                 expect(true).toBe(false);
+             } catch(error) {
+                 expect(error.message).toEqual('Could not find the section object connected to edge http://vital.ai/haley.ai/harbor-saas/Edge_hasSection/1597780220321_049580345, sectionURI: http://vital.ai/haley.ai/harbor-saas/HaleySection/Applicant-Info-ContactInfo');
+             }
+         });
+ 
+         it('Should create instance objects', () => {
+            dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
+  
+            const createdInstances = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
+            expect(createdInstances.length).toBe(19);
+
+            const groupInstance = createdInstances.find(obj => obj.type === TYPE_HALEY_GROUP_INSTANCE);
+            expect(groupInstance.get(SHORT_NAME_HALEY_GROUP)).toEqual(group1.URI);
+            const edgeToSectionInstances = createdInstances.filter(obj => obj.type === EDGE_SECTION_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === groupInstance.URI);
+            expect(edgeToSectionInstances.length).toBe(1);
+
+            const sectionInstances = createdInstances.filter(obj => obj.type === TYPE_HALEY_SECTION_INSTANCE && edgeToSectionInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === obj.URI);
+            expect(sectionInstances.length).toBe(1);
+            expect(sectionInstances[0].get(SHORT_NAME_HALEY_SECTION)).toBe(rootSection1.URI);
+
+            const sectionLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === sectionInstances[0].URI);
+            expect(sectionLevelEdgeToQuestions.length).toBe(1);
+
+            const sectionLevelQuestionInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_QUESTION_INSTANCE && sectionLevelEdgeToQuestions[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(sectionLevelQuestionInstances.length).toBe(1);
+            expect(sectionLevelQuestionInstances[0].get(SHORT_NAME_HALEY_QUESTION)).toBe(rootQuestion1.URI);
+
+            const sectionLevelEdgeToAnswerInstances = createdInstances.filter(ins => ins.type === EDGE_ANSWER_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === sectionLevelQuestionInstances[0].URI);
+            expect(sectionLevelEdgeToAnswerInstances.length).toBe(1);
+
+            const sectionLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && sectionLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(sectionLevelAnswerInstances.length).toBe(1);
+            expect(sectionLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(rootAnswer1.URI);
+
+            const edgeSectionInstanceToRowInstances = createdInstances.filter(ins => ins.type === EDGE_ROW_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === sectionInstances[0].URI);
+            expect(edgeSectionInstanceToRowInstances.length).toBe(1);
+
+            const rowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && edgeSectionInstanceToRowInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(rowInstances.length).toBe(1);
+            expect(rowInstances[0].get(SHORT_NAME_HALEY_ROW)).toBe(rootRow.URI); 
+            const rowInstance = rowInstances[0];
+
+            const firstLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+            expect(firstLevelEdgeToQuestions.length).toBe(1);
+
+            const firstLevelQuestionInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_QUESTION_INSTANCE && firstLevelEdgeToQuestions[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(firstLevelQuestionInstances.length).toBe(1);
+            expect(firstLevelQuestionInstances[0].get(SHORT_NAME_HALEY_QUESTION)).toBe(firstLevelQuestion1.URI);
+
+            const firstLevelEdgeToAnswerInstances = createdInstances.filter(ins => ins.type === EDGE_ANSWER_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === firstLevelQuestionInstances[0].URI);
+            expect(firstLevelEdgeToAnswerInstances.length).toBe(1);
+
+            const firstLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && firstLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(firstLevelAnswerInstances.length).toBe(1);
+            expect(firstLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(firstLevelAnswer1.URI);
+
+            const edgeToSecondLevelRowInstances = createdInstances.filter(edge => edge.type === EDGE_ROW_INSTANCE && edge.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+            expect(edgeToSecondLevelRowInstances.length).toBe(1);
+
+            const secondLevelRowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && edgeToSecondLevelRowInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelRowInstances.length).toBe(1);
+            expect(secondLevelRowInstances[0].get(SHORT_NAME_HALEY_ROW)).toBe(secondLevelRow.URI);
+
+            const secondLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === secondLevelRowInstances[0].URI);
+            expect(secondLevelEdgeToQuestions.length).toBe(1);
+
+            const secondLevelQuestionInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_QUESTION_INSTANCE && secondLevelEdgeToQuestions[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelQuestionInstances.length).toBe(1);
+            expect(secondLevelQuestionInstances[0].get(SHORT_NAME_HALEY_QUESTION)).toBe(secondLevelQuestion1.URI);
+
+            const secondLevelEdgeToAnswerInstances = createdInstances.filter(ins => ins.type === EDGE_ANSWER_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === secondLevelQuestionInstances[0].URI);
+            expect(secondLevelEdgeToAnswerInstances.length).toBe(1);
+
+            const secondLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && secondLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelAnswerInstances.length).toBe(1);
+            expect(secondLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(secondLevelAnswer1.URI);
+ 
+         });
     });
     
 });

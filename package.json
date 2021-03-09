@@ -1,6 +1,6 @@
 {
   "name": "@vital-ai/haley-group-instance",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "dependencies": {
     "@vital-ai/haley": "0.0.7",
