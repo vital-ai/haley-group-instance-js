@@ -16,6 +16,12 @@ use command: **npm run build**
 use command: **npm publish**
 
 
+## install
+```js
+    npm install @vital-ai/haley-group-instance
+```
+
+
 ## GroupAPI
 ```js
     // creating instances objects
