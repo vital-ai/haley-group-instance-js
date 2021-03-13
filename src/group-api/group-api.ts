@@ -1,4 +1,5 @@
-import { VitalJs,
+import {
+    VitalJs,
     GraphObject,
     MsgRL,
     SetValueProp,
@@ -30,17 +31,9 @@ import {
     TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE,
     TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE,
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
-    TYPE_HALEY_ROW,
-    SHORT_NAME_HALEY_ROW_TYPE_URI,
-    EDGE_ANSWER,
-    TYPE_HALEY_ROW_INSTANCE,
-    SHORT_NAME_HALEY_ROW,
-    SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
-    EDGE_ANSWER_INSTANCE,
-    EDGE_QUESTION,
-    EDGE_QUESTION_INSTANCE
 } from '../util/constant';
 import { SectionAPI } from '../section-api/section-api';
+import { RowAPI } from '../row-api/index';
 import {
     createVitalObject,
     createEdgeObject
@@ -237,12 +230,12 @@ export class GroupAPI {
     }
 
     getValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
-        const [answer, answerInstance] =  this.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType);
+        const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType);
         return GroupAPI.getAnswerValue(answerInstance, answer);
     }
 
     setValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string, value: any) {
-        const [answer, answerInstance] =  this.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType);
+        const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType);
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
     }
 
@@ -347,67 +340,6 @@ export class GroupAPI {
         const obj = createVitalObject(this.vitaljs, TYPE_HALEY_GROUP_INSTANCE);
         obj.set(SHORT_NAME_HALEY_GROUP, group.URI);
         return obj;
-    }
-
-    private getAnswerPairByAnswerTypeInsideRow(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
-        // 1 get row based on rowType
-        const rows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType);
-
-        if (!rows.length) {
-            throw new Error(`No row found with rowType: ${rowType}`);
-        }
-
-        if (rows.length !== 1) {
-            throw new Error(`Multiple rows found with rowType: ${rowType}; row uris: ${rows.map(obj => obj.URI)}`);
-        }
-
-        const row = rows[0];
-
-        // 2 get answerObject based on answerType and row;
-        const edgeFromRowToQuestions = qaObjects.filter(obj => obj.type === EDGE_QUESTION && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
-        const questionURIs: string[] = edgeFromRowToQuestions.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const edgeFromRowToAnswers = qaObjects.filter(obj => obj.type === EDGE_ANSWER && questionURIs.includes(obj.get(SHORT_NAME_EDGE_SOURCE)));
-        const answerURIs: string[] = edgeFromRowToAnswers.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const answers = qaObjects.filter(obj => answerURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ANSWER_TYPE) === answerType);
-
-        if (!answers.length) {
-            throw new Error(`No answer object found with answerType: ${rowType} under rowType: ${rowType}. Any of the following could be missing: edgeFromRowToQuestionObject, EdgeFromQuestionToAnswer, AnswerObject.`);
-        }
-
-        if (answers.length !== 1) {
-            throw new Error(`Multiple answers found with answerType: ${rowType}; answer uris: ${answers.map(obj => obj.URI)}`);
-        }
-        const answer = answers[0];
-
-        // 3 get rowInstance based on rowInstanceCounter
-        const rowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === row.URI && obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter);
-        if (!rowInstances.length) {
-            throw new Error(`No rowInstance found to connect row ${row.URI} with counter: ${rowInstanceCounter}`);
-        }
-
-        if (rowInstances.length !== 1) {
-            throw new Error(`Multiple rowInstances found to connect row ${row.URI}; rowInstances uris: ${rowInstances.map(obj => obj.URI)}`);
-        }
-        const rowInstance = rowInstances[0];
-
-        // 4 get answerInstance based on answerObject and rowInstance
-        const edgeFromRowToQuestionInstances = qaInstanceObjects.filter(obj => obj.type === EDGE_QUESTION_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
-        const questionInstanceURIs: string[] = edgeFromRowToQuestionInstances.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const edgeToAnswerInstances = qaInstanceObjects.filter(obj => obj.type === EDGE_ANSWER_INSTANCE && questionInstanceURIs.includes(obj.get(SHORT_NAME_EDGE_SOURCE) ?? ''));
-        const answerInstanceURIs: string[] = edgeToAnswerInstances.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const answerInstances = qaInstanceObjects.filter(obj => answerInstanceURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ANSWER) === answer.URI);
-
-        if (!answerInstances.length) {
-            throw new Error(`No matched answerInstance object found`);
-        }
-
-        if (answerInstances.length !== 1) {
-            throw new Error(`Multiple matched answerInstances found. answerInstance uris: ${answerInstances.map(obj => obj.URI)}`);
-        }
-
-        const answerInstance = answerInstances[0];
-
-        return [answer, answerInstance];
     }
 
 }
