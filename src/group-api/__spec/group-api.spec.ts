@@ -1,20 +1,26 @@
 import { GroupAPI } from '../group-api';
 import { GraphObject } from '../../util/type';
-import { data,
+import {
+    data,
     dataTestGroup,
     dataTestGroupMissingSection,
-    firstLevelAnswer1,
-    firstLevelQuestion1,
     group1,
-    rootAnswer1,
-    rootQuestion1,
-    rootRow,
+    edgeGroupToSection,
     rootSection1,
-    secondLevelAnswer1,
+    rootQuestion1,
+    rootAnswer1,
+    edgeRootSectionToRow1,
+    rootRow,
+    edgeRootRowToQuestion1,
+    firstLevelQuestion1,
+    edgeFirstLevelQuestionToAnswer1,
+    firstLevelAnswer1,
+    secondLevelRow,
     secondLevelQuestion1,
-    secondLevelRow
+    secondLevelAnswer1,
 } from './mock.data';
 import {
+    SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
     SHORT_NAME_HALEY_SECTION,
     TYPE_HALEY_SECTION_INSTANCE,
     EDGE_QUESTION_INSTANCE,
@@ -31,7 +37,10 @@ import {
     TYPE_HALEY_GROUP,
     TYPE_HALEY_GROUP_INSTANCE,
     SHORT_NAME_HALEY_GROUP,
-    EDGE_SECTION_INSTANCE
+    EDGE_SECTION_INSTANCE,
+    SHORT_NAME_TEXT_ANSWER_VALUE,
+    TYPE_HALEY_ROW,
+    SHORT_NAME_HALEY_ROW_TYPE_URI
 } from '../../util/constant';
 
 const { vitaljs } = require('../../../test-util');
@@ -169,6 +178,152 @@ describe('GroupAPI', () => {
             expect(secondLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(secondLevelAnswer1.URI);
  
          });
+    });
+
+
+    describe('getValueByAnswerTypeInsideRow', () => {
+
+        let qaInstanceObjects: GraphObject[];
+        let groupAPI: GroupAPI;
+        const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+        const answerType = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryPhoneNumber";
+        const answerTypeInRow = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress"
+        const rowInstanceCounter = '1';
+
+        beforeAll(() => {
+            groupAPI = new GroupAPI(vitaljs);
+            dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
+         });
+
+         beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '1');
+         });
+
+        it.each([
+            [[group1, edgeGroupToSection, rootSection1, rootRow] as any as GraphObject[]],
+            [[group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1] as any as GraphObject[]],
+        ])('Should throw error if no row found with specific rowType', (qaObjects) => {
+            try {
+                qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerType);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('No row found with rowType: http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy');
+            }
+        });
+
+        it('Should throw error if multiple rows found with specific rowType', () => {
+            const qaObjects = [group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1, rootRow, rootRow] as any as GraphObject[];
+            
+            qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+            const rows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW);
+            rows.forEach(obj => obj.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI));
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerType);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('Multiple rows found with rowType: http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy; row uris: http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row,http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            }
+        });
+
+        it.each([
+            ['missing EdgeFromRowToQuestion', [group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1, rootRow, firstLevelQuestion1, edgeFirstLevelQuestionToAnswer1, firstLevelAnswer1] as any as GraphObject[]],
+            ['missing EdgeFromQuestionToAnswer', [group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1, rootRow, edgeRootRowToQuestion1, firstLevelQuestion1, firstLevelAnswer1] as any as GraphObject[]],
+            ['missing Answer', [group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1, rootRow, edgeRootRowToQuestion1, firstLevelQuestion1, edgeFirstLevelQuestionToAnswer1] as any as GraphObject[]],
+        ])('Should throw error if no answers found with specific answerType under one row: %s', (s, qaObjects) => {
+            try {
+                qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('No answer object found with answerType: http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy under rowType: http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy. Any of the following could be missing: edgeFromRowToQuestionObject, EdgeFromQuestionToAnswer, AnswerObject.');
+            }
+        });
+
+        it('Should throw error if multiple answers found with specific answerType under one row', () => {
+            const qaObjects = [group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1, rootRow, edgeRootRowToQuestion1, firstLevelQuestion1, edgeFirstLevelQuestionToAnswer1, firstLevelAnswer1, firstLevelAnswer1] as any as GraphObject[]
+            
+            qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('Multiple answers found with answerType: http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy; answer uris: http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_957219741,http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_957219741');
+            }
+        });
+
+        it('Should throw error if no rowInstance found with the provided criteria: For no rowInstance', () => {
+            qaInstanceObjects = qaInstanceObjects.filter(obj => obj.type !== TYPE_HALEY_ROW_INSTANCE);
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('No rowInstance found to connect row http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row with counter: 1');
+            }
+        });
+
+        it('Should throw error if no rowInstance found with the provided criteria: for rowInstanceCounter', () => {
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE);
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '2');
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('No rowInstance found to connect row http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row with counter: 1');
+            }
+        });
+
+        it('Should throw error if multiple rowInstances found with the provided criteria', () => {
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '1');
+            qaInstanceObjects.push(rowInstance);
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual(expect.stringContaining('Multiple rowInstances found to connect row http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row;'));
+            }
+        });
+
+        it('Should throw error if no answerInstance found with the provided criteria', () => {
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === 'http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_957219741');
+            qaInstanceObjects = qaInstanceObjects.filter(obj => obj.URI !== answerInstance.URI);
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('No matched answerInstance object found');
+            }
+        });
+
+        it('Should throw error if multiple answerInstances found with the provided criteria', () => {
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === 'http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_957219741');
+            qaInstanceObjects.push(answerInstance);
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            try {
+                const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual(expect.stringContaining('Multiple matched answerInstances found. answerInstance uris:'));
+            }
+        });
+
+        it('Should set / get the value', () => {
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            expect(value).toBe('666-666-66666');
+            groupAPI.setValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow, '999-999-9999');
+            const valueReset = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            expect(valueReset).toEqual('999-999-9999');
+        });
     });
     
 });

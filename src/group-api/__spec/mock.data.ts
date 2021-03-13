@@ -1,3 +1,5 @@
+import { GraphObject } from "../../util/type";
+
 export const data =  [
     {
       "type": "http://vital.ai/ontology/vital-aimp#MetaQLResultsMessage",
@@ -2693,6 +2695,7 @@ export const rootRow = {
     "http://vital.ai/ontology/haley-ai-question#HaleyRow"
   ],
   "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row",
+  "http://vital.ai/ontology/harbor-ai#hasHaleyRowTypeURI": "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy"
 };
 export const edgeRootRowToQuestion1 = {
   "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasQuestion",
@@ -2817,7 +2820,7 @@ export const dataTestGroup = [
   edgeSecondLevelQuestionToAnswer1,
   secondLevelAnswer1,
   redundantObject,
-];
+] as any as GraphObject[];
 
 export const dataTestGroupMissingSection = [
   group1,
