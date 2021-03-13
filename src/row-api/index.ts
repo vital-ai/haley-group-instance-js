@@ -93,7 +93,7 @@ export class RowAPI {
         };
     }
 
-    static getAnswerPairByAnswerTypeInsideRow(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
+    static getRowAndRowInstancePair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string) {
         // 1 get row based on rowType
         const rows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType);
 
@@ -107,22 +107,6 @@ export class RowAPI {
 
         const row = rows[0];
 
-        // 2 get answerObject based on answerType and row;
-        const edgeFromRowToQuestions = qaObjects.filter(obj => obj.type === EDGE_QUESTION && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
-        const questionURIs: string[] = edgeFromRowToQuestions.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const edgeFromRowToAnswers = qaObjects.filter(obj => obj.type === EDGE_ANSWER && questionURIs.includes(obj.get(SHORT_NAME_EDGE_SOURCE)));
-        const answerURIs: string[] = edgeFromRowToAnswers.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
-        const answers = qaObjects.filter(obj => answerURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ANSWER_TYPE) === answerType);
-
-        if (!answers.length) {
-            throw new Error(`No answer object found with answerType: ${rowType} under rowType: ${rowType}. Any of the following could be missing: edgeFromRowToQuestionObject, EdgeFromQuestionToAnswer, AnswerObject.`);
-        }
-
-        if (answers.length !== 1) {
-            throw new Error(`Multiple answers found with answerType: ${rowType}; answer uris: ${answers.map(obj => obj.URI)}`);
-        }
-        const answer = answers[0];
-
         // 3 get rowInstance based on rowInstanceCounter
         const rowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === row.URI && obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter);
         if (!rowInstances.length) {
@@ -133,6 +117,58 @@ export class RowAPI {
             throw new Error(`Multiple rowInstances found to connect row ${row.URI}; rowInstances uris: ${rowInstances.map(obj => obj.URI)}`);
         }
         const rowInstance = rowInstances[0];
+
+        return [row, rowInstance];
+    }
+
+    static getRowPairTypeUnderRowPair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], row: GraphObject, rowInstance: GraphObject, rowRowInstanceCounter: string, rowRowType: string) {
+        const edgeToRows = qaObjects.filter(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
+        const rowRowURIs = edgeToRows.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
+        // 1 get row based on rowRowType
+        const rowRows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && rowRowURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowRowType);
+
+        if (!rowRows.length) {
+            throw new Error(`No row found with rowRowType: ${rowRowType} under row (${row.URI})`);
+        }
+
+        if (rowRows.length !== 1) {
+            throw new Error(`Multiple rowRows found with rowRowType: ${rowRowType}; row uris: ${rowRows.map(obj => obj.URI)}`);
+        }
+
+        const rowRow = rowRows[0];
+
+        // 3 get rowInstance based on rowInstanceCounter
+        const rowRowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rowRow.URI && obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowRowInstanceCounter);
+        if (!rowRowInstances.length) {
+            throw new Error(`No rowInstance found to connect row ${rowRow.URI} with counter: ${rowRowInstanceCounter}`);
+        }
+
+        if (rowRowInstances.length !== 1) {
+            throw new Error(`Multiple rowInstances found to connect row ${rowRow.URI}; rowInstances uris: ${rowRowInstances.map(obj => obj.URI)}`);
+        }
+        const rowRowInstance = rowRowInstances[0];
+
+        return [rowRow, rowRowInstance];
+    }
+
+    static getAnswerPairByAnswerTypeUnderRowPair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], row: GraphObject, rowInstance: GraphObject, answerType: string) {
+        // 2 get answerObject based on answerType and row;
+        const edgeFromRowToQuestions = qaObjects.filter(obj => obj.type === EDGE_QUESTION && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
+        const questionURIs: string[] = edgeFromRowToQuestions.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
+        const edgeFromRowToAnswers = qaObjects.filter(obj => obj.type === EDGE_ANSWER && questionURIs.includes(obj.get(SHORT_NAME_EDGE_SOURCE)));
+        const answerURIs: string[] = edgeFromRowToAnswers.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
+        const answers = qaObjects.filter(obj => answerURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ANSWER_TYPE) === answerType);
+
+        const rowType = row.get(SHORT_NAME_HALEY_ROW_TYPE_URI);
+
+        if (!answers.length) {
+            throw new Error(`No answer object found with answerType: ${rowType} under rowType: ${rowType}. Any of the following could be missing: edgeFromRowToQuestionObject, EdgeFromQuestionToAnswer, AnswerObject.`);
+        }
+
+        if (answers.length !== 1) {
+            throw new Error(`Multiple answers found with answerType: ${rowType}; answer uris: ${answers.map(obj => obj.URI)}`);
+        }
+        const answer = answers[0];
 
         // 4 get answerInstance based on answerObject and rowInstance
         const edgeFromRowToQuestionInstances = qaInstanceObjects.filter(obj => obj.type === EDGE_QUESTION_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
@@ -151,6 +187,25 @@ export class RowAPI {
 
         const answerInstance = answerInstances[0];
 
+        return [answer, answerInstance];
+
+    }
+
+    static getAnswerPairByAnswerTypeInsideRow(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
+        // 1 get row and rowInstance
+        const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
+        const [answer, answerInstance] = RowAPI.getAnswerPairByAnswerTypeUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, answerType);
+        
+        return [answer, answerInstance];
+    }
+
+    // given row counter, row type, row-row counter, row-row-type, and answer type, get value, if any.
+    static getAnswerPairByAnswerTypeInsideRowRow(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string) {
+        // 1 get row and rowInstance
+        const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
+        const [rowRow, rowRowInstance] = RowAPI.getRowPairTypeUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType);
+        const [answer, answerInstance] = RowAPI.getAnswerPairByAnswerTypeUnderRowPair(qaObjects, qaInstanceObjects, rowRow, rowRowInstance, answerType);
+        
         return [answer, answerInstance];
     }
 
