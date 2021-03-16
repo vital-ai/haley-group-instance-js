@@ -239,7 +239,6 @@ export class GroupAPI {
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
     }
 
-
     createQaInstanceObjects(qaObjects: GraphObject[]) {
         let createdQaInstances: GraphObject[] = [];
 

@@ -191,6 +191,56 @@ export const redundantObject = {
   "http://vital.ai/ontology/haley-ai-question#isHiddenQuestion": false,
   "http://vital.ai/ontology/haley-ai-question#hasQuestionText": "Type of contact (accounting, claims, etc.)"
 }
+export const edgeToSecondLevelRow2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasRow",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#Edge_hasRow"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasRow/1597780220324_23029380812",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row-2"
+}
+export const secondLevelRow2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyRow",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyRow"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row-2",
+};
+export const edgeToSecondLevelQuestion2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasQuestion",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#Edge_hasQuestion"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasQuestion/1597780220324_95820834502",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row-2",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/mock-row-row-question-2"
+};
+export const secondLevelQuestion2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyQuestion",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyQuestion"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/mock-row-row-question-2",
+  "http://vital.ai/ontology/haley-ai-question#hasQuestionIdentifier": "row-row-question",
+}
+export const edgeSecondLevelQuestionToAnswer2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220324_923452345232",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/mock-row-row-question-2",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_03523458032"
+};
+export const secondLevelAnswer2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyTextAnswer",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyTextAnswer"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_03523458032",
+  "http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue": false,
+};
 
 export const dataTestRow = [
   rootRow,
@@ -347,5 +397,34 @@ export const dataTestGroup = [
   secondLevelQuestion1,
   edgeSecondLevelQuestionToAnswer1,
   secondLevelAnswer1,
+  redundantObject,
+] as any as GraphObject[];
+
+export const dataTestGroup2 = [
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToAnswer1,
+  rootAnswer1,
+  edgeRootSectionToRow1,
+  rootRow,
+  edgeRootRowToQuestion1,
+  firstLevelQuestion1,
+  edgeFirstLevelQuestionToAnswer1,
+  firstLevelAnswer1,
+  edgeToSecondLevelRow,
+  secondLevelRow,
+  edgeToSecondLevelQuestion,
+  secondLevelQuestion1,
+  edgeSecondLevelQuestionToAnswer1,
+  secondLevelAnswer1,
+  edgeToSecondLevelRow2,
+  secondLevelRow2,
+  edgeToSecondLevelQuestion2,
+  secondLevelQuestion2,
+  edgeSecondLevelQuestionToAnswer2,
+  secondLevelAnswer2,
   redundantObject,
 ] as any as GraphObject[];

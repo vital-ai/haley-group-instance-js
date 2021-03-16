@@ -18,7 +18,6 @@ import { EDGE_ROW,
 } from '../util/constant';
 import { createEdgeObject, createVitalObject } from '../util/util';
 
-
 export class RowAPI {
 
     // 1 means row will not have another connected to it, 2 means it will handle row->row case, 3 means row->row->row case.
@@ -121,11 +120,14 @@ export class RowAPI {
         return [row, rowInstance];
     }
 
-    static getRowPairTypeUnderRowPair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], row: GraphObject, rowInstance: GraphObject, rowRowInstanceCounter: string, rowRowType: string) {
+    static getRowRowPairUnderRowPair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], row: GraphObject, rowInstance: GraphObject, rowRowInstanceCounter: string, rowRowType: string) {
         const edgeToRows = qaObjects.filter(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
         const rowRowURIs = edgeToRows.map(obj => obj.get(SHORT_NAME_EDGE_DESTINATION));
+
         // 1 get row based on rowRowType
-        const rowRows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && rowRowURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowRowType);
+        const rowRows = qaObjects.filter(obj => {
+            return obj.type === TYPE_HALEY_ROW && rowRowURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowRowType
+        });
 
         if (!rowRows.length) {
             throw new Error(`No row found with rowRowType: ${rowRowType} under row (${row.URI})`);
@@ -138,7 +140,10 @@ export class RowAPI {
         const rowRow = rowRows[0];
 
         // 3 get rowInstance based on rowInstanceCounter
-        const rowRowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rowRow.URI && obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowRowInstanceCounter);
+        const edgeFromRowInstanceToRowRowInstances = qaInstanceObjects.filter(obj => obj.type === EDGE_ROW_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+        const rowRowInstanceUnderProvidedRowInstanceURIs = edgeFromRowInstanceToRowRowInstances.map(edge => edge.get(SHORT_NAME_EDGE_DESTINATION));
+        const rowRowInstancesUnderProvidedRowInstance = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && rowRowInstanceUnderProvidedRowInstanceURIs.includes(obj.URI));
+        const rowRowInstances = rowRowInstancesUnderProvidedRowInstance.filter(obj => obj.get(SHORT_NAME_HALEY_ROW) === rowRow.URI && obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowRowInstanceCounter);
         if (!rowRowInstances.length) {
             throw new Error(`No rowInstance found to connect row ${rowRow.URI} with counter: ${rowRowInstanceCounter}`);
         }
@@ -178,7 +183,7 @@ export class RowAPI {
         const answerInstances = qaInstanceObjects.filter(obj => answerInstanceURIs.includes(obj.URI) && obj.get(SHORT_NAME_HALEY_ANSWER) === answer.URI);
 
         if (!answerInstances.length) {
-            throw new Error(`No matched answerInstance object found`);
+            throw new Error(`No matched answerInstance object found.`);
         }
 
         if (answerInstances.length !== 1) {
@@ -203,7 +208,7 @@ export class RowAPI {
     static getAnswerPairByAnswerTypeInsideRowRow(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string) {
         // 1 get row and rowInstance
         const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
-        const [rowRow, rowRowInstance] = RowAPI.getRowPairTypeUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType);
+        const [rowRow, rowRowInstance] = RowAPI.getRowRowPairUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType);
         const [answer, answerInstance] = RowAPI.getAnswerPairByAnswerTypeUnderRowPair(qaObjects, qaInstanceObjects, rowRow, rowRowInstance, answerType);
         
         return [answer, answerInstance];

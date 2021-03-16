@@ -1,12 +1,13 @@
 import { RowAPI } from '../index';
 import { GroupAPI } from '../../group-api/group-api';
 import { GraphObject } from '../../util/type';
-import { redundantObject } from './mock.data';
 import {
+    redundantObject,
     dataTestRowMissingQuestion,
     dataTestRow,
     dataTestRowMissingRow,
     dataTestGroup,
+    dataTestGroup2,
     group1,
     edgeGroupToSection,
     rootSection1,
@@ -143,13 +144,13 @@ describe('RowAPI', () => {
             answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress');
          });
 
-         beforeEach(() => {
+        beforeEach(() => {
             qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
             const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
             answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
             const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
             rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '1');
-         });
+        });
 
         it.each([
             [[group1, edgeGroupToSection, rootSection1, edgeRootSectionToRow1] as any as GraphObject[]],
@@ -247,7 +248,7 @@ describe('RowAPI', () => {
                 RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
                 expect(true).toBe(false);
             } catch(error) {
-                expect(error.message).toEqual('No matched answerInstance object found');
+                expect(error.message).toEqual('No matched answerInstance object found.');
             }
         });
 
@@ -275,7 +276,71 @@ describe('RowAPI', () => {
 
     });
 
+    describe('getRowRowPairUnderRowPair', () => {
+        let qaInstanceObjects: GraphObject[];
+        let groupAPI: any;
+        const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+        const answerType = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryPhoneNumber";
+        const answerTypeInRow = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress"
+        const rowInstanceCounter = '1';
+        let generatedRowRowInstance: GraphObject;
 
-    
+        beforeAll(() => {
+            groupAPI = new GroupAPI(vitaljs);
+            dataTestGroup2.forEach(obj => vitaljs.graphObject(obj));
+            
+            const answer = dataTestGroup2.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_957219741');
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress');
+         });
+
+        beforeEach(() => {
+            const rows = dataTestGroup2.filter(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rows.forEach(obj => obj.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI));
+            const rowRow = dataTestGroup2.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            rowRow.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'mock-row-row-type')
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup2 as any as GraphObject[]);
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '1');
+            const rootRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+            const edgeToRowRowInstance = qaInstanceObjects.find(obj => obj.type === EDGE_ROW_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === rootRowInstance.URI);
+            generatedRowRowInstance = qaInstanceObjects.find(obj => obj.URI === edgeToRowRowInstance.get(SHORT_NAME_EDGE_DESTINATION));
+            generatedRowRowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'A');
+        });
+
+        it('Should throw error if No row with provided rowType', () => {
+            vitaljs.graphObject(rootRow);
+            const rowRow = dataTestGroup2.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            rowRow.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'test');
+            const rootRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+            try {
+                const [rowRow, rowRowInstance] = RowAPI.getRowRowPairUnderRowPair(dataTestGroup2, qaInstanceObjects, rootRow as any as GraphObject, rootRowInstance, 'A', 'mock-row-row-type');
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toBe('No row found with rowRowType: mock-row-row-type under row (http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row)');
+            }
+        });
+
+        it('Should throw error if multiple rowInstances found to connect row with provided counter', () => {
+            vitaljs.graphObject(rootRow);
+            const rootRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+            qaInstanceObjects.push(generatedRowRowInstance);
+            try {
+                const [rowRow, rowRowInstance] = RowAPI.getRowRowPairUnderRowPair(dataTestGroup2, qaInstanceObjects, rootRow as any as GraphObject, rootRowInstance, 'A', 'mock-row-row-type');
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual(expect.stringContaining('Multiple rowInstances found to connect row http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row'));
+            }
+        });
+
+        it('Should get row and rowInstance', () => {
+            vitaljs.graphObject(rootRow);
+            const rootRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+            const [rowRow, rowRowInstance] = RowAPI.getRowRowPairUnderRowPair(dataTestGroup2, qaInstanceObjects, rootRow as any as GraphObject, rootRowInstance, 'A', 'mock-row-row-type');
+            expect(rowRow.URI).toEqual('http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            expect(rowRowInstance.get(SHORT_NAME_HALEY_ROW)).toEqual('http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+        });
+    });
 });
 
