@@ -6,7 +6,7 @@ import { SHORT_NAME_EDGE_SOURCE, SHORT_NAME_EDGE_DESTINATION } from './constant'
  * @param type {String} type of graphObject
  * @return a GraphObject 
  */
-export const createVitalObject = function(vitaljs: VitalJs, type: string): GraphObject {
+export const createVitalObject = function(vitaljs: VitalJs, type: string, properties: { [key: string]: any }={}): GraphObject {
 	if(!type) {
 		console.error("Argument type is not pass in", type);
 	}
@@ -19,7 +19,11 @@ export const createVitalObject = function(vitaljs: VitalJs, type: string): Graph
 
     const obj: GraphObject = vitaljs.graphObject({type: type});
     
-	obj.URI = 'http://vital.ai/haley.ai/haley-saas/' + parts[1] + '/' + new Date().getTime() + '-' + Math.round( 100000000000 * Math.random());  
+    obj.URI = 'http://vital.ai/haley.ai/haley-saas/' + parts[1] + '/' + new Date().getTime() + '-' + Math.round( 100000000000 * Math.random());
+    
+    Object.keys(properties).forEach(property => {
+        obj.set(property, properties[property] || null);
+    })
 	
 	return obj;
 }

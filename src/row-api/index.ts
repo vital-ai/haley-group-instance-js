@@ -15,6 +15,8 @@ import { EDGE_ROW,
     SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
     SHORT_NAME_HALEY_ANSWER,
     SHORT_NAME_HALEY_ANSWER_TYPE,
+    SHORT_NAME_HALEY_SECTION,
+    TYPE_HALEY_SECTION_INSTANCE,
 } from '../util/constant';
 import { createEdgeObject, createVitalObject } from '../util/util';
 
@@ -23,17 +25,20 @@ export class RowAPI {
     // 1 means row will not have another connected to it, 2 means it will handle row->row case, 3 means row->row->row case.
     private static maxLevel: number = 2;
 
-    static createRowInstance(vitaljs: VitalJs, row: GraphObject) {
-        const obj = createVitalObject(vitaljs, TYPE_HALEY_ROW_INSTANCE);
-        obj.set(SHORT_NAME_HALEY_ROW, row.URI);
+    static createRowInstance(vitaljs: VitalJs, row: GraphObject, rowInstanceCounter: string='A') {
+        const obj = createVitalObject(
+            vitaljs,
+            TYPE_HALEY_ROW_INSTANCE,
+            { [SHORT_NAME_HALEY_ROW]: row.URI, [SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER]: rowInstanceCounter }
+        );
         return obj;
     }
 
-    static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], level: number = 1):  CreateRowInstancesResult {
+    static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], rowInstanceCounter: string='A', level: number = 1):  CreateRowInstancesResult {
 
         let createdQaInstances: GraphObject[] = []
 
-        const rowInstance = this.createRowInstance(vitaljs, row);
+        const rowInstance = this.createRowInstance(vitaljs, row, rowInstanceCounter);
         createdQaInstances = [rowInstance, ...createdQaInstances];
 
         const edgeToQuestions = qaObjects.filter(obj => obj.type === EDGE_QUESTION && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
@@ -90,6 +95,37 @@ export class RowAPI {
             qaObjectsLeft: qaObjectsLeft,
             rowInstance: rowInstance,
         };
+    }
+
+    static createQaRowInstanceObjectsWithUpperEdge(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string = 'A'):  GraphObject[] {
+
+        const edgeToProvideRow = qaObjects.find(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_DESTINATION) === row.URI);
+
+        if (!edgeToProvideRow) {
+            throw new Error('Could not find any edges that pointed to the provided row');
+        }
+
+        const rowOrSection = qaObjects.find(obj => obj.URI === edgeToProvideRow.get(SHORT_NAME_EDGE_SOURCE));
+       
+        if (!rowOrSection) {
+            throw new Error(`Could not find the upper object that pointed to the provided row. upper object URI: ${edgeToProvideRow.get(SHORT_NAME_EDGE_SOURCE)}`)
+        }
+
+        const shortNameToMatchUpperObject = rowOrSection.type === TYPE_HALEY_ROW ? SHORT_NAME_HALEY_ROW : SHORT_NAME_HALEY_SECTION;
+        const upperInstanceType = rowOrSection.type === TYPE_HALEY_ROW ? TYPE_HALEY_ROW_INSTANCE : TYPE_HALEY_SECTION_INSTANCE;
+        const upperInstance = qaInstanceObjects.find(obj => obj.type === upperInstanceType && obj.get(shortNameToMatchUpperObject) === rowOrSection.URI);
+        const level = rowOrSection.type === TYPE_HALEY_ROW ? 2 : 1;
+
+        if (!upperInstance) {
+            throw new Error(`Could not find the upper instance object.`)
+        }
+
+        const { createdInstances, rowInstance: createdRowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjects, rowInstanceCounter, level);
+
+        const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, upperInstance, createdRowInstance);
+
+        return [edgeToRowInstance, ...createdInstances];
+    
     }
 
     static getRowAndRowInstancePair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string) {

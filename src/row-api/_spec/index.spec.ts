@@ -1,6 +1,9 @@
 import { RowAPI } from '../index';
 import { GroupAPI } from '../../group-api/group-api';
 import { GraphObject } from '../../util/type';
+import { cloneDeep } from 'lodash';
+import { createVitalObject } from '../../util/util';
+import { TYPE_HALEY_SECTION_INSTANCE } from '../../util/constant';
 import {
     redundantObject,
     dataTestRowMissingQuestion,
@@ -20,6 +23,13 @@ import {
     secondLevelRow,
     secondLevelQuestion1,
     secondLevelAnswer1,
+    edgeRootQuestionToAnswer1,
+    edgeSecondLevelQuestionToAnswer1,
+    edgeSectionToQuestion1,
+    edgeToSecondLevelQuestion,
+    edgeToSecondLevelRow,
+    rootAnswer1,
+    rootQuestion1,
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW,
@@ -123,6 +133,133 @@ describe('RowAPI', () => {
 
             expect(qaObjectsLeft).toEqual([redundantObject]);
 
+        });
+    });
+
+    describe('createQaRowInstanceObjectsWithUpperEdge', () => {
+
+        it('Should throw error if no edge found to connected to the provided row', () => {
+            const qaObjects = cloneDeep([
+                group1,
+                edgeGroupToSection,
+                rootSection1,
+                rootRow,
+                edgeRootRowToQuestion1,
+                firstLevelQuestion1,
+                edgeFirstLevelQuestionToAnswer1,
+                firstLevelAnswer1
+            ]) as any as GraphObject[];
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+
+            try {
+                RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, vitaljs.graphObject(cloneDeep(rootRow)) as any as GraphObject, qaObjects, []);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('Could not find any edges that pointed to the provided row');
+            }
+            
+        });
+
+        it('Should throw error if no upper object found to connected to the provided row', () => {
+            const qaObjects = cloneDeep([
+                group1,
+                edgeGroupToSection,
+                edgeRootSectionToRow1,
+                rootRow,
+                edgeRootRowToQuestion1,
+                firstLevelQuestion1,
+                edgeFirstLevelQuestionToAnswer1,
+                firstLevelAnswer1
+            ]) as any as GraphObject[];
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+
+            try {
+                RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, vitaljs.graphObject(cloneDeep(rootRow)) as any as GraphObject, qaObjects, []);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('Could not find the upper object that pointed to the provided row. upper object URI: http://vital.ai/haley.ai/harbor-saas/HaleySection/Applicant-Info-ContactInfo');
+            }
+        });
+
+        it('Should throw error if no upper instance object found.', () => {
+            const qaObjects = cloneDeep([
+                group1,
+                edgeGroupToSection,
+                rootSection1,
+                edgeRootSectionToRow1,
+                rootRow,
+                edgeRootRowToQuestion1,
+                firstLevelQuestion1,
+                edgeFirstLevelQuestionToAnswer1,
+                firstLevelAnswer1
+            ]) as any as GraphObject[];
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+
+            try {
+                RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, vitaljs.graphObject(cloneDeep(rootRow)) as any as GraphObject, qaObjects, []);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('Could not find the upper instance object.');
+            }
+        });
+
+        it('Should create instance objects', () => {
+            const qaObjects = cloneDeep([
+                group1,
+                edgeGroupToSection,
+                rootSection1,
+                edgeRootSectionToRow1,
+                rootRow,
+                edgeRootRowToQuestion1,
+                firstLevelQuestion1,
+                edgeFirstLevelQuestionToAnswer1,
+                firstLevelAnswer1
+            ]) as any as GraphObject[];
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const rowInstance = createVitalObject(vitaljs, TYPE_HALEY_SECTION_INSTANCE, { [SHORT_NAME_HALEY_ROW]: rootSection1.URI } );
+            
+            const createdInstances = RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, vitaljs.graphObject(cloneDeep(rootRow)) as any as GraphObject, qaObjects, [rowInstance]);
+            
+
+            expect(createdInstances.length).toBe(11);
+
+            const rowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && ins.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+            expect(rowInstances).toEqual([rowInstance]);
+
+            const firstLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+            expect(firstLevelEdgeToQuestions.length).toBe(1);
+
+            const firstLevelQuestionInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_QUESTION_INSTANCE && firstLevelEdgeToQuestions[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(firstLevelQuestionInstances.length).toBe(1);
+            expect(firstLevelQuestionInstances[0].get(SHORT_NAME_HALEY_QUESTION)).toBe(firstLevelQuestion1.URI);
+
+            const firstLevelEdgeToAnswerInstances = createdInstances.filter(ins => ins.type === EDGE_ANSWER_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === firstLevelQuestionInstances[0].URI);
+            expect(firstLevelEdgeToAnswerInstances.length).toBe(1);
+
+            const firstLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && firstLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(firstLevelAnswerInstances.length).toBe(1);
+            expect(firstLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(firstLevelAnswer1.URI);
+
+            const edgeToSecondLevelRowInstances = createdInstances.filter(edge => edge.type === EDGE_ROW_INSTANCE && edge.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+            expect(edgeToSecondLevelRowInstances.length).toBe(1);
+
+            const secondLevelRowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && edgeToSecondLevelRowInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelRowInstances.length).toBe(1);
+            expect(secondLevelRowInstances[0].get(SHORT_NAME_HALEY_ROW)).toBe(secondLevelRow.URI);
+
+            const secondLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === secondLevelRowInstances[0].URI);
+            expect(secondLevelEdgeToQuestions.length).toBe(1);
+
+            const secondLevelQuestionInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_QUESTION_INSTANCE && secondLevelEdgeToQuestions[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelQuestionInstances.length).toBe(1);
+            expect(secondLevelQuestionInstances[0].get(SHORT_NAME_HALEY_QUESTION)).toBe(secondLevelQuestion1.URI);
+
+            const secondLevelEdgeToAnswerInstances = createdInstances.filter(ins => ins.type === EDGE_ANSWER_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === secondLevelQuestionInstances[0].URI);
+            expect(secondLevelEdgeToAnswerInstances.length).toBe(1);
+
+            const secondLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && secondLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelAnswerInstances.length).toBe(1);
+            expect(secondLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(secondLevelAnswer1.URI);
         });
     });
 
