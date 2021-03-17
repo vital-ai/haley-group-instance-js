@@ -103,7 +103,7 @@ describe('GroupAPI', () => {
          it('Should create instance objects', () => {
             dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
   
-            const createdInstances = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
+            const createdInstances = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
             expect(createdInstances.length).toBe(19);
 
             const groupInstance = createdInstances.find(obj => obj.type === TYPE_HALEY_GROUP_INSTANCE);
@@ -192,7 +192,7 @@ describe('GroupAPI', () => {
          });
 
          beforeEach(() => {
-            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
             const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
             answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
             const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');

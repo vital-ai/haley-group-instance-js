@@ -14,7 +14,7 @@ import { createEdgeObject, createVitalObject } from '../util/util';
 
 export class SectionAPI {
 
-    static createQaInstanceObjects(vitaljs: VitalJs, section: GraphObject, qaObjects: GraphObject[]):  CreateSectionInstancesResult {
+    static createQaInstanceObjects(vitaljs: VitalJs, section: GraphObject, qaObjects: GraphObject[], withRow=false):  CreateSectionInstancesResult {
 
         let createdQaInstances: GraphObject[] = []
 
@@ -46,28 +46,30 @@ export class SectionAPI {
             createdQaInstances = [...createdQaInstances, edgeToQuestionInstance, ...createdInstances];
         }
 
-        const edgeToRows = qaObjects.filter(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_SOURCE) === section.URI);
-        const edgeToRowURIs = edgeToRows.map(obj => obj.URI);
+        if (withRow) {
+            const edgeToRows = qaObjects.filter(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_SOURCE) === section.URI);
+            const edgeToRowURIs = edgeToRows.map(obj => obj.URI);
 
-        const rows = edgeToRows.map(edge => {
-            const rowURI = edge.get(SHORT_NAME_EDGE_DESTINATION);
-            const findRows = qaObjects.filter(obj => obj.URI === rowURI);
-            if (!findRows.length) {
-                throw new Error(`Could not find the row object connected to edge ${edge.URI}, rowURI ${rowURI}`);
+            const rows = edgeToRows.map(edge => {
+                const rowURI = edge.get(SHORT_NAME_EDGE_DESTINATION);
+                const findRows = qaObjects.filter(obj => obj.URI === rowURI);
+                if (!findRows.length) {
+                    throw new Error(`Could not find the row object connected to edge ${edge.URI}, rowURI ${rowURI}`);
+                }
+                if (findRows.length > 1) {
+                    throw new Error(`Multiple row objects connected to edge ${edge.URI}}`);
+                }
+                return findRows[0];
+            });
+
+            qaObjectsLeft = qaObjectsLeft.filter(obj => !edgeToRowURIs.includes(obj.URI));
+
+            for (const row of rows) {
+                const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, 1);
+                qaObjectsLeft = rowQaObjectsLeft;
+                const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
+                createdQaInstances = [...createdQaInstances, edgeToRowInstance, ...createdInstances];
             }
-            if (findRows.length > 1) {
-                throw new Error(`Multiple row objects connected to edge ${edge.URI}}`);
-            }
-            return findRows[0];
-        });
-
-        qaObjectsLeft = qaObjectsLeft.filter(obj => !edgeToRowURIs.includes(obj.URI));
-
-        for (const row of rows) {
-            const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, 1);
-            qaObjectsLeft = rowQaObjectsLeft;
-            const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
-            createdQaInstances = [...createdQaInstances, edgeToRowInstance, ...createdInstances];
         }
 
         return {

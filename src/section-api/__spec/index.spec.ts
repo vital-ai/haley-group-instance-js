@@ -57,7 +57,7 @@ describe('SectionAPI', () => {
             dataTestSectionMissingRow.forEach(obj => vitaljs.graphObject(obj));
             const section = dataTestSectionMissingRow.find(obj => obj.type === TYPE_HALEY_SECTION) as any as GraphObject;
             try {
-                SectionAPI.createQaInstanceObjects(vitaljs, section, dataTestSectionMissingRow as any as GraphObject[]);
+                SectionAPI.createQaInstanceObjects(vitaljs, section, dataTestSectionMissingRow as any as GraphObject[], true);
                 expect(true).toBe(false);
             } catch(error) {
                 expect(error.message).toEqual('Could not find the row object connected to edge http://vital.ai/haley.ai/harbor-saas/Edge_hasRow/1597780220324_019840341023, rowURI http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
@@ -67,7 +67,7 @@ describe('SectionAPI', () => {
         it('Should create instance objects', () => {
             dataTestSection.forEach(obj => vitaljs.graphObject(obj));
             const section = dataTestSection.find(obj => obj.type === TYPE_HALEY_SECTION) as any as GraphObject;
-            const { createdInstances, qaObjectsLeft, sectionInstance } = SectionAPI.createQaInstanceObjects(vitaljs, section, dataTestSection as any as GraphObject[]);
+            const { createdInstances, qaObjectsLeft, sectionInstance } = SectionAPI.createQaInstanceObjects(vitaljs, section, dataTestSection as any as GraphObject[], true);
             expect(sectionInstance.get(SHORT_NAME_HALEY_SECTION)).toBe(section.URI);
             expect(createdInstances.length).toBe(17);
 

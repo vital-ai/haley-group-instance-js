@@ -239,7 +239,7 @@ export class GroupAPI {
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
     }
 
-    createQaInstanceObjects(qaObjects: GraphObject[]) {
+    createQaInstanceObjects(qaObjects: GraphObject[], withRow=false) {
         let createdQaInstances: GraphObject[] = [];
 
         // 1 get group and create groupInstance.
@@ -282,7 +282,7 @@ export class GroupAPI {
         let qaObjectsLeft: GraphObject[] = qaObjects.filter(obj => obj.URI !== group.URI || edgeToSectionURIs.includes(obj.URI));
         
         for (const section of sections) {
-            const { qaObjectsLeft: sectionQaObjectsLeft, createdInstances, sectionInstance } :  CreateSectionInstancesResult = SectionAPI.createQaInstanceObjects(this.vitaljs, section, qaObjectsLeft);
+            const { qaObjectsLeft: sectionQaObjectsLeft, createdInstances, sectionInstance } :  CreateSectionInstancesResult = SectionAPI.createQaInstanceObjects(this.vitaljs, section, qaObjectsLeft, withRow);
             qaObjectsLeft = sectionQaObjectsLeft;
 
             const edgeToSectionInstance = createEdgeObject(this.vitaljs, EDGE_SECTION_INSTANCE, groupInstance, sectionInstance);

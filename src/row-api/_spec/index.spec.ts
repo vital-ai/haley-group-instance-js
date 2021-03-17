@@ -145,7 +145,7 @@ describe('RowAPI', () => {
          });
 
         beforeEach(() => {
-            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
             const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
             answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
             const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
@@ -298,7 +298,7 @@ describe('RowAPI', () => {
             rows.forEach(obj => obj.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI));
             const rowRow = dataTestGroup2.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
             rowRow.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'mock-row-row-type')
-            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup2 as any as GraphObject[]);
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup2 as any as GraphObject[], true);
             const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
             answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
             const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
