@@ -35,7 +35,8 @@ import {
     SHORT_NAME_HALEY_GROUP,
     EDGE_SECTION_INSTANCE,
     SHORT_NAME_TEXT_ANSWER_VALUE,
-    SHORT_NAME_HALEY_ROW_TYPE_URI
+    SHORT_NAME_HALEY_ROW_TYPE_URI,
+    SHORT_NAME_HALEY_ANSWER_TYPE
 } from '../../util/constant';
 
 const { vitaljs } = require('../../../test-util');
@@ -176,7 +177,7 @@ describe('GroupAPI', () => {
     });
 
 
-    describe('getValueByAnswerTypeInsideRow', () => {
+    describe('set/getValueByAnswerTypeInsideRow', () => {
 
         let qaInstanceObjects: GraphObject[];
         let groupAPI: GroupAPI;
@@ -205,6 +206,49 @@ describe('GroupAPI', () => {
             expect(value).toBe('666-666-66666');
             groupAPI.setValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow, '999-999-9999');
             const valueReset = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            expect(valueReset).toEqual('999-999-9999');
+        });
+    });
+
+    describe('set/getValueByAnswerTypeInsideRowRow', () => {
+
+        let qaInstanceObjects: GraphObject[];
+        let groupAPI: GroupAPI;
+        const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+        const rowRowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Location";
+        const answerTypeInRowRow = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_SecondaryEmailAddress";
+        const rowInstanceCounter = '1';
+        const rowRowInstanceCounter = 'A';
+
+        beforeAll(() => {
+            groupAPI = new GroupAPI(vitaljs);
+            dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
+            const row = dataTestGroup.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            const rowRow = dataTestGroup.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            const rowRowAnswer = dataTestGroup.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_0352345803');
+            row.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI);
+            rowRow.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowRowTypeURI);
+            rowRowAnswer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerTypeInRowRow);
+         });
+
+         beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            const rowRowAnswerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === secondLevelAnswer1.URI);
+            answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-6666');
+            rowRowAnswerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '888-888-8888');
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            const rowRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, rowInstanceCounter);
+            rowRowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, rowRowInstanceCounter);
+         });
+
+        it('Should set / get the value', () => {
+            const qaObjects = dataTestGroup as any as GraphObject[];
+            const value = groupAPI.getValueByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, rowRowInstanceCounter, rowRowTypeURI, answerTypeInRowRow);
+            expect(value).toBe('888-888-8888');
+            groupAPI.setValueByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, rowRowInstanceCounter, rowRowTypeURI, answerTypeInRowRow, '999-999-9999');
+            const valueReset = groupAPI.getValueByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, rowRowInstanceCounter, rowRowTypeURI, answerTypeInRowRow);
             expect(valueReset).toEqual('999-999-9999');
         });
     });

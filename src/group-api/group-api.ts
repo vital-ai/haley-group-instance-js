@@ -239,6 +239,16 @@ export class GroupAPI {
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
     }
 
+    getValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string) {
+        const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType);
+        return GroupAPI.getAnswerValue(answerInstance, answer);
+    }
+
+    setValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string, value: any) {
+        const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType);
+        return GroupAPI.setAnswerValue(answerInstance, answer, value);
+    }
+
     createQaInstanceObjects(qaObjects: GraphObject[], withRow=false) {
         let createdQaInstances: GraphObject[] = [];
 
