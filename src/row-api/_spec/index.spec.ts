@@ -3,7 +3,7 @@ import { GroupAPI } from '../../group-api/group-api';
 import { GraphObject } from '../../util/type';
 import { cloneDeep } from 'lodash';
 import { createVitalObject } from '../../util/util';
-import { TYPE_HALEY_SECTION_INSTANCE } from '../../util/constant';
+import {  } from '../../util/constant';
 import {
     redundantObject,
     dataTestRowMissingQuestion,
@@ -23,13 +23,6 @@ import {
     secondLevelRow,
     secondLevelQuestion1,
     secondLevelAnswer1,
-    edgeRootQuestionToAnswer1,
-    edgeSecondLevelQuestionToAnswer1,
-    edgeSectionToQuestion1,
-    edgeToSecondLevelQuestion,
-    edgeToSecondLevelRow,
-    rootAnswer1,
-    rootQuestion1,
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW,
@@ -47,7 +40,9 @@ import {
     SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
     SHORT_NAME_TEXT_ANSWER_VALUE,
     SHORT_NAME_HALEY_ROW_TYPE_URI,
-    SHORT_NAME_HALEY_ANSWER_TYPE
+    SHORT_NAME_HALEY_ANSWER_TYPE,
+    SHORT_NAME_HALEY_SECTION,
+    TYPE_HALEY_SECTION_INSTANCE
 } from '../../util/constant';
 
 const { vitaljs } = require('../../../test-util');
@@ -216,15 +211,17 @@ describe('RowAPI', () => {
                 firstLevelAnswer1
             ]) as any as GraphObject[];
             qaObjects.forEach(obj => vitaljs.graphObject(obj));
-            const rowInstance = createVitalObject(vitaljs, TYPE_HALEY_SECTION_INSTANCE, { [SHORT_NAME_HALEY_ROW]: rootSection1.URI } );
+            const sectionInstance = createVitalObject(vitaljs, TYPE_HALEY_SECTION_INSTANCE, { [SHORT_NAME_HALEY_SECTION]: rootSection1.URI } );
             
-            const createdInstances = RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, vitaljs.graphObject(cloneDeep(rootRow)) as any as GraphObject, qaObjects, [rowInstance]);
-            
+            const createdInstances = RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, vitaljs.graphObject(cloneDeep(rootRow)) as any as GraphObject, qaObjects, [sectionInstance]);
 
-            expect(createdInstances.length).toBe(11);
+            expect(createdInstances.length).toBe(6);
 
-            const rowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && ins.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
-            expect(rowInstances).toEqual([rowInstance]);
+            const edgeToRowInstance = createdInstances.find(obj => obj.type === EDGE_ROW_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === sectionInstance.URI);
+
+            const rowInstance = createdInstances.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+
+            expect(edgeToRowInstance.get(SHORT_NAME_EDGE_DESTINATION) === rowInstance.URI)
 
             const firstLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
             expect(firstLevelEdgeToQuestions.length).toBe(1);
@@ -239,27 +236,6 @@ describe('RowAPI', () => {
             const firstLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && firstLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
             expect(firstLevelAnswerInstances.length).toBe(1);
             expect(firstLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(firstLevelAnswer1.URI);
-
-            const edgeToSecondLevelRowInstances = createdInstances.filter(edge => edge.type === EDGE_ROW_INSTANCE && edge.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
-            expect(edgeToSecondLevelRowInstances.length).toBe(1);
-
-            const secondLevelRowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && edgeToSecondLevelRowInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
-            expect(secondLevelRowInstances.length).toBe(1);
-            expect(secondLevelRowInstances[0].get(SHORT_NAME_HALEY_ROW)).toBe(secondLevelRow.URI);
-
-            const secondLevelEdgeToQuestions = createdInstances.filter(ins => ins.type === EDGE_QUESTION_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === secondLevelRowInstances[0].URI);
-            expect(secondLevelEdgeToQuestions.length).toBe(1);
-
-            const secondLevelQuestionInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_QUESTION_INSTANCE && secondLevelEdgeToQuestions[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
-            expect(secondLevelQuestionInstances.length).toBe(1);
-            expect(secondLevelQuestionInstances[0].get(SHORT_NAME_HALEY_QUESTION)).toBe(secondLevelQuestion1.URI);
-
-            const secondLevelEdgeToAnswerInstances = createdInstances.filter(ins => ins.type === EDGE_ANSWER_INSTANCE && ins.get(SHORT_NAME_EDGE_SOURCE) === secondLevelQuestionInstances[0].URI);
-            expect(secondLevelEdgeToAnswerInstances.length).toBe(1);
-
-            const secondLevelAnswerInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && secondLevelEdgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
-            expect(secondLevelAnswerInstances.length).toBe(1);
-            expect(secondLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(secondLevelAnswer1.URI);
         });
     });
 

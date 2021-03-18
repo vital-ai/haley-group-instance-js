@@ -117,7 +117,7 @@ export class RowAPI {
         const level = rowOrSection.type === TYPE_HALEY_ROW ? 2 : 1;
 
         if (!upperInstance) {
-            throw new Error(`Could not find the upper instance object.`)
+            throw new Error(`Could not find the upper instance object.`);
         }
 
         const { createdInstances, rowInstance: createdRowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjects, rowInstanceCounter, level);
