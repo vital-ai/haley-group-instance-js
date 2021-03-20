@@ -75,7 +75,7 @@ use command: **npm publish**
     qaInstanceObjects = [...qaInstanceObjects, ...createdInstances];
 
     // addRowQaInstancesByRowType directly update to qaInstanceObjects;
-    groupAPI.createRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowTypeURI, rowInstanceCounter);
+    groupAPI.addRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowTypeURI, rowInstanceCounter);
 
     // removeRowQaInstancesByRowTypeAndInstanceCounter
     const updatedQaInstanceObjects = groupAPI.removeRowQaInstancesByRowTypeAndInstanceCounter(qaObjects, qaInstanceObjects, rowTypeURI, rowInstanceCounter);
