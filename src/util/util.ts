@@ -42,3 +42,10 @@ export const createEdgeObject = function(vitaljs: VitalJs, type: string, source?
 
     return edge;
 }
+
+export const getDestinationObjects = function(objects: GraphObject[], edgeType: string, source: GraphObject): GraphObject[] {
+    const edges = objects.filter(obj => obj.type === edgeType && obj.get(SHORT_NAME_EDGE_SOURCE) === source.URI);
+    const destinationURIs = edges.map(edge => edge.get(SHORT_NAME_EDGE_DESTINATION));
+    const set: Set<string> = new Set(destinationURIs);
+    return objects.filter(obj => set.has(obj.URI));
+}

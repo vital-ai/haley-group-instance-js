@@ -3,7 +3,6 @@ import { GroupAPI } from '../../group-api/group-api';
 import { GraphObject } from '../../util/type';
 import { cloneDeep } from 'lodash';
 import { createVitalObject } from '../../util/util';
-import {  } from '../../util/constant';
 import {
     redundantObject,
     dataTestRowMissingQuestion,
@@ -48,6 +47,26 @@ import {
 const { vitaljs } = require('../../../test-util');
 
 describe('RowAPI', () => {
+    let groupAPI: GroupAPI;
+    let qaObjects: GraphObject[];
+    const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+    const rowRowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Location";
+    const testData = cloneDeep(dataTestGroup);
+
+    beforeAll(() => {
+        groupAPI = new GroupAPI(vitaljs);
+     });
+
+     beforeEach(() => {
+        qaObjects = cloneDeep(testData);
+        qaObjects.forEach(obj => vitaljs.graphObject(obj));
+        const row = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+        row.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI);
+        const rowRow = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+        rowRow.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowRowTypeURI);
+        const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1597780220324_957219741');
+        answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress');
+     })
 
     describe('createRowInstance', () => {
         it('Should create rowInstance', () => {
@@ -242,7 +261,6 @@ describe('RowAPI', () => {
     describe('getAnswerPairByAnswerTypeInsideRow', () => {
 
         let qaInstanceObjects: GraphObject[];
-        let groupAPI: any;
         const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
         const answerType = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryPhoneNumber";
         const answerTypeInRow = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress"
@@ -455,5 +473,38 @@ describe('RowAPI', () => {
             expect(rowRowInstance.get(SHORT_NAME_HALEY_ROW)).toEqual('http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
         });
     });
+
+    describe('getRowInstanceCountersByRowType', () => {
+        let qaInstanceObjects: GraphObject[];
+
+        beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects, true);
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'B');
+        });
+        it('Should get rowInstanceCounters by rowType', () => {
+            const rowInstanceCounters = RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowTypeURI);
+            expect(rowInstanceCounters).toEqual(['B']);
+        });
+    });
+
+    describe('getRowRowInstanceCountersByRowRowType', () => {
+        let qaInstanceObjects: GraphObject[];
+
+        beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects, true);
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'B');
+            const rowRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            rowRowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'C');
+        });
+
+        it('Should get rowRowInstanceCounters by rowRowType', () => {
+            const rowRowInstanceCounters = RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'B', rowRowTypeURI);
+            expect(rowRowInstanceCounters).toEqual(['C']);
+        });
+    });
+
+
 });
 

@@ -18,7 +18,7 @@ import { EDGE_ROW,
     SHORT_NAME_HALEY_SECTION,
     TYPE_HALEY_SECTION_INSTANCE,
 } from '../util/constant';
-import { createEdgeObject, createVitalObject } from '../util/util';
+import { createEdgeObject, createVitalObject, getDestinationObjects } from '../util/util';
 
 export class RowAPI {
 
@@ -32,6 +32,32 @@ export class RowAPI {
             { [SHORT_NAME_HALEY_ROW]: row.URI, [SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER]: rowInstanceCounter }
         );
         return obj;
+    }
+
+    static getRowByRowType(qaObjects: GraphObject[], rowType: string) {
+        const rows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType);
+
+        if (!rows.length) {
+            throw new Error(`No row found with rowType: ${rowType}`);
+        }
+
+        if (rows.length !== 1) {
+            throw new Error(`Multiple rows found with rowType: ${rowType}; row uris: ${rows.map(obj => obj.URI)}`);
+        }
+
+        return rows[0];
+    }
+
+    static getRowInstanceByRowAndInstanceCounter(qaInstanceObjects: GraphObject[], row: GraphObject, rowInstanceCounter?: string): GraphObject[] {
+        const rowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === row.URI && (!rowInstanceCounter || obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter));
+        if (rowInstanceCounter && !rowInstances.length) {
+            throw new Error(`No rowInstance found to connect row ${row.URI} with counter: ${rowInstanceCounter}`);
+        }
+
+        if (rowInstanceCounter && rowInstances.length !== 1) {
+            throw new Error(`Multiple rowInstances found to connect row ${row.URI}; rowInstances uris: ${rowInstances.map(obj => obj.URI)}`);
+        }
+        return rowInstances;
     }
 
     static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], rowInstanceCounter: string='A', level: number = 1):  CreateRowInstancesResult {
@@ -128,30 +154,10 @@ export class RowAPI {
     
     }
 
-    static getRowAndRowInstancePair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string) {
-        // 1 get row based on rowType
-        const rows = qaObjects.filter(obj => obj.type === TYPE_HALEY_ROW && obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType);
+    static getRowAndRowInstancePair(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string): [GraphObject, GraphObject] {
 
-        if (!rows.length) {
-            throw new Error(`No row found with rowType: ${rowType}`);
-        }
-
-        if (rows.length !== 1) {
-            throw new Error(`Multiple rows found with rowType: ${rowType}; row uris: ${rows.map(obj => obj.URI)}`);
-        }
-
-        const row = rows[0];
-
-        // 3 get rowInstance based on rowInstanceCounter
-        const rowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === row.URI && obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter);
-        if (!rowInstances.length) {
-            throw new Error(`No rowInstance found to connect row ${row.URI} with counter: ${rowInstanceCounter}`);
-        }
-
-        if (rowInstances.length !== 1) {
-            throw new Error(`Multiple rowInstances found to connect row ${row.URI}; rowInstances uris: ${rowInstances.map(obj => obj.URI)}`);
-        }
-        const rowInstance = rowInstances[0];
+        const row = RowAPI.getRowByRowType(qaObjects, rowType);
+        const rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
 
         return [row, rowInstance];
     }
@@ -188,6 +194,7 @@ export class RowAPI {
             throw new Error(`Multiple rowInstances found to connect row ${rowRow.URI}; rowInstances uris: ${rowRowInstances.map(obj => obj.URI)}`);
         }
         const rowRowInstance = rowRowInstances[0];
+        // const rowRowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaObjects, qaInstanceObjects, rowRow, rowRowInstanceCounter);
 
         return [rowRow, rowRowInstance];
     }
@@ -248,6 +255,21 @@ export class RowAPI {
         const [answer, answerInstance] = RowAPI.getAnswerPairByAnswerTypeUnderRowPair(qaObjects, qaInstanceObjects, rowRow, rowRowInstance, answerType);
         
         return [answer, answerInstance];
+    }
+
+    static getRowInstanceCountersByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string): string[] {
+        const row = RowAPI.getRowByRowType(qaObjects, rowType);
+        const rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
+        return rowInstances.map(ins => ins.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
+    }
+
+    static getRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string): string[] {
+        const row = RowAPI.getRowByRowType(qaObjects, rowType);
+        const rowRow = RowAPI.getRowByRowType(qaObjects, rowRowType);
+        const rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
+        const rowRowInstances = getDestinationObjects(qaInstanceObjects, EDGE_ROW_INSTANCE, rowInstance);
+        const rowInstancesConnectedToRowRow = RowAPI.getRowInstanceByRowAndInstanceCounter(rowRowInstances, rowRow);
+        return rowInstancesConnectedToRowRow.map(ins => ins.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
     }
 
 }

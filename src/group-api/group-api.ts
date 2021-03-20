@@ -308,6 +308,18 @@ export class GroupAPI {
 
     }
 
+    createRowQaInstances(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], row: GraphObject, rowInstanceCounter: string="A") {
+
+    }
+
+    getRowInstanceCountersByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string): string[] {
+        return RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowType);
+    }
+
+    getRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string): string[] {
+        return RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
+    }
+
     setValue(setValueProp: SetValueProp) {
         const { value } = setValueProp;
         const [answer, answerInstance] = this.getAnswerAndAnswerInstance(setValueProp);
