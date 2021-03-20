@@ -18,14 +18,15 @@ import { EDGE_ROW,
     SHORT_NAME_HALEY_SECTION,
     TYPE_HALEY_SECTION_INSTANCE,
 } from '../util/constant';
-import { createEdgeObject, createVitalObject, getDestinationObjects } from '../util/util';
+import { createEdgeObject, createVitalObject, getDestinationObjects, getSourceObject } from '../util/util';
 
 export class RowAPI {
 
     // 1 means row will not have another connected to it, 2 means it will handle row->row case, 3 means row->row->row case.
     private static maxLevel: number = 2;
+    private static maximumSiblingRowInstances = 26 * 26;
 
-    static createRowInstance(vitaljs: VitalJs, row: GraphObject, rowInstanceCounter: string='A') {
+    static createRowInstance(vitaljs: VitalJs, row: GraphObject, rowInstanceCounter: string='AA') {
         const obj = createVitalObject(
             vitaljs,
             TYPE_HALEY_ROW_INSTANCE,
@@ -48,6 +49,8 @@ export class RowAPI {
         return rows[0];
     }
 
+    // This will only handle the row case not the row-row case. 
+    // if rowInstanceCounter provided, then there should only be one rowInstance exists that meet the criteria.
     static getRowInstanceByRowAndInstanceCounter(qaInstanceObjects: GraphObject[], row: GraphObject, rowInstanceCounter?: string): GraphObject[] {
         const rowInstances = qaInstanceObjects.filter(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === row.URI && (!rowInstanceCounter || obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter));
         if (rowInstanceCounter && !rowInstances.length) {
@@ -60,7 +63,36 @@ export class RowAPI {
         return rowInstances;
     }
 
-    static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], rowInstanceCounter: string='A', level: number = 1):  CreateRowInstancesResult {
+    static getSiblingRowInstances(qaInstanceObjects: GraphObject[], row: GraphObject, rowInstance: GraphObject) {
+        const upperInstance = getSourceObject(qaInstanceObjects, EDGE_ROW_INSTANCE, rowInstance);
+        const rowInstances = getDestinationObjects(qaInstanceObjects, EDGE_ROW_INSTANCE, upperInstance);
+        const siblings = rowInstances.filter(obj => obj.get(SHORT_NAME_HALEY_ROW) === row.URI);
+        return siblings;
+    }
+
+    static getInstancesUnderRowInstance(qaInstanceObjects: GraphObject[], rowInstance: GraphObject): GraphObject[] {
+        let instances: GraphObject[] = [];
+        const edgeToProvidedRowInstance = qaInstanceObjects.find(obj => obj.type === EDGE_ROW_INSTANCE && obj.get(SHORT_NAME_EDGE_DESTINATION) === rowInstance.URI);
+
+        instances = [edgeToProvidedRowInstance, rowInstance];
+
+        const questionInstances = getDestinationObjects(qaInstanceObjects, EDGE_QUESTION_INSTANCE, rowInstance);
+        questionInstances.forEach(questionInstance => {
+            const questionInstanceAndAnswerInstanceWithEdge = QuestionAPI.getQaInstancesWithEdges(qaInstanceObjects, questionInstance);
+            instances = [...instances, ...questionInstanceAndAnswerInstanceWithEdge];
+        });
+
+        const rowRowInstances = getDestinationObjects(qaInstanceObjects, EDGE_ROW_INSTANCE, rowInstance);
+
+        rowRowInstances.forEach(rowRowInstance => {
+            const rowRowInstanceQaInstances = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowRowInstance);
+            instances = [...instances, ...rowRowInstanceQaInstances];
+        });
+
+        return instances;
+    }
+
+    static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], rowInstanceCounter: string='AA', level: number = 1):  CreateRowInstancesResult {
 
         let createdQaInstances: GraphObject[] = []
 
@@ -109,7 +141,7 @@ export class RowAPI {
             qaObjectsLeft = qaObjectsLeft.filter(obj => !edgeToRowURIs.includes(obj.URI));
 
             for (const row of rows) {
-                const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance: secondLevelRowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, level + 1);
+                const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance: secondLevelRowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, undefined, level + 1);
                 qaObjectsLeft = rowQaObjectsLeft;
                 const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, rowInstance, secondLevelRowInstance);
                 createdQaInstances = [...createdQaInstances, edgeToRowInstance, ...createdInstances];
@@ -123,7 +155,7 @@ export class RowAPI {
         };
     }
 
-    static createQaRowInstanceObjectsWithUpperEdge(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string = 'A'):  GraphObject[] {
+    static createQaRowInstanceObjectsWithUpperEdge(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string = 'AA'):  GraphObject[] {
 
         const edgeToProvideRow = qaObjects.find(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_DESTINATION) === row.URI);
 
@@ -270,6 +302,79 @@ export class RowAPI {
         const rowRowInstances = getDestinationObjects(qaInstanceObjects, EDGE_ROW_INSTANCE, rowInstance);
         const rowInstancesConnectedToRowRow = RowAPI.getRowInstanceByRowAndInstanceCounter(rowRowInstances, rowRow);
         return rowInstancesConnectedToRowRow.map(ins => ins.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
+    }
+
+    static createRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter?: string): GraphObject[] {
+        const row = RowAPI.getRowByRowType(qaObjects, rowType);
+        const rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
+        const rowInstanceCounters = rowInstances.map(obj => obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
+        
+        if (rowInstanceCounter) {
+            if (rowInstanceCounters.includes(rowInstanceCounter)) {
+                throw new Error(`The generated rowInstanceCounters has already existed, existing rowInstanceCounters: ${rowInstanceCounters}. The rowInstanceCounter provided: ${rowInstanceCounter}`);
+            }
+            return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, rowInstanceCounter);
+        }
+        
+        const generatedRowInstanceCounter = RowAPI.generateRowInstanceCounter(rowInstances.length);
+
+        if (rowInstanceCounters.includes(generatedRowInstanceCounter)) {
+            throw new Error(`The generated rowInstanceCounters has already existed, existing rowInstanceCounters: ${rowInstanceCounters}. The generated rowInstanceCounter: ${generatedRowInstanceCounter}`);
+        }
+
+        return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, generatedRowInstanceCounter);
+
+    }
+
+    static removeRowQaInstancesByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string): GraphObject[] {
+        const row = RowAPI.getRowByRowType(qaObjects, rowType);
+        const rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
+        const siblingRowInstances = RowAPI.getSiblingRowInstances(qaInstanceObjects, row, rowInstance).filter(instance => instance.URI !== rowInstance.URI);
+        
+        const instancesUnderRowInstanceWithUpperEdge = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowInstance);
+
+        const objToBeRemoveURIs = new Set(instancesUnderRowInstanceWithUpperEdge.map(obj => obj.URI));
+        const instancesLeft = qaInstanceObjects.filter(obj => !objToBeRemoveURIs.has(obj.URI));
+
+        siblingRowInstances.forEach((ins, index) => {
+            ins.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
+        });
+
+        return instancesLeft;
+    }
+
+    static generateRowInstanceCounter(index: number) {
+
+        if (index > 26 * 26) {
+            throw new Error(`The max rowInstance for a row is ${26 * 26}. The request number is ${index}`);
+        }
+        const indexToCapitalCharacter = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+
+        const div = Math.floor(index / 26);
+        const mod = index % 26;
+
+        return indexToCapitalCharacter[div] + indexToCapitalCharacter[mod];
+    }
+
+    static counterToNumber(counter: string) {
+        const character = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        const max = RowAPI.maximumSiblingRowInstances + 2;
+        if (!counter) return max;
+        if (counter.length === 1) {
+            if (!character.includes(counter)) return max;
+            return character.indexOf(counter);
+        }
+
+        if (counter.length === 2) {
+            if (!character.includes(counter[0]) || !character.includes(counter[1])) return max;
+            return character.indexOf(counter[0]) * 26 + character.indexOf(counter[1]);
+        }
+
+        return max;
+    }
+
+    static compareRowInstanceCounter(counter1: string, counter2: string) {
+        return RowAPI.counterToNumber(counter1) - RowAPI.counterToNumber(counter2)
     }
 
 }

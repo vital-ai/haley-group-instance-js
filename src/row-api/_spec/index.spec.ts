@@ -505,6 +505,62 @@ describe('RowAPI', () => {
         });
     });
 
+    describe('generateRowInstanceCounter', () => {
+        it.each([
+            [0, 'AA'],
+            [27, 'BB']
+        ])('Should map %s to %s', (index, counter) => {
+            expect(RowAPI.generateRowInstanceCounter(index)).toBe(counter);
+        });
+    });
+
+    describe('createRowQaInstancesByRowType', () => {
+        let qaInstanceObjects: GraphObject[];
+
+        beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
+        });
+
+        it('Should generate rowInstance', () => {
+            const createdInstances = RowAPI.createRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowTypeURI);
+            const numberOfInstance = qaInstanceObjects.length;
+            const sectionInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_SECTION_INSTANCE && obj.get(SHORT_NAME_HALEY_SECTION) === 'http://vital.ai/haley.ai/harbor-saas/HaleySection/Applicant-Info-ContactInfo');
+            
+            expect(createdInstances.length).toBe(12);
+
+            const edgeToRowInstance = createdInstances.find(obj => obj.type === EDGE_ROW_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === sectionInstance.URI);
+
+            const rowInstance = createdInstances.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rootRow.URI);
+            expect(rowInstance.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toBe('AB');
+            const createdInstanceURI = rowInstance.URI;
+
+            expect(edgeToRowInstance.get(SHORT_NAME_EDGE_DESTINATION) === rowInstance.URI)
+
+            const edgeToSecondLevelRowInstances = createdInstances.filter(edge => edge.type === EDGE_ROW_INSTANCE && edge.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+            expect(edgeToSecondLevelRowInstances.length).toBe(1);
+
+            const secondLevelRowInstances = createdInstances.filter(ins => ins.type === TYPE_HALEY_ROW_INSTANCE && edgeToSecondLevelRowInstances[0].get(SHORT_NAME_EDGE_DESTINATION) === ins.URI);
+            expect(secondLevelRowInstances.length).toBe(1);
+            expect(secondLevelRowInstances[0].get(SHORT_NAME_HALEY_ROW)).toBe(secondLevelRow.URI);
+            expect(secondLevelRowInstances[0].get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toBe('AA');
+
+            qaInstanceObjects = [...qaInstanceObjects, ...createdInstances];
+
+            const instancesAfterRemove = RowAPI.removeRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'AA');
+            // adding rowInstance and then remove should remain same number of instance objects.
+            expect(instancesAfterRemove.length).toBe(numberOfInstance);
+            const rowInstanceLeft = instancesAfterRemove.find(obj => obj.URI === createdInstanceURI);
+
+            // Should update the counter if the previous rowInstance got removed
+            expect(rowInstanceLeft).toBeDefined();
+            expect(rowInstanceLeft.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toEqual('AA');
+           
+        });
+
+    });
+
 
 });
 

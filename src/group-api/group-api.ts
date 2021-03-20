@@ -1,11 +1,11 @@
 import {
     VitalJs,
-    GraphObject,
     MsgRL,
     SetValueProp,
     GetValueProp,
     Logger,
-    CreateSectionInstancesResult
+    CreateSectionInstancesResult,
+    GraphObject
 } from '../util/type';
 import {
     TYPE_HALEY_GROUP,
@@ -249,6 +249,29 @@ export class GroupAPI {
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
     }
 
+    getRowInstanceCountersByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string): string[] {
+        return RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowType);
+    }
+
+    getRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string): string[] {
+        return RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
+    }
+
+    // created the rowInstance objects to be added to qaInstanceObjects;
+    createRowQaInstancesByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter?: string): GraphObject[] {
+        return RowAPI.createRowQaInstancesByRowType(this.vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+    }
+
+    addRowQaInstancesByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter?: string) {
+        const instances = RowAPI.createRowQaInstancesByRowType(this.vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+        instances.forEach(ins => qaInstanceObjects.push(ins));
+    }
+
+    // remove the rowInstance objects form qaInstanceObjects and return the updated 
+    removeRowQaInstancesByRowTypeAndInstanceCounter(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string): GraphObject[] {
+        return RowAPI.removeRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+    }
+
     createQaInstanceObjects(qaObjects: GraphObject[], withRow=false) {
         let createdQaInstances: GraphObject[] = [];
 
@@ -306,18 +329,6 @@ export class GroupAPI {
 
         return createdQaInstances;
 
-    }
-
-    createRowQaInstances(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], row: GraphObject, rowInstanceCounter: string="A") {
-
-    }
-
-    getRowInstanceCountersByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string): string[] {
-        return RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowType);
-    }
-
-    getRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string): string[] {
-        return RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
     }
 
     setValue(setValueProp: SetValueProp) {

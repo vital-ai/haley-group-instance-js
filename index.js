@@ -36,7 +36,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _util_constant__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 /* harmony import */ var _section_api_section_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
-/* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var _row_api_index__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
+/* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
 var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
         to[j] = from[i];
@@ -192,7 +193,42 @@ var GroupAPI = /** @class */ (function () {
     GroupAPI.prototype.setValueByAnswerType = function (qaObjects, qaInstanceObjects, answerType, value) {
         return GroupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, value, this.vitaljs);
     };
-    GroupAPI.prototype.createQaInstanceObjects = function (qaObjects) {
+    GroupAPI.prototype.getValueByAnswerTypeInsideRow = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType) {
+        var _a = _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType), answer = _a[0], answerInstance = _a[1];
+        return GroupAPI.getAnswerValue(answerInstance, answer);
+    };
+    GroupAPI.prototype.setValueByAnswerTypeInsideRow = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType, value) {
+        var _a = _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType), answer = _a[0], answerInstance = _a[1];
+        return GroupAPI.setAnswerValue(answerInstance, answer, value);
+    };
+    GroupAPI.prototype.getValueByAnswerTypeInsideRowRow = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType) {
+        var _a = _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType), answer = _a[0], answerInstance = _a[1];
+        return GroupAPI.getAnswerValue(answerInstance, answer);
+    };
+    GroupAPI.prototype.setValueByAnswerTypeInsideRowRow = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType, value) {
+        var _a = _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType), answer = _a[0], answerInstance = _a[1];
+        return GroupAPI.setAnswerValue(answerInstance, answer, value);
+    };
+    GroupAPI.prototype.getRowInstanceCountersByRowType = function (qaObjects, qaInstanceObjects, rowType) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowType);
+    };
+    GroupAPI.prototype.getRowRowInstanceCountersByRowRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
+    };
+    // created the rowInstance objects to be added to qaInstanceObjects;
+    GroupAPI.prototype.createRowQaInstancesByRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.createRowQaInstancesByRowType(this.vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+    };
+    GroupAPI.prototype.addRowQaInstancesByRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter) {
+        var instances = _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.createRowQaInstancesByRowType(this.vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+        instances.forEach(function (ins) { return qaInstanceObjects.push(ins); });
+    };
+    // remove the rowInstance objects form qaInstanceObjects and return the updated 
+    GroupAPI.prototype.removeRowQaInstancesByRowTypeAndInstanceCounter = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.removeRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+    };
+    GroupAPI.prototype.createQaInstanceObjects = function (qaObjects, withRow) {
+        if (withRow === void 0) { withRow = false; }
         var createdQaInstances = [];
         // 1 get group and create groupInstance.
         var groups = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP; });
@@ -226,9 +262,9 @@ var GroupAPI = /** @class */ (function () {
         var qaObjectsLeft = qaObjects.filter(function (obj) { return obj.URI !== group.URI || edgeToSectionURIs.includes(obj.URI); });
         for (var _i = 0, sections_1 = sections; _i < sections_1.length; _i++) {
             var section = sections_1[_i];
-            var _a = _section_api_section_api__WEBPACK_IMPORTED_MODULE_1__.SectionAPI.createQaInstanceObjects(this.vitaljs, section, qaObjectsLeft), sectionQaObjectsLeft = _a.qaObjectsLeft, createdInstances = _a.createdInstances, sectionInstance = _a.sectionInstance;
+            var _a = _section_api_section_api__WEBPACK_IMPORTED_MODULE_1__.SectionAPI.createQaInstanceObjects(this.vitaljs, section, qaObjectsLeft, withRow), sectionQaObjectsLeft = _a.qaObjectsLeft, createdInstances = _a.createdInstances, sectionInstance = _a.sectionInstance;
             qaObjectsLeft = sectionQaObjectsLeft;
-            var edgeToSectionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(this.vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION_INSTANCE, groupInstance, sectionInstance);
+            var edgeToSectionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(this.vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION_INSTANCE, groupInstance, sectionInstance);
             createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToSectionInstance]), createdInstances);
         }
         // if (qaObjectsLeft.length !== 0) {
@@ -266,7 +302,7 @@ var GroupAPI = /** @class */ (function () {
         return [answer, answerInstance];
     };
     GroupAPI.prototype.createGroupInstance = function (group) {
-        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createVitalObject)(this.vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP_INSTANCE);
+        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createVitalObject)(this.vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP_INSTANCE);
         obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_GROUP, group.URI);
         return obj;
     };
@@ -320,6 +356,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "MAPPING_ANSWER_TO_ANSWER_INSTANCE": () => (/* binding */ MAPPING_ANSWER_TO_ANSWER_INSTANCE),
 /* harmony export */   "SHORT_NAME_HALEY_ANSWER_TYPE": () => (/* binding */ SHORT_NAME_HALEY_ANSWER_TYPE),
 /* harmony export */   "SHORT_NAME_HALEY_ROW_TYPE_URI": () => (/* binding */ SHORT_NAME_HALEY_ROW_TYPE_URI),
+/* harmony export */   "SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER": () => (/* binding */ SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER),
 /* harmony export */   "SHORT_NAME_HALEY_ANSWER_DATA_TYPE": () => (/* binding */ SHORT_NAME_HALEY_ANSWER_DATA_TYPE),
 /* harmony export */   "SHORT_NAME_EDGE_SOURCE": () => (/* binding */ SHORT_NAME_EDGE_SOURCE),
 /* harmony export */   "SHORT_NAME_EDGE_DESTINATION": () => (/* binding */ SHORT_NAME_EDGE_DESTINATION),
@@ -328,6 +365,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "SHORT_NAME_HALEY_QUESTION": () => (/* binding */ SHORT_NAME_HALEY_QUESTION),
 /* harmony export */   "SHORT_NAME_HALEY_ANSWER": () => (/* binding */ SHORT_NAME_HALEY_ANSWER),
 /* harmony export */   "SHORT_NAME_HALEY_SECTION": () => (/* binding */ SHORT_NAME_HALEY_SECTION),
+/* harmony export */   "SHORT_NAME_TEXT_ANSWER_VALUE": () => (/* binding */ SHORT_NAME_TEXT_ANSWER_VALUE),
 /* harmony export */   "EDGE_GROUP_INSTANCE": () => (/* binding */ EDGE_GROUP_INSTANCE),
 /* harmony export */   "EDGE_SECTION": () => (/* binding */ EDGE_SECTION),
 /* harmony export */   "EDGE_ROW": () => (/* binding */ EDGE_ROW),
@@ -395,6 +433,7 @@ var MAPPING_ANSWER_TO_ANSWER_INSTANCE = new Map([
 ]);
 var SHORT_NAME_HALEY_ANSWER_TYPE = 'haleyAnswerType';
 var SHORT_NAME_HALEY_ROW_TYPE_URI = 'haleyRowTypeURI';
+var SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER = 'rowInstanceCounter';
 var SHORT_NAME_HALEY_ANSWER_DATA_TYPE = 'haleyAnswerDataType';
 var SHORT_NAME_EDGE_SOURCE = 'edgeSource';
 var SHORT_NAME_EDGE_DESTINATION = 'edgeDestination';
@@ -404,6 +443,7 @@ var SHORT_NAME_HALEY_ROW = 'haleyRow';
 var SHORT_NAME_HALEY_QUESTION = 'haleyQuestion';
 var SHORT_NAME_HALEY_ANSWER = 'haleyAnswer';
 var SHORT_NAME_HALEY_SECTION = 'haleySection';
+var SHORT_NAME_TEXT_ANSWER_VALUE = 'textAnswerValue';
 var EDGE_GROUP_INSTANCE = "http://vital.ai/ontology/haley-ai-question#Edge_hasGroupInstance";
 var EDGE_SECTION = 'http://vital.ai/ontology/haley-ai-question#Edge_hasSection';
 var EDGE_ROW = 'http://vital.ai/ontology/haley-ai-question#Edge_hasRow';
@@ -447,7 +487,8 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 var SectionAPI = /** @class */ (function () {
     function SectionAPI() {
     }
-    SectionAPI.createQaInstanceObjects = function (vitaljs, section, qaObjects) {
+    SectionAPI.createQaInstanceObjects = function (vitaljs, section, qaObjects, withRow) {
+        if (withRow === void 0) { withRow = false; }
         var createdQaInstances = [];
         var sectionInstance = this.createSectionInstance(vitaljs, section);
         createdQaInstances = __spreadArray([sectionInstance], createdQaInstances);
@@ -471,26 +512,28 @@ var SectionAPI = /** @class */ (function () {
             var edgeToQuestionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_QUESTION_INSTANCE, sectionInstance, questionInstance);
             createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToQuestionInstance]), createdInstances);
         }
-        var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_SOURCE) === section.URI; });
-        var edgeToRowURIs = edgeToRows.map(function (obj) { return obj.URI; });
-        var rows = edgeToRows.map(function (edge) {
-            var rowURI = edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION);
-            var findRows = qaObjects.filter(function (obj) { return obj.URI === rowURI; });
-            if (!findRows.length) {
-                throw new Error("Could not find the row object connected to edge " + edge.URI + ", rowURI " + rowURI);
+        if (withRow) {
+            var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_SOURCE) === section.URI; });
+            var edgeToRowURIs_1 = edgeToRows.map(function (obj) { return obj.URI; });
+            var rows = edgeToRows.map(function (edge) {
+                var rowURI = edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION);
+                var findRows = qaObjects.filter(function (obj) { return obj.URI === rowURI; });
+                if (!findRows.length) {
+                    throw new Error("Could not find the row object connected to edge " + edge.URI + ", rowURI " + rowURI);
+                }
+                if (findRows.length > 1) {
+                    throw new Error("Multiple row objects connected to edge " + edge.URI + "}");
+                }
+                return findRows[0];
+            });
+            qaObjectsLeft = qaObjectsLeft.filter(function (obj) { return !edgeToRowURIs_1.includes(obj.URI); });
+            for (var _b = 0, rows_1 = rows; _b < rows_1.length; _b++) {
+                var row = rows_1[_b];
+                var _c = _row_api_index__WEBPACK_IMPORTED_MODULE_1__.RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft), rowQaObjectsLeft = _c.qaObjectsLeft, createdInstances = _c.createdInstances, rowInstance = _c.rowInstance;
+                qaObjectsLeft = rowQaObjectsLeft;
+                var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
+                createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToRowInstance]), createdInstances);
             }
-            if (findRows.length > 1) {
-                throw new Error("Multiple row objects connected to edge " + edge.URI + "}");
-            }
-            return findRows[0];
-        });
-        qaObjectsLeft = qaObjectsLeft.filter(function (obj) { return !edgeToRowURIs.includes(obj.URI); });
-        for (var _b = 0, rows_1 = rows; _b < rows_1.length; _b++) {
-            var row = rows_1[_b];
-            var _c = _row_api_index__WEBPACK_IMPORTED_MODULE_1__.RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, 1), rowQaObjectsLeft = _c.qaObjectsLeft, createdInstances = _c.createdInstances, rowInstance = _c.rowInstance;
-            qaObjectsLeft = rowQaObjectsLeft;
-            var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
-            createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToRowInstance]), createdInstances);
         }
         return {
             createdInstances: createdQaInstances,
@@ -559,6 +602,13 @@ var QuestionAPI = /** @class */ (function () {
             qaObjectsLeft: qaObjectsLeft,
         };
     };
+    QuestionAPI.getQaInstancesWithEdges = function (qaInstanceObjects, questionInstance) {
+        var edgeToQuestionInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === questionInstance.URI; });
+        var edgeToAnswerInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === questionInstance.URI; });
+        var answerInstanceURI = edgeToAnswerInstance.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION);
+        var answerInstance = qaInstanceObjects.find(function (obj) { return obj.URI === answerInstanceURI; });
+        return [edgeToQuestionInstance, questionInstance, edgeToAnswerInstance, answerInstance];
+    };
     return QuestionAPI;
 }());
 
@@ -572,7 +622,9 @@ var QuestionAPI = /** @class */ (function () {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "createVitalObject": () => (/* binding */ createVitalObject),
-/* harmony export */   "createEdgeObject": () => (/* binding */ createEdgeObject)
+/* harmony export */   "createEdgeObject": () => (/* binding */ createEdgeObject),
+/* harmony export */   "getDestinationObjects": () => (/* binding */ getDestinationObjects),
+/* harmony export */   "getSourceObject": () => (/* binding */ getSourceObject)
 /* harmony export */ });
 /* harmony import */ var _constant__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 
@@ -581,7 +633,8 @@ __webpack_require__.r(__webpack_exports__);
  * @param type {String} type of graphObject
  * @return a GraphObject
  */
-var createVitalObject = function (vitaljs, type) {
+var createVitalObject = function (vitaljs, type, properties) {
+    if (properties === void 0) { properties = {}; }
     if (!type) {
         console.error("Argument type is not pass in", type);
     }
@@ -591,6 +644,9 @@ var createVitalObject = function (vitaljs, type) {
     }
     var obj = vitaljs.graphObject({ type: type });
     obj.URI = 'http://vital.ai/haley.ai/haley-saas/' + parts[1] + '/' + new Date().getTime() + '-' + Math.round(100000000000 * Math.random());
+    Object.keys(properties).forEach(function (property) {
+        obj.set(property, properties[property] || null);
+    });
     return obj;
 };
 var createEdgeObject = function (vitaljs, type, source, destination) {
@@ -602,6 +658,21 @@ var createEdgeObject = function (vitaljs, type, source, destination) {
         edge.set(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION, (destination === null || destination === void 0 ? void 0 : destination.URI) || null);
     }
     return edge;
+};
+var getDestinationObjects = function (objects, edgeType, source) {
+    var edges = objects.filter(function (obj) { return obj.type === edgeType && obj.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE) === source.URI; });
+    var destinationURIs = edges.map(function (edge) { return edge.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION); });
+    var set = new Set(destinationURIs);
+    return objects.filter(function (obj) { return set.has(obj.URI); });
+};
+var getSourceObject = function (objects, edgeType, destination) {
+    var edge = objects.find(function (obj) { return obj.type === edgeType && obj.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION) === destination.URI; });
+    var sourceURI = edge.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE);
+    var source = objects.find(function (obj) { return obj.URI === sourceURI; });
+    if (!source) {
+        throw new Error("No source object found based on the provided object " + destination.URI + " and edgeType " + edgeType);
+    }
+    return source;
 };
 
 
@@ -628,15 +699,61 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 var RowAPI = /** @class */ (function () {
     function RowAPI() {
     }
-    RowAPI.createRowInstance = function (vitaljs, row) {
-        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createVitalObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE);
-        obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW, row.URI);
+    RowAPI.createRowInstance = function (vitaljs, row, rowInstanceCounter) {
+        var _a;
+        if (rowInstanceCounter === void 0) { rowInstanceCounter = 'AA'; }
+        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createVitalObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE, (_a = {}, _a[_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW] = row.URI, _a[_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER] = rowInstanceCounter, _a));
         return obj;
     };
-    RowAPI.createQaInstanceObjects = function (vitaljs, row, qaObjects, level) {
+    RowAPI.getRowByRowType = function (qaObjects, rowType) {
+        var rows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType; });
+        if (!rows.length) {
+            throw new Error("No row found with rowType: " + rowType);
+        }
+        if (rows.length !== 1) {
+            throw new Error("Multiple rows found with rowType: " + rowType + "; row uris: " + rows.map(function (obj) { return obj.URI; }));
+        }
+        return rows[0];
+    };
+    // This will only handle the row case not the row-row case. 
+    // if rowInstanceCounter provided, then there should only be one rowInstance exists that meet the criteria.
+    RowAPI.getRowInstanceByRowAndInstanceCounter = function (qaInstanceObjects, row, rowInstanceCounter) {
+        var rowInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === row.URI && (!rowInstanceCounter || obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter); });
+        if (rowInstanceCounter && !rowInstances.length) {
+            throw new Error("No rowInstance found to connect row " + row.URI + " with counter: " + rowInstanceCounter);
+        }
+        if (rowInstanceCounter && rowInstances.length !== 1) {
+            throw new Error("Multiple rowInstances found to connect row " + row.URI + "; rowInstances uris: " + rowInstances.map(function (obj) { return obj.URI; }));
+        }
+        return rowInstances;
+    };
+    RowAPI.getSiblingRowInstances = function (qaInstanceObjects, row, rowInstance) {
+        var upperInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getSourceObject)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
+        var rowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, upperInstance);
+        var siblings = rowInstances.filter(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === row.URI; });
+        return siblings;
+    };
+    RowAPI.getInstancesUnderRowInstance = function (qaInstanceObjects, rowInstance) {
+        var instances = [];
+        var edgeToProvidedRowInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === rowInstance.URI; });
+        instances = [edgeToProvidedRowInstance, rowInstance];
+        var questionInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE, rowInstance);
+        questionInstances.forEach(function (questionInstance) {
+            var questionInstanceAndAnswerInstanceWithEdge = _question_api_index__WEBPACK_IMPORTED_MODULE_0__.QuestionAPI.getQaInstancesWithEdges(qaInstanceObjects, questionInstance);
+            instances = __spreadArray(__spreadArray([], instances), questionInstanceAndAnswerInstanceWithEdge);
+        });
+        var rowRowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
+        rowRowInstances.forEach(function (rowRowInstance) {
+            var rowRowInstanceQaInstances = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowRowInstance);
+            instances = __spreadArray(__spreadArray([], instances), rowRowInstanceQaInstances);
+        });
+        return instances;
+    };
+    RowAPI.createQaInstanceObjects = function (vitaljs, row, qaObjects, rowInstanceCounter, level) {
+        if (rowInstanceCounter === void 0) { rowInstanceCounter = 'AA'; }
         if (level === void 0) { level = 1; }
         var createdQaInstances = [];
-        var rowInstance = this.createRowInstance(vitaljs, row);
+        var rowInstance = this.createRowInstance(vitaljs, row, rowInstanceCounter);
         createdQaInstances = __spreadArray([rowInstance], createdQaInstances);
         var edgeToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
         var edgeToQuestionURIs = edgeToQuestions.map(function (obj) { return obj.URI; });
@@ -675,7 +792,7 @@ var RowAPI = /** @class */ (function () {
             qaObjectsLeft = qaObjectsLeft.filter(function (obj) { return !edgeToRowURIs_1.includes(obj.URI); });
             for (var _b = 0, rows_1 = rows; _b < rows_1.length; _b++) {
                 var row_1 = rows_1[_b];
-                var _c = RowAPI.createQaInstanceObjects(vitaljs, row_1, qaObjectsLeft, level + 1), rowQaObjectsLeft = _c.qaObjectsLeft, createdInstances = _c.createdInstances, secondLevelRowInstance = _c.rowInstance;
+                var _c = RowAPI.createQaInstanceObjects(vitaljs, row_1, qaObjectsLeft, undefined, level + 1), rowQaObjectsLeft = _c.qaObjectsLeft, createdInstances = _c.createdInstances, secondLevelRowInstance = _c.rowInstance;
                 qaObjectsLeft = rowQaObjectsLeft;
                 var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance, secondLevelRowInstance);
                 createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToRowInstance]), createdInstances);
@@ -687,8 +804,178 @@ var RowAPI = /** @class */ (function () {
             rowInstance: rowInstance,
         };
     };
+    RowAPI.createQaRowInstanceObjectsWithUpperEdge = function (vitaljs, row, qaObjects, qaInstanceObjects, rowInstanceCounter) {
+        if (rowInstanceCounter === void 0) { rowInstanceCounter = 'AA'; }
+        var edgeToProvideRow = qaObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === row.URI; });
+        if (!edgeToProvideRow) {
+            throw new Error('Could not find any edges that pointed to the provided row');
+        }
+        var rowOrSection = qaObjects.find(function (obj) { return obj.URI === edgeToProvideRow.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE); });
+        if (!rowOrSection) {
+            throw new Error("Could not find the upper object that pointed to the provided row. upper object URI: " + edgeToProvideRow.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE));
+        }
+        var shortNameToMatchUpperObject = rowOrSection.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? _util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW : _util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_SECTION;
+        var upperInstanceType = rowOrSection.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE : _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_SECTION_INSTANCE;
+        var upperInstance = qaInstanceObjects.find(function (obj) { return obj.type === upperInstanceType && obj.get(shortNameToMatchUpperObject) === rowOrSection.URI; });
+        var level = rowOrSection.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? 2 : 1;
+        if (!upperInstance) {
+            throw new Error("Could not find the upper instance object.");
+        }
+        var _a = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjects, rowInstanceCounter, level), createdInstances = _a.createdInstances, createdRowInstance = _a.rowInstance;
+        var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, upperInstance, createdRowInstance);
+        return __spreadArray([edgeToRowInstance], createdInstances);
+    };
+    RowAPI.getRowAndRowInstancePair = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType) {
+        var row = RowAPI.getRowByRowType(qaObjects, rowType);
+        var rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
+        return [row, rowInstance];
+    };
+    RowAPI.getRowRowPairUnderRowPair = function (qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType) {
+        var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
+        var rowRowURIs = edgeToRows.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        // 1 get row based on rowRowType
+        var rowRows = qaObjects.filter(function (obj) {
+            return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW && rowRowURIs.includes(obj.URI) && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowRowType;
+        });
+        if (!rowRows.length) {
+            throw new Error("No row found with rowRowType: " + rowRowType + " under row (" + row.URI + ")");
+        }
+        if (rowRows.length !== 1) {
+            throw new Error("Multiple rowRows found with rowRowType: " + rowRowType + "; row uris: " + rowRows.map(function (obj) { return obj.URI; }));
+        }
+        var rowRow = rowRows[0];
+        // 3 get rowInstance based on rowInstanceCounter
+        var edgeFromRowInstanceToRowRowInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === rowInstance.URI; });
+        var rowRowInstanceUnderProvidedRowInstanceURIs = edgeFromRowInstanceToRowRowInstances.map(function (edge) { return edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var rowRowInstancesUnderProvidedRowInstance = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE && rowRowInstanceUnderProvidedRowInstanceURIs.includes(obj.URI); });
+        var rowRowInstances = rowRowInstancesUnderProvidedRowInstance.filter(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === rowRow.URI && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowRowInstanceCounter; });
+        if (!rowRowInstances.length) {
+            throw new Error("No rowInstance found to connect row " + rowRow.URI + " with counter: " + rowRowInstanceCounter);
+        }
+        if (rowRowInstances.length !== 1) {
+            throw new Error("Multiple rowInstances found to connect row " + rowRow.URI + "; rowInstances uris: " + rowRowInstances.map(function (obj) { return obj.URI; }));
+        }
+        var rowRowInstance = rowRowInstances[0];
+        // const rowRowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaObjects, qaInstanceObjects, rowRow, rowRowInstanceCounter);
+        return [rowRow, rowRowInstance];
+    };
+    RowAPI.getAnswerPairByAnswerTypeUnderRowPair = function (qaObjects, qaInstanceObjects, row, rowInstance, answerType) {
+        // 2 get answerObject based on answerType and row;
+        var edgeFromRowToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
+        var questionURIs = edgeFromRowToQuestions.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var edgeFromRowToAnswers = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER && questionURIs.includes(obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE)); });
+        var answerURIs = edgeFromRowToAnswers.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var answers = qaObjects.filter(function (obj) { return answerURIs.includes(obj.URI) && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
+        var rowType = row.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI);
+        if (!answers.length) {
+            throw new Error("No answer object found with answerType: " + rowType + " under rowType: " + rowType + ". Any of the following could be missing: edgeFromRowToQuestionObject, EdgeFromQuestionToAnswer, AnswerObject.");
+        }
+        if (answers.length !== 1) {
+            throw new Error("Multiple answers found with answerType: " + rowType + "; answer uris: " + answers.map(function (obj) { return obj.URI; }));
+        }
+        var answer = answers[0];
+        // 4 get answerInstance based on answerObject and rowInstance
+        var edgeFromRowToQuestionInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === rowInstance.URI; });
+        var questionInstanceURIs = edgeFromRowToQuestionInstances.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var edgeToAnswerInstances = qaInstanceObjects.filter(function (obj) { var _a; return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE && questionInstanceURIs.includes((_a = obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE)) !== null && _a !== void 0 ? _a : ''); });
+        var answerInstanceURIs = edgeToAnswerInstances.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var answerInstances = qaInstanceObjects.filter(function (obj) { return answerInstanceURIs.includes(obj.URI) && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
+        if (!answerInstances.length) {
+            throw new Error("No matched answerInstance object found.");
+        }
+        if (answerInstances.length !== 1) {
+            throw new Error("Multiple matched answerInstances found. answerInstance uris: " + answerInstances.map(function (obj) { return obj.URI; }));
+        }
+        var answerInstance = answerInstances[0];
+        return [answer, answerInstance];
+    };
+    RowAPI.getAnswerPairByAnswerTypeInsideRow = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType) {
+        // 1 get row and rowInstance
+        var _a = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType), row = _a[0], rowInstance = _a[1];
+        var _b = RowAPI.getAnswerPairByAnswerTypeUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, answerType), answer = _b[0], answerInstance = _b[1];
+        return [answer, answerInstance];
+    };
+    // given row counter, row type, row-row counter, row-row-type, and answer type, get value, if any.
+    RowAPI.getAnswerPairByAnswerTypeInsideRowRow = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType) {
+        // 1 get row and rowInstance
+        var _a = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType), row = _a[0], rowInstance = _a[1];
+        var _b = RowAPI.getRowRowPairUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType), rowRow = _b[0], rowRowInstance = _b[1];
+        var _c = RowAPI.getAnswerPairByAnswerTypeUnderRowPair(qaObjects, qaInstanceObjects, rowRow, rowRowInstance, answerType), answer = _c[0], answerInstance = _c[1];
+        return [answer, answerInstance];
+    };
+    RowAPI.getRowInstanceCountersByRowType = function (qaObjects, qaInstanceObjects, rowType) {
+        var row = RowAPI.getRowByRowType(qaObjects, rowType);
+        var rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
+        return rowInstances.map(function (ins) { return ins.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
+    };
+    RowAPI.getRowRowInstanceCountersByRowRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType) {
+        var row = RowAPI.getRowByRowType(qaObjects, rowType);
+        var rowRow = RowAPI.getRowByRowType(qaObjects, rowRowType);
+        var rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
+        var rowRowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
+        var rowInstancesConnectedToRowRow = RowAPI.getRowInstanceByRowAndInstanceCounter(rowRowInstances, rowRow);
+        return rowInstancesConnectedToRowRow.map(function (ins) { return ins.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
+    };
+    RowAPI.createRowQaInstancesByRowType = function (vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter) {
+        var row = RowAPI.getRowByRowType(qaObjects, rowType);
+        var rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
+        var rowInstanceCounters = rowInstances.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
+        if (rowInstanceCounter) {
+            if (rowInstanceCounters.includes(rowInstanceCounter)) {
+                throw new Error("The generated rowInstanceCounters has already existed, existing rowInstanceCounters: " + rowInstanceCounters + ". The rowInstanceCounter provided: " + rowInstanceCounter);
+            }
+            return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, rowInstanceCounter);
+        }
+        var generatedRowInstanceCounter = RowAPI.generateRowInstanceCounter(rowInstances.length);
+        if (rowInstanceCounters.includes(generatedRowInstanceCounter)) {
+            throw new Error("The generated rowInstanceCounters has already existed, existing rowInstanceCounters: " + rowInstanceCounters + ". The generated rowInstanceCounter: " + generatedRowInstanceCounter);
+        }
+        return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, generatedRowInstanceCounter);
+    };
+    RowAPI.removeRowQaInstancesByRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter) {
+        var row = RowAPI.getRowByRowType(qaObjects, rowType);
+        var rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
+        var siblingRowInstances = RowAPI.getSiblingRowInstances(qaInstanceObjects, row, rowInstance).filter(function (instance) { return instance.URI !== rowInstance.URI; });
+        var instancesUnderRowInstanceWithUpperEdge = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowInstance);
+        var objToBeRemoveURIs = new Set(instancesUnderRowInstanceWithUpperEdge.map(function (obj) { return obj.URI; }));
+        var instancesLeft = qaInstanceObjects.filter(function (obj) { return !objToBeRemoveURIs.has(obj.URI); });
+        siblingRowInstances.forEach(function (ins, index) {
+            ins.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
+        });
+        return instancesLeft;
+    };
+    RowAPI.generateRowInstanceCounter = function (index) {
+        if (index > 26 * 26) {
+            throw new Error("The max rowInstance for a row is " + 26 * 26 + ". The request number is " + index);
+        }
+        var indexToCapitalCharacter = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        var div = Math.floor(index / 26);
+        var mod = index % 26;
+        return indexToCapitalCharacter[div] + indexToCapitalCharacter[mod];
+    };
+    RowAPI.counterToNumber = function (counter) {
+        var character = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+        var max = RowAPI.maximumSiblingRowInstances + 2;
+        if (!counter)
+            return max;
+        if (counter.length === 1) {
+            if (!character.includes(counter))
+                return max;
+            return character.indexOf(counter);
+        }
+        if (counter.length === 2) {
+            if (!character.includes(counter[0]) || !character.includes(counter[1]))
+                return max;
+            return character.indexOf(counter[0]) * 26 + character.indexOf(counter[1]);
+        }
+        return max;
+    };
+    RowAPI.compareRowInstanceCounter = function (counter1, counter2) {
+        return RowAPI.counterToNumber(counter1) - RowAPI.counterToNumber(counter2);
+    };
     // 1 means row will not have another connected to it, 2 means it will handle row->row case, 3 means row->row->row case.
     RowAPI.maxLevel = 2;
+    RowAPI.maximumSiblingRowInstances = 26 * 26;
     return RowAPI;
 }());
 

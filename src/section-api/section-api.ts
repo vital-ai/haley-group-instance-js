@@ -65,7 +65,7 @@ export class SectionAPI {
             qaObjectsLeft = qaObjectsLeft.filter(obj => !edgeToRowURIs.includes(obj.URI));
 
             for (const row of rows) {
-                const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, 1);
+                const { qaObjectsLeft: rowQaObjectsLeft, createdInstances, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft);
                 qaObjectsLeft = rowQaObjectsLeft;
                 const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
                 createdQaInstances = [...createdQaInstances, edgeToRowInstance, ...createdInstances];

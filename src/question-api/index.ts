@@ -7,7 +7,8 @@ import { SHORT_NAME_HALEY_ANSWER,
     SHORT_NAME_EDGE_SOURCE,
     SHORT_NAME_EDGE_DESTINATION,
     EDGE_ANSWER_INSTANCE,
-    MAPPING_ANSWER_TO_ANSWER_INSTANCE
+    MAPPING_ANSWER_TO_ANSWER_INSTANCE,
+    EDGE_QUESTION_INSTANCE,
 } from '../util/constant';
 
 
@@ -55,6 +56,14 @@ export class QuestionAPI {
             questionInstance: questionInstance,
             qaObjectsLeft: qaObjectsLeft,
         }
+    }
+
+    static getQaInstancesWithEdges(qaInstanceObjects: GraphObject[], questionInstance: GraphObject): [GraphObject, GraphObject, GraphObject, GraphObject] {
+        const edgeToQuestionInstance = qaInstanceObjects.find(obj => obj.type === EDGE_QUESTION_INSTANCE && obj.get(SHORT_NAME_EDGE_DESTINATION) === questionInstance.URI);
+        const edgeToAnswerInstance = qaInstanceObjects.find(obj => obj.type === EDGE_ANSWER_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === questionInstance.URI);
+        const answerInstanceURI = edgeToAnswerInstance.get(SHORT_NAME_EDGE_DESTINATION);
+        const answerInstance = qaInstanceObjects.find(obj => obj.URI === answerInstanceURI);
+        return [edgeToQuestionInstance, questionInstance, edgeToAnswerInstance, answerInstance];
     }
 
 }

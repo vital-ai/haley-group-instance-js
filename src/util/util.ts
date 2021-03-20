@@ -49,3 +49,13 @@ export const getDestinationObjects = function(objects: GraphObject[], edgeType: 
     const set: Set<string> = new Set(destinationURIs);
     return objects.filter(obj => set.has(obj.URI));
 }
+
+export const getSourceObject = function(objects: GraphObject[], edgeType: string, destination: GraphObject): GraphObject {
+    const edge = objects.find(obj => obj.type === edgeType && obj.get(SHORT_NAME_EDGE_DESTINATION) === destination.URI);
+    const sourceURI = edge.get(SHORT_NAME_EDGE_SOURCE);
+    const source = objects.find(obj => obj.URI === sourceURI);
+    if (!source) {
+        throw new Error(`No source object found based on the provided object ${destination.URI} and edgeType ${edgeType}`)
+    }
+    return source;
+}
