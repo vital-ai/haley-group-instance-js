@@ -75,6 +75,7 @@ use command: **npm publish**
     qaInstanceObjects = [...qaInstanceObjects, ...createdInstances];
 
     // addRowQaInstancesByRowType directly update to qaInstanceObjects;
+    // argument rowInstanceCounter will be optional, if not provided, it will incremented as 'AA', 'AB', .... 'ZZ'.
     groupAPI.addRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowTypeURI, rowInstanceCounter);
 
     // removeRowQaInstancesByRowTypeAndInstanceCounter
