@@ -22,6 +22,7 @@ import {
     secondLevelRow,
     secondLevelQuestion1,
     secondLevelAnswer1,
+    dataTestRows,
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW,
@@ -52,6 +53,7 @@ describe('RowAPI', () => {
     const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
     const rowRowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Location";
     const testData = cloneDeep(dataTestGroup);
+    const testDataRows = cloneDeep(dataTestRows);
 
     beforeAll(() => {
         groupAPI = new GroupAPI(vitaljs);
@@ -555,12 +557,84 @@ describe('RowAPI', () => {
 
             // Should update the counter if the previous rowInstance got removed
             expect(rowInstanceLeft).toBeDefined();
-            expect(rowInstanceLeft.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toEqual('AA');
+            expect(rowInstanceLeft.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toEqual('AB');
            
         });
 
     });
 
+    describe('getFirstLevelRows', () => {
+        let qaObjects: GraphObject[];
+
+        beforeEach(() => {
+            qaObjects = cloneDeep(testDataRows);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const rootRow1 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row')
+            const rootRow2 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row2');
+            rootRow1.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-1');
+            rootRow2.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-2');
+
+            const rowRow1 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            const rowRow2 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row-2');
+            rowRow1.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'row-row-1');
+            rowRow2.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-2');
+        });
+        it('Should get first level rows', () => {
+            const rows = RowAPI.getFirstLevelRows(qaObjects);
+            expect(rows.length).toBe(2);
+            const rowsURI = rows.map(obj => obj.URI);
+            expect(rowsURI.includes('http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row')).toBe(true);
+            expect(rowsURI.includes('http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row2')).toBe(true);
+        });
+    });
+
+    describe('getRowTypes', () => {
+        let qaObjects: GraphObject[];
+
+        beforeEach(() => {
+            qaObjects = cloneDeep(testDataRows);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const rootRow1 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row')
+            const rootRow2 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row2');
+            rootRow1.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-1');
+            rootRow2.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-2');
+
+            const rowRow1 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            const rowRow2 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row-2');
+            rowRow1.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'row-row-1');
+            rowRow2.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'row-row-2');
+        });
+        it('Should get first level rows', () => {
+            const rowTypes = RowAPI.getRowTypes(qaObjects);
+            expect(rowTypes.length).toBe(2);
+            expect(rowTypes.includes('root-row-1')).toBe(true);
+            expect(rowTypes.includes('root-row-2')).toBe(true);
+        });
+    });
+
+    describe('getRowTypesInRow', () => {
+        let qaObjects: GraphObject[];
+
+        beforeEach(() => {
+            qaObjects = cloneDeep(testDataRows);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const rootRow1 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row')
+            const rootRow2 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row2');
+            rootRow1.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-1');
+            rootRow2.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'root-row-2');
+
+            const rowRow1 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            const rowRow2 = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row-2');
+            rowRow1.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'row-row-1');
+            rowRow2.set(SHORT_NAME_HALEY_ROW_TYPE_URI, 'row-row-2');
+        });
+        it('Should get first level rows', () => {
+            const rowTypes = RowAPI.getRowTypesInRow(qaObjects, 'root-row-1');
+            expect(rowTypes.length).toBe(2);
+            expect(rowTypes.includes('row-row-1')).toBe(true);
+            expect(rowTypes.includes('row-row-2')).toBe(true);
+        });
+    });
 
 });
 

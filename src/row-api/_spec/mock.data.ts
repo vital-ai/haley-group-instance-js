@@ -83,12 +83,35 @@ export const edgeRootSectionToRow1 = {
   "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleySection/Applicant-Info-ContactInfo",
   "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row"
 }
+export const edgeRootSectionToRow2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasRow",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#Edge_hasRow"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasRow/1597780220324_019840341023",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleySection/Applicant-Info-ContactInfo",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row2"
+}
 export const rootRow = {
   "type": "http://vital.ai/ontology/haley-ai-question#HaleyRow",
   "types": [
     "http://vital.ai/ontology/haley-ai-question#HaleyRow"
   ],
   "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row",
+};
+export const rootRow1 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyRow",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyRow"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row",
+};
+export const rootRow2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyRow",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyRow"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row2",
 };
 export const edgeRootRowToQuestion1 = {
   "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasQuestion",
@@ -427,4 +450,21 @@ export const dataTestGroup2 = [
   edgeSecondLevelQuestionToAnswer2,
   secondLevelAnswer2,
   redundantObject,
+] as any as GraphObject[];
+
+export const dataTestRows = [
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+
+  edgeRootSectionToRow1,
+  rootRow1,
+
+  edgeToSecondLevelRow,
+  secondLevelRow,
+  edgeToSecondLevelRow2,
+  secondLevelRow2,
+
+  edgeRootSectionToRow2,
+  rootRow2,
 ] as any as GraphObject[];

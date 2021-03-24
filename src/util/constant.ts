@@ -36,6 +36,9 @@ export const TYPE_HALEY_SIGNATURE_ANSWER = 'http://vital.ai/ontology/haley-ai-qu
 export const TYPE_HALEY_TAXONOMY_ANSWER = 'http://vital.ai/ontology/haley-ai-question#HaleyTaxonomyAnswer';
 export const TYPE_HALEY_MULTI_TAXONOMY_ANSWER = 'http://vital.ai/ontology/haley-ai-question#HaleyMultiTaxonomyAnswer';
 
+export const TYPE_FOLLOWUP_FIRM_ANSWER = 'http://vital.ai/ontology/haley-ai-question#AnswerFollowup_FIRM_ANSWER';
+export const TYPE_FOLLOWUP_NO_ANSWER = 'http://vital.ai/ontology/haley-ai-question#AnswerFollowup_NO_ANSWER';
+
 export const MAPPING_ANSWER_TO_ANSWER_INSTANCE = new Map<string, string>([
     [TYPE_HALEY_TEXT_ANSWER, TYPE_HALEY_TEXT_ANSWER_INSTANCE],
     [TYPE_HALEY_BOOLEAN_ANSWER, TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE],
@@ -57,6 +60,7 @@ export const SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER = 'rowInstanceCounter';
 export const SHORT_NAME_HALEY_ANSWER_DATA_TYPE = 'haleyAnswerDataType';
 export const SHORT_NAME_EDGE_SOURCE = 'edgeSource';
 export const SHORT_NAME_EDGE_DESTINATION = 'edgeDestination';
+export const SHORT_NAME_FOLLOWUP_TYPE = 'haleyAnswerFollowupType';
 
 // GroupInstance
 export const SHORT_NAME_HALEY_GROUP = 'haleyGroup';

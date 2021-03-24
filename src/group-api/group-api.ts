@@ -31,6 +31,9 @@ import {
     TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE,
     TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE,
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
+    TYPE_FOLLOWUP_NO_ANSWER,
+    TYPE_FOLLOWUP_FIRM_ANSWER,
+    SHORT_NAME_FOLLOWUP_TYPE,
 } from '../util/constant';
 import { SectionAPI } from '../section-api/section-api';
 import { RowAPI } from '../row-api/index';
@@ -50,13 +53,6 @@ export class GroupAPI {
     msgRL: MsgRL;
     
     constructor(vitaljs: VitalJs, logger?: Logger, ) {
-        GroupAPI.logger = logger;
-        if (!GroupAPI.vitaljs) {
-            GroupAPI.vitaljs = vitaljs;
-        } else if (GroupAPI.logger) {
-            GroupAPI.logger.info('vitaljs has already been initialized');
-        }
-
         this.logger = logger;
         this.vitaljs = vitaljs || GroupAPI.vitaljs;
         this.msgRL = vitaljs.resultList();
@@ -168,8 +164,9 @@ export class GroupAPI {
     };
 
     private static setAnswerValue(answerInstance: GraphObject, answerObj: GraphObject, value: any) {
-        // console.log('_getAnswerValue');
+        const followupType = value === null ? TYPE_FOLLOWUP_NO_ANSWER : TYPE_FOLLOWUP_FIRM_ANSWER;
         if (answerInstance) {
+            answerInstance.set(SHORT_NAME_FOLLOWUP_TYPE, followupType);
             switch (answerInstance.type) {
                 case TYPE_HALEY_TEXT_ANSWER_INSTANCE:
                     return answerInstance.set("textAnswerValue", value);
@@ -191,8 +188,11 @@ export class GroupAPI {
     
                 case TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
-                    var answerDataType = answer.set("haleyAnswerDataType", value);
+                    var answerDataType = answer.get("haleyAnswerDataType");
                     if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
+                        if (!Number.isInteger(value)) {
+                            throw new Error('The passed value should be an integer for and answer with HaleyIntegerDataType datatype.')
+                        }
                         return answerInstance.set("integerAnswerValue", value);
                     } else {
                         return answerInstance.set("doubleAnswerValue", value);
@@ -329,6 +329,14 @@ export class GroupAPI {
 
         return createdQaInstances;
 
+    }
+
+    getRowTypes(qaObjects: GraphObject[]): string[] {
+        return RowAPI.getRowTypes(qaObjects);
+    }
+
+    getRowTypesInRow(qaObjects: GraphObject[], rowType: string): string[] {
+        return RowAPI.getRowTypesInRow(qaObjects, rowType);
     }
 
     setValue(setValueProp: SetValueProp) {

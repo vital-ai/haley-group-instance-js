@@ -2826,3 +2826,33 @@ export const dataTestGroupMissingSection = [
   group1,
   edgeGroupToSection,
 ];
+
+export const edgeRootQuestionToNumberAnswer1 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220322_957219730",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyNumberAnswer/1597780220321_957219729"
+};
+export const rootNumberAnswer1 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyNumberAnswer",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyNumberAnswer"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyNumberAnswer/1597780220321_957219729",
+  "http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue": false,
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1"
+};
+
+export const dataTestNumberData: GraphObject[] = [
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToNumberAnswer1,
+  rootNumberAnswer1
+] as any as GraphObject[];

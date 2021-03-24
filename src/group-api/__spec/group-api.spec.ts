@@ -14,6 +14,7 @@ import {
     secondLevelRow,
     secondLevelQuestion1,
     secondLevelAnswer1,
+    dataTestNumberData,
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
@@ -36,8 +37,15 @@ import {
     EDGE_SECTION_INSTANCE,
     SHORT_NAME_TEXT_ANSWER_VALUE,
     SHORT_NAME_HALEY_ROW_TYPE_URI,
-    SHORT_NAME_HALEY_ANSWER_TYPE
+    SHORT_NAME_HALEY_ANSWER_TYPE,
+    SHORT_NAME_FOLLOWUP_TYPE,
+    TYPE_FOLLOWUP_FIRM_ANSWER,
+    TYPE_FOLLOWUP_NO_ANSWER,
+    TYPE_HALEY_NUMBER_ANSWER_INSTANCE,
+    SHORT_NAME_HALEY_ANSWER_DATA_TYPE
 } from '../../util/constant';
+import { cloneDeep } from 'lodash';
+import {  } from '../../util/constant';
 
 const { vitaljs } = require('../../../test-util');
 
@@ -70,6 +78,7 @@ describe('GroupAPI', () => {
     });
 
     describe('setValueByAnswerType', () => {
+        let testData = cloneDeep(dataTestNumberData);
         const logger = {
             info: console.log,
             error: console.error,
@@ -83,8 +92,45 @@ describe('GroupAPI', () => {
             const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress';
             const qaObjects = data as any as GraphObject[];
             const qaInstanceObjects: GraphObject[] = [];
-            GroupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaa@bbbb.com');
-            expect(GroupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType)).toEqual('aaaa@bbbb.com');
+            const answerInstance = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/haley-saas/HaleyTextAnswerInstance/1611810073224_788433299');
+            groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaa@bbbb.com');
+            expect(groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType)).toEqual('aaaa@bbbb.com');
+            expect(answerInstance.get(SHORT_NAME_FOLLOWUP_TYPE)).toEqual(TYPE_FOLLOWUP_FIRM_ANSWER);
+            groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, null);
+            expect(groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType)).toBeUndefined();
+            expect(answerInstance.get(SHORT_NAME_FOLLOWUP_TYPE)).toEqual(TYPE_FOLLOWUP_NO_ANSWER);
+        });
+
+        it('Should throw error if the passed in value is a float value while the dataType specific it should be an integer', () => {
+            const qaObjects = cloneDeep(testData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_NUMBER';
+            const dataType = 'http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyNumberAnswer/1597780220321_957219729');
+
+            answer.set(SHORT_NAME_HALEY_ANSWER_DATA_TYPE, dataType);
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            try {
+                groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 3.4);
+                expect(true).toBe(false);
+            } catch(error) {
+                expect(error.message).toEqual('The passed value should be an integer for and answer with HaleyIntegerDataType datatype.');
+            }
+        });
+
+        it('Should set the integer value', () => {
+            const qaObjects = cloneDeep(testData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_NUMBER';
+            const dataType = 'http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyNumberAnswer/1597780220321_957219729');
+
+            answer.set(SHORT_NAME_HALEY_ANSWER_DATA_TYPE, dataType);
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 3);
+            expect(groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType)).toEqual(3);
         });
     });
 

@@ -17,8 +17,10 @@ import { EDGE_ROW,
     SHORT_NAME_HALEY_ANSWER_TYPE,
     SHORT_NAME_HALEY_SECTION,
     TYPE_HALEY_SECTION_INSTANCE,
+    TYPE_HALEY_SECTION,
 } from '../util/constant';
 import { createEdgeObject, createVitalObject, getDestinationObjects, getSourceObject } from '../util/util';
+import { flatten } from 'lodash';
 
 export class RowAPI {
 
@@ -329,19 +331,45 @@ export class RowAPI {
     static removeRowQaInstancesByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string): GraphObject[] {
         const row = RowAPI.getRowByRowType(qaObjects, rowType);
         const rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
-        const siblingRowInstances = RowAPI.getSiblingRowInstances(qaInstanceObjects, row, rowInstance).filter(instance => instance.URI !== rowInstance.URI);
+        // const siblingRowInstances = RowAPI.getSiblingRowInstances(qaInstanceObjects, row, rowInstance).filter(instance => instance.URI !== rowInstance.URI);
         
         const instancesUnderRowInstanceWithUpperEdge = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowInstance);
 
         const objToBeRemoveURIs = new Set(instancesUnderRowInstanceWithUpperEdge.map(obj => obj.URI));
         const instancesLeft = qaInstanceObjects.filter(obj => !objToBeRemoveURIs.has(obj.URI));
 
-        siblingRowInstances.forEach((ins, index) => {
-            ins.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
-        });
+        // siblingRowInstances.forEach((ins, index) => {
+        //     ins.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
+        // });
 
         return instancesLeft;
     }
+
+    static getFirstLevelRows(qaObjects: GraphObject[]): GraphObject[] {
+        const sections = qaObjects.filter(obj => obj.type === TYPE_HALEY_SECTION);
+        const rows = flatten(sections.map(section => getDestinationObjects(qaObjects, EDGE_ROW, section)));
+        return rows;
+    }
+
+    static getRowTypes(qaObjects: GraphObject[]): string[] {
+        const rows = RowAPI.getFirstLevelRows(qaObjects);
+        return rows.map(obj => obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI));
+    }
+
+    static getRowTypesInRow(qaObjects: GraphObject[], rowType: string) {
+        const rows = RowAPI.getFirstLevelRows(qaObjects);
+        const row = rows.find(obj => obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType);
+        if (!row) {
+            throw new Error(`Couldn't find any row with rowType: ${rowType}`);
+        }
+
+        const rowRows = getDestinationObjects(qaObjects, EDGE_ROW, row);
+
+        return rowRows.map(obj => obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI));
+
+    }
+
+    
 
     static generateRowInstanceCounter(index: number) {
 
