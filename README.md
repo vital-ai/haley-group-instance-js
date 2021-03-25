@@ -81,4 +81,10 @@ use command: **npm publish**
     // removeRowQaInstancesByRowTypeAndInstanceCounter
     const updatedQaInstanceObjects = groupAPI.removeRowQaInstancesByRowTypeAndInstanceCounter(qaObjects, qaInstanceObjects, rowTypeURI, rowInstanceCounter);
 
+    // get all rowTypes under sections.
+    const rowTypes: string[] = groupAPI.getRowTypes(qaObjects);
+
+    // get all rowTypes under row (with rowType).
+    const rowTypes: string[] = groupAPI. getRowTypesInRow(qaObjects, rowType);
+
 ```
