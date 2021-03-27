@@ -190,8 +190,8 @@ export class GroupAPI {
                     var answer = answerObj;
                     var answerDataType = answer.get("haleyAnswerDataType");
                     if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
-                        if (!Number.isInteger(value)) {
-                            throw new Error('The passed value should be an integer for and answer with HaleyIntegerDataType datatype.')
+                        if (value !== null && !Number.isInteger(value)) {
+                            throw new Error(`The passed value should be an integer for and answer with HaleyIntegerDataType datatype. value: ${value}, answer: ${JSON.stringify(answer)}, answerInstance: ${JSON.stringify(answerInstance)}`)
                         }
                         return answerInstance.set("integerAnswerValue", value);
                     } else {
@@ -337,6 +337,10 @@ export class GroupAPI {
 
     getRowTypesInRow(qaObjects: GraphObject[], rowType: string): string[] {
         return RowAPI.getRowTypesInRow(qaObjects, rowType);
+    }
+
+    generateRowInstanceCounter(index: number) {
+        return RowAPI.generateRowInstanceCounter(index);
     }
 
     setValue(setValueProp: SetValueProp) {

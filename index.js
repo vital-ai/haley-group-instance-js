@@ -49,13 +49,6 @@ var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from
 
 var GroupAPI = /** @class */ (function () {
     function GroupAPI(vitaljs, logger) {
-        GroupAPI.logger = logger;
-        if (!GroupAPI.vitaljs) {
-            GroupAPI.vitaljs = vitaljs;
-        }
-        else if (GroupAPI.logger) {
-            GroupAPI.logger.info('vitaljs has already been initialized');
-        }
         this.logger = logger;
         this.vitaljs = vitaljs || GroupAPI.vitaljs;
         this.msgRL = vitaljs.resultList();
@@ -145,8 +138,9 @@ var GroupAPI = /** @class */ (function () {
     };
     ;
     GroupAPI.setAnswerValue = function (answerInstance, answerObj, value) {
-        // console.log('_getAnswerValue');
+        var followupType = value === null ? _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_FOLLOWUP_NO_ANSWER : _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_FOLLOWUP_FIRM_ANSWER;
         if (answerInstance) {
+            answerInstance.set(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_FOLLOWUP_TYPE, followupType);
             switch (answerInstance.type) {
                 case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TEXT_ANSWER_INSTANCE:
                     return answerInstance.set("textAnswerValue", value);
@@ -162,8 +156,11 @@ var GroupAPI = /** @class */ (function () {
                     return answerInstance.set("fileAnswerValueURI", value);
                 case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
-                    var answerDataType = answer.set("haleyAnswerDataType", value);
+                    var answerDataType = answer.get("haleyAnswerDataType");
                     if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
+                        if (value !== null && !Number.isInteger(value)) {
+                            throw new Error("The passed value should be an integer for and answer with HaleyIntegerDataType datatype. value: " + value + ", answer: " + JSON.stringify(answer) + ", answerInstance: " + JSON.stringify(answerInstance));
+                        }
                         return answerInstance.set("integerAnswerValue", value);
                     }
                     else {
@@ -272,6 +269,15 @@ var GroupAPI = /** @class */ (function () {
         // }
         return createdQaInstances;
     };
+    GroupAPI.prototype.getRowTypes = function (qaObjects) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getRowTypes(qaObjects);
+    };
+    GroupAPI.prototype.getRowTypesInRow = function (qaObjects, rowType) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.getRowTypesInRow(qaObjects, rowType);
+    };
+    GroupAPI.prototype.generateRowInstanceCounter = function (index) {
+        return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.generateRowInstanceCounter(index);
+    };
     GroupAPI.prototype.setValue = function (setValueProp) {
         var value = setValueProp.value;
         var _a = this.getAnswerAndAnswerInstance(setValueProp), answer = _a[0], answerInstance = _a[1];
@@ -353,6 +359,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "TYPE_HALEY_SIGNATURE_ANSWER": () => (/* binding */ TYPE_HALEY_SIGNATURE_ANSWER),
 /* harmony export */   "TYPE_HALEY_TAXONOMY_ANSWER": () => (/* binding */ TYPE_HALEY_TAXONOMY_ANSWER),
 /* harmony export */   "TYPE_HALEY_MULTI_TAXONOMY_ANSWER": () => (/* binding */ TYPE_HALEY_MULTI_TAXONOMY_ANSWER),
+/* harmony export */   "TYPE_FOLLOWUP_FIRM_ANSWER": () => (/* binding */ TYPE_FOLLOWUP_FIRM_ANSWER),
+/* harmony export */   "TYPE_FOLLOWUP_NO_ANSWER": () => (/* binding */ TYPE_FOLLOWUP_NO_ANSWER),
 /* harmony export */   "MAPPING_ANSWER_TO_ANSWER_INSTANCE": () => (/* binding */ MAPPING_ANSWER_TO_ANSWER_INSTANCE),
 /* harmony export */   "SHORT_NAME_HALEY_ANSWER_TYPE": () => (/* binding */ SHORT_NAME_HALEY_ANSWER_TYPE),
 /* harmony export */   "SHORT_NAME_HALEY_ROW_TYPE_URI": () => (/* binding */ SHORT_NAME_HALEY_ROW_TYPE_URI),
@@ -360,6 +368,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "SHORT_NAME_HALEY_ANSWER_DATA_TYPE": () => (/* binding */ SHORT_NAME_HALEY_ANSWER_DATA_TYPE),
 /* harmony export */   "SHORT_NAME_EDGE_SOURCE": () => (/* binding */ SHORT_NAME_EDGE_SOURCE),
 /* harmony export */   "SHORT_NAME_EDGE_DESTINATION": () => (/* binding */ SHORT_NAME_EDGE_DESTINATION),
+/* harmony export */   "SHORT_NAME_FOLLOWUP_TYPE": () => (/* binding */ SHORT_NAME_FOLLOWUP_TYPE),
 /* harmony export */   "SHORT_NAME_HALEY_GROUP": () => (/* binding */ SHORT_NAME_HALEY_GROUP),
 /* harmony export */   "SHORT_NAME_HALEY_ROW": () => (/* binding */ SHORT_NAME_HALEY_ROW),
 /* harmony export */   "SHORT_NAME_HALEY_QUESTION": () => (/* binding */ SHORT_NAME_HALEY_QUESTION),
@@ -418,6 +427,8 @@ var TYPE_HALEY_MULTI_CHOICE_ANSWER = 'http://vital.ai/ontology/haley-ai-question
 var TYPE_HALEY_SIGNATURE_ANSWER = 'http://vital.ai/ontology/haley-ai-question#HaleySignatureAnswer';
 var TYPE_HALEY_TAXONOMY_ANSWER = 'http://vital.ai/ontology/haley-ai-question#HaleyTaxonomyAnswer';
 var TYPE_HALEY_MULTI_TAXONOMY_ANSWER = 'http://vital.ai/ontology/haley-ai-question#HaleyMultiTaxonomyAnswer';
+var TYPE_FOLLOWUP_FIRM_ANSWER = 'http://vital.ai/ontology/haley-ai-question#AnswerFollowup_FIRM_ANSWER';
+var TYPE_FOLLOWUP_NO_ANSWER = 'http://vital.ai/ontology/haley-ai-question#AnswerFollowup_NO_ANSWER';
 var MAPPING_ANSWER_TO_ANSWER_INSTANCE = new Map([
     [TYPE_HALEY_TEXT_ANSWER, TYPE_HALEY_TEXT_ANSWER_INSTANCE],
     [TYPE_HALEY_BOOLEAN_ANSWER, TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE],
@@ -437,6 +448,7 @@ var SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER = 'rowInstanceCounter';
 var SHORT_NAME_HALEY_ANSWER_DATA_TYPE = 'haleyAnswerDataType';
 var SHORT_NAME_EDGE_SOURCE = 'edgeSource';
 var SHORT_NAME_EDGE_DESTINATION = 'edgeDestination';
+var SHORT_NAME_FOLLOWUP_TYPE = 'haleyAnswerFollowupType';
 // GroupInstance
 var SHORT_NAME_HALEY_GROUP = 'haleyGroup';
 var SHORT_NAME_HALEY_ROW = 'haleyRow';
@@ -688,11 +700,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _question_api_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 /* harmony import */ var _util_constant__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
 /* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(7);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_3__);
 var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
         to[j] = from[i];
     return to;
 };
+
 
 
 
@@ -935,14 +950,32 @@ var RowAPI = /** @class */ (function () {
     RowAPI.removeRowQaInstancesByRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter) {
         var row = RowAPI.getRowByRowType(qaObjects, rowType);
         var rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
-        var siblingRowInstances = RowAPI.getSiblingRowInstances(qaInstanceObjects, row, rowInstance).filter(function (instance) { return instance.URI !== rowInstance.URI; });
+        // const siblingRowInstances = RowAPI.getSiblingRowInstances(qaInstanceObjects, row, rowInstance).filter(instance => instance.URI !== rowInstance.URI);
         var instancesUnderRowInstanceWithUpperEdge = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowInstance);
         var objToBeRemoveURIs = new Set(instancesUnderRowInstanceWithUpperEdge.map(function (obj) { return obj.URI; }));
         var instancesLeft = qaInstanceObjects.filter(function (obj) { return !objToBeRemoveURIs.has(obj.URI); });
-        siblingRowInstances.forEach(function (ins, index) {
-            ins.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
-        });
+        // siblingRowInstances.forEach((ins, index) => {
+        //     ins.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
+        // });
         return instancesLeft;
+    };
+    RowAPI.getFirstLevelRows = function (qaObjects) {
+        var sections = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_SECTION; });
+        var rows = (0,lodash__WEBPACK_IMPORTED_MODULE_3__.flatten)(sections.map(function (section) { return (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW, section); }));
+        return rows;
+    };
+    RowAPI.getRowTypes = function (qaObjects) {
+        var rows = RowAPI.getFirstLevelRows(qaObjects);
+        return rows.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI); });
+    };
+    RowAPI.getRowTypesInRow = function (qaObjects, rowType) {
+        var rows = RowAPI.getFirstLevelRows(qaObjects);
+        var row = rows.find(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType; });
+        if (!row) {
+            throw new Error("Couldn't find any row with rowType: " + rowType);
+        }
+        var rowRows = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW, row);
+        return rowRows.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI); });
     };
     RowAPI.generateRowInstanceCounter = function (index) {
         if (index > 26 * 26) {
@@ -981,6 +1014,13 @@ var RowAPI = /** @class */ (function () {
 
 
 
+/***/ }),
+/* 7 */
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("lodash");;
+
 /***/ })
 /******/ 	]);
 /************************************************************************/
@@ -1008,6 +1048,18 @@ var RowAPI = /** @class */ (function () {
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
