@@ -115,7 +115,7 @@ describe('GroupAPI', () => {
                 groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 3.4);
                 expect(true).toBe(false);
             } catch(error) {
-                expect(error.message).toEqual('The passed value should be an integer for and answer with HaleyIntegerDataType datatype.');
+                expect(error.message).toEqual(expect.stringContaining('The passed value should be an integer for and answer with HaleyIntegerDataType datatype.'));
             }
         });
 

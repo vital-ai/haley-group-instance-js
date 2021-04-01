@@ -21,6 +21,11 @@ use command: **npm publish**
     npm install @vital-ai/haley-group-instance
 ```
 
+## Assumptions
+- under all sections (not insider row), there could only be one answer with answerType.
+- under one row, answer with a specific answerType is uniq.
+- under a group, there could only be one Row with a specific rowType.
+
 
 ## GroupAPI
 ```js

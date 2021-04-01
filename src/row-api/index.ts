@@ -94,7 +94,7 @@ export class RowAPI {
         return instances;
     }
 
-    static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], rowInstanceCounter: string='AA', level: number = 1):  CreateRowInstancesResult {
+    static createQaInstanceObjects(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], rowInstanceCounter: string='AA', level: number = 1, handleRowRow: boolean = false):  CreateRowInstancesResult {
 
         let createdQaInstances: GraphObject[] = []
 
@@ -125,7 +125,7 @@ export class RowAPI {
             createdQaInstances = [...createdQaInstances, edgeToQuestionInstance, ...createdInstances];
         }
 
-        if (level <= RowAPI.maxLevel) {
+        if (handleRowRow && level <= RowAPI.maxLevel) {
             const edgeToRows = qaObjects.filter(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_SOURCE) === row.URI);
             const edgeToRowURIs = edgeToRows.map(obj => obj.URI);
             const rows = edgeToRows.map(edge => {
@@ -157,30 +157,38 @@ export class RowAPI {
         };
     }
 
-    static createQaRowInstanceObjectsWithUpperEdge(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string = 'AA'):  GraphObject[] {
+    static createQaRowInstanceObjectsWithUpperEdge(vitaljs: VitalJs, row: GraphObject, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string = 'AA', providedUpperInstance?: GraphObject, providedLevel?: number, option: any = {}):  GraphObject[] {
 
-        const edgeToProvideRow = qaObjects.find(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_DESTINATION) === row.URI);
+        let upperInstance: GraphObject;
+        let level: number;
 
-        if (!edgeToProvideRow) {
-            throw new Error('Could not find any edges that pointed to the provided row');
+        if (!providedUpperInstance) {
+            const edgeToProvideRow = qaObjects.find(obj => obj.type === EDGE_ROW && obj.get(SHORT_NAME_EDGE_DESTINATION) === row.URI);
+
+            if (!edgeToProvideRow) {
+                throw new Error('Could not find any edges that pointed to the provided row');
+            }
+
+            const rowOrSection = qaObjects.find(obj => obj.URI === edgeToProvideRow.get(SHORT_NAME_EDGE_SOURCE));
+        
+            if (!rowOrSection) {
+                throw new Error(`Could not find the upper object that pointed to the provided row. upper object URI: ${edgeToProvideRow.get(SHORT_NAME_EDGE_SOURCE)}`)
+            }
+
+            const shortNameToMatchUpperObject = rowOrSection.type === TYPE_HALEY_ROW ? SHORT_NAME_HALEY_ROW : SHORT_NAME_HALEY_SECTION;
+            const upperInstanceType = rowOrSection.type === TYPE_HALEY_ROW ? TYPE_HALEY_ROW_INSTANCE : TYPE_HALEY_SECTION_INSTANCE;
+            upperInstance = qaInstanceObjects.find(obj => obj.type === upperInstanceType && obj.get(shortNameToMatchUpperObject) === rowOrSection.URI);
+            level = rowOrSection.type === TYPE_HALEY_ROW ? 2 : 1;
+        } else {
+            upperInstance = providedUpperInstance;
+            level = providedLevel;
         }
-
-        const rowOrSection = qaObjects.find(obj => obj.URI === edgeToProvideRow.get(SHORT_NAME_EDGE_SOURCE));
-       
-        if (!rowOrSection) {
-            throw new Error(`Could not find the upper object that pointed to the provided row. upper object URI: ${edgeToProvideRow.get(SHORT_NAME_EDGE_SOURCE)}`)
-        }
-
-        const shortNameToMatchUpperObject = rowOrSection.type === TYPE_HALEY_ROW ? SHORT_NAME_HALEY_ROW : SHORT_NAME_HALEY_SECTION;
-        const upperInstanceType = rowOrSection.type === TYPE_HALEY_ROW ? TYPE_HALEY_ROW_INSTANCE : TYPE_HALEY_SECTION_INSTANCE;
-        const upperInstance = qaInstanceObjects.find(obj => obj.type === upperInstanceType && obj.get(shortNameToMatchUpperObject) === rowOrSection.URI);
-        const level = rowOrSection.type === TYPE_HALEY_ROW ? 2 : 1;
 
         if (!upperInstance) {
             throw new Error(`Could not find the upper instance object.`);
         }
 
-        const { createdInstances, rowInstance: createdRowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjects, rowInstanceCounter, level);
+        const { createdInstances, rowInstance: createdRowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjects, rowInstanceCounter, level, option.handleRowRow);
 
         const edgeToRowInstance = createEdgeObject(vitaljs, EDGE_ROW_INSTANCE, upperInstance, createdRowInstance);
 
@@ -306,7 +314,8 @@ export class RowAPI {
         return rowInstancesConnectedToRowRow.map(ins => ins.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
     }
 
-    static createRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter?: string): GraphObject[] {
+    // handleRowRow set to true will create rowRowInstance within the result.
+    static createRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter?: string, handleRowRow: boolean = false): GraphObject[] {
         const row = RowAPI.getRowByRowType(qaObjects, rowType);
         const rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
         const rowInstanceCounters = rowInstances.map(obj => obj.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
@@ -315,7 +324,7 @@ export class RowAPI {
             if (rowInstanceCounters.includes(rowInstanceCounter)) {
                 throw new Error(`The generated rowInstanceCounters has already existed, existing rowInstanceCounters: ${rowInstanceCounters}. The rowInstanceCounter provided: ${rowInstanceCounter}`);
             }
-            return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, rowInstanceCounter);
+            return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, rowInstanceCounter, undefined, undefined, { handleRowRow });
         }
         
         const generatedRowInstanceCounter = RowAPI.generateRowInstanceCounter(rowInstances.length);
@@ -324,7 +333,7 @@ export class RowAPI {
             throw new Error(`The generated rowInstanceCounters has already existed, existing rowInstanceCounters: ${rowInstanceCounters}. The generated rowInstanceCounter: ${generatedRowInstanceCounter}`);
         }
 
-        return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, generatedRowInstanceCounter);
+        return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, row, qaObjects, qaInstanceObjects, generatedRowInstanceCounter, undefined, undefined, { handleRowRow });
 
     }
 
@@ -341,6 +350,46 @@ export class RowAPI {
         // siblingRowInstances.forEach((ins, index) => {
         //     ins.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, RowAPI.generateRowInstanceCounter(index));
         // });
+
+        return instancesLeft;
+    }
+
+    static createRowRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter?: string): GraphObject[] {
+        const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
+        const rowRow = RowAPI.getRowByRowType(qaObjects, rowRowType);
+        const rowRowInstanceCounters = RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
+        if (rowRowInstanceCounter && rowRowInstanceCounters.includes(rowRowInstanceCounter)) {
+            throw new Error(`RowInstance with counter ${rowRowInstanceCounter} already exist`);
+        } 
+
+        if (rowRowInstanceCounter) {
+            return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, rowRow, qaObjects, qaInstanceObjects, rowRowInstanceCounter, rowInstance, 2);
+        }
+
+        let generatedCounter: string;
+        let index = rowRowInstanceCounters.length;
+
+        while(!generatedCounter) {
+            const counter = this.generateRowInstanceCounter(index);
+            if (rowRowInstanceCounters.includes(counter)) {
+                index += 1;
+            } else {
+                generatedCounter = counter;
+            }
+        }
+
+        return RowAPI.createQaRowInstanceObjectsWithUpperEdge(vitaljs, rowRow, qaObjects, qaInstanceObjects, generatedCounter, rowInstance, 2);
+        
+    }
+
+    static removeRowRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter?: string): GraphObject[] {
+        const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
+        const [rowRow, rowRowInstance] = RowAPI.getRowRowPairUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType);
+
+        const instancesUnderRowInstanceWithUpperEdge = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowRowInstance);
+
+        const objToBeRemoveURIs = new Set(instancesUnderRowInstanceWithUpperEdge.map(obj => obj.URI));
+        const instancesLeft = qaInstanceObjects.filter(obj => !objToBeRemoveURIs.has(obj.URI));
 
         return instancesLeft;
     }
@@ -368,8 +417,6 @@ export class RowAPI {
         return rowRows.map(obj => obj.get(SHORT_NAME_HALEY_ROW_TYPE_URI));
 
     }
-
-    
 
     static generateRowInstanceCounter(index: number) {
 

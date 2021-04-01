@@ -54,6 +54,7 @@ describe('RowAPI', () => {
     const rowRowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Location";
     const testData = cloneDeep(dataTestGroup);
     const testDataRows = cloneDeep(dataTestRows);
+    const testDataRow2 = cloneDeep(dataTestGroup2);
 
     beforeAll(() => {
         groupAPI = new GroupAPI(vitaljs);
@@ -95,7 +96,7 @@ describe('RowAPI', () => {
             dataTestRowMissingRow.forEach(obj => vitaljs.graphObject(obj));
             const row =dataTestRowMissingRow.find(obj => obj.type === TYPE_HALEY_ROW) as any as GraphObject;
             try {
-                RowAPI.createQaInstanceObjects(vitaljs, row, dataTestRowMissingRow as any as GraphObject[]);
+                RowAPI.createQaInstanceObjects(vitaljs, row, dataTestRowMissingRow as any as GraphObject[], undefined, undefined, true);
                 expect(true).toBe(false);
             } catch(error) {
                 expect(error.message).toEqual('Could not find the row object connected to edge http://vital.ai/haley.ai/harbor-saas/Edge_hasRow/1597780220324_892829342384, rowURI http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
@@ -105,7 +106,7 @@ describe('RowAPI', () => {
         it('Should create instance objects', () => {
             dataTestRow.forEach(obj => vitaljs.graphObject(obj));
             const row = dataTestRow.find(obj => obj.type === TYPE_HALEY_ROW) as any as GraphObject;
-            const { createdInstances, qaObjectsLeft, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, dataTestRow as any as GraphObject[]);
+            const { createdInstances, qaObjectsLeft, rowInstance } = RowAPI.createQaInstanceObjects(vitaljs, row, dataTestRow as any as GraphObject[], undefined, undefined, true);
             expect(rowInstance.get(SHORT_NAME_HALEY_ROW)).toBe(row.URI);
             expect(createdInstances.length).toBe(11);
 
@@ -526,7 +527,7 @@ describe('RowAPI', () => {
         });
 
         it('Should generate rowInstance', () => {
-            const createdInstances = RowAPI.createRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowTypeURI);
+            const createdInstances = RowAPI.createRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowTypeURI, undefined, true);
             const numberOfInstance = qaInstanceObjects.length;
             const sectionInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_SECTION_INSTANCE && obj.get(SHORT_NAME_HALEY_SECTION) === 'http://vital.ai/haley.ai/harbor-saas/HaleySection/Applicant-Info-ContactInfo');
             
@@ -558,6 +559,54 @@ describe('RowAPI', () => {
             // Should update the counter if the previous rowInstance got removed
             expect(rowInstanceLeft).toBeDefined();
             expect(rowInstanceLeft.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toEqual('AB');
+           
+        });
+
+    });
+
+    describe('createRowRowQaInstanceByRowType', () => {
+        const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+        const rowRowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Location";
+        let qaInstanceObjects: GraphObject[];
+        let testQaObjects: GraphObject[];
+        let qaObjects: GraphObject[];
+        let rowRow: GraphObject;
+
+        beforeEach(() => {
+            qaObjects = cloneDeep(testDataRow2);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const row = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            row.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI);
+            rowRow = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            rowRow.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowRowTypeURI);
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects as any as GraphObject[], true);
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
+        });
+
+        it('Should generate rowInstance', () => {
+            const createdInstances = RowAPI.createRowRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowTypeURI, 'AA', rowRowTypeURI, 'AB');
+            const numberOfInstance = qaInstanceObjects.length;
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            
+            expect(createdInstances.length).toBe(6);
+
+            const edgeToRowInstance = createdInstances.find(obj => obj.type === EDGE_ROW_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === rowInstance.URI);
+
+            const rowRowInstance = createdInstances.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === rowRow.URI);
+            expect(rowRowInstance.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toBe('AB');
+            const createdInstanceURI = rowRowInstance.URI;
+
+            expect(edgeToRowInstance.get(SHORT_NAME_EDGE_DESTINATION) === rowRowInstance.URI)
+
+            qaInstanceObjects = [...qaInstanceObjects, ...createdInstances];
+
+            const instancesAfterRemove = RowAPI.removeRowRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowTypeURI, 'AA', rowRowTypeURI, 'AB');
+            // // adding rowInstance and then remove should remain same number of instance objects.
+            expect(instancesAfterRemove.length).toBe(numberOfInstance);
+            const rowRowInstanceLeft = instancesAfterRemove.find(obj => obj.URI === createdInstanceURI);
+
+            expect(rowRowInstanceLeft).toBeUndefined();
            
         });
 
