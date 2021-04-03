@@ -42,10 +42,17 @@ import {
     SHORT_NAME_HALEY_ROW_TYPE_URI,
     SHORT_NAME_HALEY_ANSWER_TYPE,
     SHORT_NAME_HALEY_SECTION,
-    TYPE_HALEY_SECTION_INSTANCE
+    TYPE_HALEY_SECTION_INSTANCE,
 } from '../../util/constant';
 
 const { vitaljs } = require('../../../test-util');
+
+export const expectNotExist = (objects: GraphObject[], uris: string[]) => {
+    for (let uri of uris) {
+        const obj = objects.find(obj => obj.URI === uri);
+        expect(obj).toBeUndefined();
+    }
+}
 
 describe('RowAPI', () => {
     let groupAPI: GroupAPI;
@@ -597,7 +604,18 @@ describe('RowAPI', () => {
             expect(rowRowInstance.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toBe('AB');
             const createdInstanceURI = rowRowInstance.URI;
 
-            expect(edgeToRowInstance.get(SHORT_NAME_EDGE_DESTINATION) === rowRowInstance.URI)
+            expect(edgeToRowInstance.get(SHORT_NAME_EDGE_DESTINATION)).toEqual(rowRowInstance.URI);
+            const edgeToQuestionInstances = createdInstances.filter(obj => obj.type === EDGE_QUESTION_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === rowRowInstance.URI);
+            const questionInstances = createdInstances.filter(obj => obj.type === TYPE_HALEY_QUESTION_INSTANCE);
+            expect(edgeToQuestionInstances.length).toBe(1);
+            expect(questionInstances.length).toBe(1);
+            expect(edgeToQuestionInstances[0].get(SHORT_NAME_EDGE_DESTINATION)).toEqual(questionInstances[0].URI);
+
+            const edgeToAnswerInstances = createdInstances.filter(obj => obj.type === EDGE_ANSWER_INSTANCE && obj.get(SHORT_NAME_EDGE_SOURCE) === questionInstances[0].URI);
+            const answerInstances = createdInstances.filter(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE);
+            expect(edgeToAnswerInstances.length).toBe(1);
+            expect(answerInstances.length).toBe(1);
+            expect(edgeToAnswerInstances[0].get(SHORT_NAME_EDGE_DESTINATION)).toEqual(answerInstances[0].URI);
 
             qaInstanceObjects = [...qaInstanceObjects, ...createdInstances];
 
@@ -605,6 +623,15 @@ describe('RowAPI', () => {
             // // adding rowInstance and then remove should remain same number of instance objects.
             expect(instancesAfterRemove.length).toBe(numberOfInstance);
             const rowRowInstanceLeft = instancesAfterRemove.find(obj => obj.URI === createdInstanceURI);
+
+            expectNotExist(instancesAfterRemove, [
+                edgeToRowInstance.URI,
+                rowRowInstance.URI,
+                edgeToQuestionInstances[0].URI,
+                questionInstances[0].URI,
+                edgeToAnswerInstances[0].URI,
+                answerInstances[0].URI,
+            ])
 
             expect(rowRowInstanceLeft).toBeUndefined();
            

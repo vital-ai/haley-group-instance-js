@@ -265,11 +265,26 @@ export class GroupAPI {
     addRowQaInstancesByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter?: string) {
         const instances = RowAPI.createRowQaInstancesByRowType(this.vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
         instances.forEach(ins => qaInstanceObjects.push(ins));
+        return qaInstanceObjects;
     }
 
     // remove the rowInstance objects form qaInstanceObjects and return the updated 
     removeRowQaInstancesByRowTypeAndInstanceCounter(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string): GraphObject[] {
         return RowAPI.removeRowQaInstancesByRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter);
+    }
+
+    createRowRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter?: string): GraphObject[] {
+        return RowAPI.createRowRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter);
+    }
+
+    addRowRowQaInstancesByRowType(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter?: string) {
+        const instances = RowAPI.createRowRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter);
+        instances.forEach(ins => qaInstanceObjects.push(ins));
+        return qaInstanceObjects;
+    }
+
+    removeRowRowQaInstancesByRowTypeAndInstanceCounter(vitaljs: VitalJs, qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter?: string): GraphObject[] {
+        return RowAPI.removeRowRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter);
     }
 
     createQaInstanceObjects(qaObjects: GraphObject[], withRow=false) {
