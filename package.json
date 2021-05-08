@@ -1,10 +1,10 @@
 {
   "name": "@vital-ai/haley-group-instance",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "",
   "dependencies": {
     "@types/lodash": "^4.14.168",
-    "@vital-ai/haley": "0.0.8",
+    "@vital-ai/haley": "0.0.7",
     "lodash": "^4.17.20",
     "node-sass": "^5.0.0",
     "ts-loader": "^8.0.17",
