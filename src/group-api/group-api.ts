@@ -305,6 +305,14 @@ export class GroupAPI {
         return RowAPI.removeRowRowQaInstancesByRowType(vitaljs, qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter);
     }
 
+    updateRowInstanceCounterByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, counter: string): GraphObject {
+        return RowAPI.updateRowInstanceCounterByRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, counter);
+    }
+
+    updateRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter: string, counter: string): GraphObject {
+        return RowAPI.updateRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter, counter);
+    }
+
     createQaInstanceObjects(qaObjects: GraphObject[], withRow=false) {
         let createdQaInstances: GraphObject[] = [];
 

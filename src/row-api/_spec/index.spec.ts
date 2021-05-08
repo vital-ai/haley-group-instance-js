@@ -498,6 +498,30 @@ describe('RowAPI', () => {
         });
     });
 
+    describe('updateRowInstanceCounterByRowType', () => {
+        let qaInstanceObjects: GraphObject[];
+        let rowInstance: GraphObject;
+
+        beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects, true);
+            rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'B');
+        });
+        it('Should throw error', () => {
+            try {
+                RowAPI.updateRowInstanceCounterByRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'B', 'B');
+                expect(true).toBe(false);
+            } catch (error) {
+                expect(error.message).toEqual('The rowInstance with counter as B is already exists');
+            }
+        });
+
+        it('Should set rowInstance Counter', () => {
+            RowAPI.updateRowInstanceCounterByRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'B', 'C');
+            expect(rowInstance.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toEqual('C');
+        });
+    });
+
     describe('getRowRowInstanceCountersByRowRowType', () => {
         let qaInstanceObjects: GraphObject[];
 
@@ -512,6 +536,36 @@ describe('RowAPI', () => {
         it('Should get rowRowInstanceCounters by rowRowType', () => {
             const rowRowInstanceCounters = RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'B', rowRowTypeURI);
             expect(rowRowInstanceCounters).toEqual(['C']);
+        });
+    });
+
+    describe('updateRowRowInstanceCountersByRowRowType', () => {
+        let qaInstanceObjects: GraphObject[];
+        let rowRowInstance: GraphObject;
+
+        const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+        const rowRowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Location";
+
+        beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects, true);
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'B');
+            rowRowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row-row');
+            rowRowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, 'C');
+        });
+
+        it('Should throw error', () => {
+            try {
+                RowAPI.updateRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'B', rowRowTypeURI, 'C', 'C');
+                expect(true).toBe(false);
+            } catch (error) {
+                expect(error.message).toEqual('The rowInstance with counter as C is already exists');
+            }
+        });
+
+        it('Should set rowInstance Counter', () => {
+            RowAPI.updateRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowTypeURI, 'B', rowRowTypeURI, 'C', 'D');
+            expect(rowRowInstance.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER)).toEqual('D');
         });
     });
 

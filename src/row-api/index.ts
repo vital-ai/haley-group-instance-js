@@ -305,6 +305,20 @@ export class RowAPI {
         return rowInstances.map(ins => ins.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
     }
 
+    static updateRowInstanceCounterByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, counter: string): GraphObject {
+        const counters = RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowType);
+
+        if (counters.includes(counter)) {
+            throw new Error(`The rowInstance with counter as ${counter} is already exists`);
+        }
+
+        const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
+
+        rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, counter);
+        
+        return rowInstance;
+    }
+
     static getRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string): string[] {
         const row = RowAPI.getRowByRowType(qaObjects, rowType);
         const rowRow = RowAPI.getRowByRowType(qaObjects, rowRowType);
@@ -312,6 +326,21 @@ export class RowAPI {
         const rowRowInstances = getDestinationObjects(qaInstanceObjects, EDGE_ROW_INSTANCE, rowInstance);
         const rowInstancesConnectedToRowRow = RowAPI.getRowInstanceByRowAndInstanceCounter(rowRowInstances, rowRow);
         return rowInstancesConnectedToRowRow.map(ins => ins.get(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER));
+    }
+
+    static updateRowRowInstanceCountersByRowRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string, rowInstanceCounter: string, rowRowType: string, rowRowInstanceCounter: string, counter: string): GraphObject {
+        const rowRowInstanceCounters = RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
+
+        if (rowRowInstanceCounters.includes(counter)) {
+            throw new Error(`The rowInstance with counter as ${counter} is already exists`);
+        }
+
+        const [row, rowInstance] = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType);
+        const [rowRow, rowRowInstance] = RowAPI.getRowRowPairUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType);
+
+        rowRowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, counter);
+        
+        return rowRowInstance;
     }
 
     // handleRowRow set to true will create rowRowInstance within the result.
