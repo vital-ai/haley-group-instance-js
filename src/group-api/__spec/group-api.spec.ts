@@ -41,7 +41,8 @@ import {
     SHORT_NAME_FOLLOWUP_TYPE,
     TYPE_FOLLOWUP_FIRM_ANSWER,
     TYPE_FOLLOWUP_NO_ANSWER,
-    SHORT_NAME_HALEY_ANSWER_DATA_TYPE
+    SHORT_NAME_HALEY_ANSWER_DATA_TYPE,
+    MAPPING_ANSWER_TO_ANSWER_INSTANCE
 } from '../../util/constant';
 import { cloneDeep } from 'lodash';
 import {  } from '../../util/constant';
@@ -151,6 +152,12 @@ describe('GroupAPI', () => {
   
             const createdInstances = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
             expect(createdInstances.length).toBe(19);
+
+            createdInstances
+                .filter(instance => Array.from(MAPPING_ANSWER_TO_ANSWER_INSTANCE.values()).includes(instance.type))
+                .forEach(instance => {
+                    expect(instance.get(SHORT_NAME_FOLLOWUP_TYPE)).toEqual(TYPE_FOLLOWUP_NO_ANSWER);
+                });
 
             const groupInstance = createdInstances.find(obj => obj.type === TYPE_HALEY_GROUP_INSTANCE);
             expect(groupInstance.get(SHORT_NAME_HALEY_GROUP)).toEqual(group1.URI);

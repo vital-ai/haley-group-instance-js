@@ -1,5 +1,6 @@
 import { CreateQuestionInstancesResult, GraphObject, VitalJs } from '../util/type';
 import { createVitalObject, createEdgeObject } from '../util/util';
+import { SHORT_NAME_FOLLOWUP_TYPE, TYPE_FOLLOWUP_NO_ANSWER } from '../util/constant';
 import { SHORT_NAME_HALEY_ANSWER,
     SHORT_NAME_HALEY_QUESTION,
     TYPE_HALEY_QUESTION_INSTANCE,
@@ -27,6 +28,7 @@ export class QuestionAPI {
         }
         const obj = createVitalObject(vitaljs, instanceType);
         obj.set(SHORT_NAME_HALEY_ANSWER, answer.URI);
+        obj.set(SHORT_NAME_FOLLOWUP_TYPE, TYPE_FOLLOWUP_NO_ANSWER);
         return obj;
     }
 
