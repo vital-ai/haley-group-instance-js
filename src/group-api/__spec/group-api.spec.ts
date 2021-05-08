@@ -41,7 +41,6 @@ import {
     SHORT_NAME_FOLLOWUP_TYPE,
     TYPE_FOLLOWUP_FIRM_ANSWER,
     TYPE_FOLLOWUP_NO_ANSWER,
-    TYPE_HALEY_NUMBER_ANSWER_INSTANCE,
     SHORT_NAME_HALEY_ANSWER_DATA_TYPE
 } from '../../util/constant';
 import { cloneDeep } from 'lodash';
@@ -248,11 +247,20 @@ describe('GroupAPI', () => {
 
         it('Should set / get the value', () => {
             const qaObjects = dataTestGroup as any as GraphObject[];
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
             const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
             expect(value).toBe('666-666-66666');
             groupAPI.setValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow, '999-999-9999');
             const valueReset = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
             expect(valueReset).toEqual('999-999-9999');
+            expect(answerInstance.get(SHORT_NAME_TEXT_ANSWER_VALUE)).toEqual('999-999-9999');
+            expect(answerInstance.get(SHORT_NAME_FOLLOWUP_TYPE)).toEqual(TYPE_FOLLOWUP_FIRM_ANSWER);
+
+            groupAPI.resetValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            const resetValue = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            expect(answerInstance.get(SHORT_NAME_TEXT_ANSWER_VALUE)).toBeUndefined();
+            expect(answerInstance.get(SHORT_NAME_FOLLOWUP_TYPE)).toEqual(TYPE_FOLLOWUP_NO_ANSWER);
+
         });
     });
 

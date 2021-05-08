@@ -23,7 +23,7 @@ export const createVitalObject = function(vitaljs: VitalJs, type: string, proper
     
     Object.keys(properties).forEach(property => {
         obj.set(property, properties[property] || null);
-    })
+    });
 	
 	return obj;
 }

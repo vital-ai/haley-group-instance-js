@@ -221,12 +221,20 @@ export class GroupAPI {
         return null;
     };
 
+    createVitalObject(vitaljs: VitalJs, type: string, properties: { [key: string]: any }={}): GraphObject {
+        return createVitalObject(vitaljs, type, properties);
+    }
+
     getValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string) {
         return GroupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType, this.vitaljs);
     }
 
     setValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string, value: any) {
         return GroupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, value, this.vitaljs);
+    }
+
+    resetValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string) {
+        return GroupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, null, this.vitaljs);
     }
 
     getValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
@@ -239,6 +247,11 @@ export class GroupAPI {
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
     }
 
+    resetValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
+        const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType);
+        return GroupAPI.setAnswerValue(answerInstance, answer, null);
+    }
+
     getValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string) {
         const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType);
         return GroupAPI.getAnswerValue(answerInstance, answer);
@@ -247,6 +260,11 @@ export class GroupAPI {
     setValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string, value: any) {
         const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType);
         return GroupAPI.setAnswerValue(answerInstance, answer, value);
+    }
+
+    resetValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string) {
+        const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType);
+        return GroupAPI.setAnswerValue(answerInstance, answer, null);
     }
 
     getRowInstanceCountersByRowType(qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowType: string): string[] {
