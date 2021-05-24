@@ -45,7 +45,7 @@ import {
     MAPPING_ANSWER_TO_ANSWER_INSTANCE
 } from '../../util/constant';
 import { cloneDeep } from 'lodash';
-import {  } from '../../util/constant';
+import { createVitalObject } from '../../util/util';
 
 const { vitaljs } = require('../../../test-util');
 
@@ -226,8 +226,21 @@ describe('GroupAPI', () => {
             expect(secondLevelAnswerInstances[0].get(SHORT_NAME_HALEY_ANSWER)).toBe(secondLevelAnswer1.URI);
  
          });
-    });
 
+         it('Should accept the passed in groupInstance', () => {
+            dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
+
+            const passedInGroupInstance = createVitalObject(vitaljs, TYPE_HALEY_GROUP_INSTANCE);
+            passedInGroupInstance.URI = 'mock-group-uri';
+  
+            const createdInstances = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true, { groupInstance: passedInGroupInstance });
+
+            const groupInstance = createdInstances.find(ins => ins.type === TYPE_HALEY_GROUP_INSTANCE);
+            const group = dataTestGroup.find(obj => obj.type === TYPE_HALEY_GROUP);
+            expect(groupInstance.URI).toBe('mock-group-uri');
+            expect(groupInstance.get(SHORT_NAME_HALEY_GROUP)).toBe(group.URI);
+         });
+    });
 
     describe('set/getValueByAnswerTypeInsideRow', () => {
 

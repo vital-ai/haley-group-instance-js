@@ -41,6 +41,7 @@ import {
     createVitalObject,
     createEdgeObject
 } from '../util/util';
+import { CreateQaInstancesOption } from './type';
 
 export class GroupAPI {
 
@@ -313,7 +314,7 @@ export class GroupAPI {
         return RowAPI.updateRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter, counter);
     }
 
-    createQaInstanceObjects(qaObjects: GraphObject[], withRow=false) {
+    createQaInstanceObjects(qaObjects: GraphObject[], withRow=false, option: CreateQaInstancesOption={}) {
         let createdQaInstances: GraphObject[] = [];
 
         // 1 get group and create groupInstance.
@@ -325,7 +326,8 @@ export class GroupAPI {
         }
 
         const group = groups[0];
-        const groupInstance = this.createGroupInstance(group);
+        if (option.groupInstance) option.groupInstance.set(SHORT_NAME_HALEY_GROUP, group.URI);
+        const groupInstance = option.groupInstance || this.createGroupInstance(group);
         createdQaInstances = [groupInstance, ...createdQaInstances];
 
         const edgeToSections = qaObjects.filter(obj => obj.type === EDGE_SECTION && obj.get(SHORT_NAME_EDGE_SOURCE) === group.URI);

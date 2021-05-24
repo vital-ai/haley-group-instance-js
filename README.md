@@ -30,6 +30,10 @@ use command: **npm publish**
 ## GroupAPI
 ```js
     // creating instances objects
+    signature: createQaInstanceObjects(qaObjects: GraphObject[], withRow=false, option: CreateQaInstancesOption={});
+    withRow = false, means the created Instances will not includes rowInstance and any questionInstance under it.
+    option = { groupInstance } will passed in the groupInstance and it will stop the method from creating a new one.
+
     const groupAPI = new GroupAPI(vitaljs, logger);
     const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
 
