@@ -34,14 +34,19 @@ import {
     TYPE_FOLLOWUP_NO_ANSWER,
     TYPE_FOLLOWUP_FIRM_ANSWER,
     SHORT_NAME_FOLLOWUP_TYPE,
+    mappingTypeToDownStreamEdges,
 } from '../util/constant';
 import { SectionAPI } from '../section-api/section-api';
 import { RowAPI } from '../row-api/index';
 import {
     createVitalObject,
-    createEdgeObject
+    createEdgeObject,
+    buildGraph
 } from '../util/util';
-import { CreateQaInstancesOption } from './type';
+import { CreateQaInstancesOption, SplitGraph } from './type';
+import { MappingUtil } from '../util/mapping-util';
+import { GroupGraphContainer } from '../graph-container/group-graph-container';
+import { GroupInstanceGraphContainer } from '../graph-container/group-instance-graph-container';
 
 export class GroupAPI {
 
@@ -384,6 +389,45 @@ export class GroupAPI {
 
     generateRowInstanceCounter(index: number) {
         return RowAPI.generateRowInstanceCounter(index);
+    }
+
+    splitGroupAndInstances(qaObjects: GraphObject[]): SplitGraph {
+        let groupContainers: GroupGraphContainer[] = [];
+        let groupInstanceContainers: GroupInstanceGraphContainer[] = [];
+
+        const mappingUtil = new MappingUtil(qaObjects);
+
+        let groups = mappingUtil.getObjectsByType(TYPE_HALEY_GROUP);
+        const groupInstances = mappingUtil.getObjectsByType(TYPE_HALEY_GROUP_INSTANCE);
+
+        const matched = new Map<string, GraphObject>();
+
+        // initialized graph containers.
+        groupInstances.forEach(groupInstance => {
+            let graph: GraphObject[] = [];
+            buildGraph(groupInstance, graph, mappingUtil);
+            const container = new GroupInstanceGraphContainer(graph, groupInstance);
+            groupInstanceContainers.push(container);
+
+            graph.forEach(obj => matched.set(obj.URI, obj));
+        });
+
+        groups.forEach(group => {
+            let graph: GraphObject[] = [];
+            buildGraph(group, graph, mappingUtil);
+            const container = new GroupGraphContainer(graph, group);
+            groupContainers.push(container);
+
+            graph.forEach(obj => matched.set(obj.URI, obj));
+        });
+
+        const objectLeft = qaObjects.filter(obj => !matched.has(obj.URI));
+
+        return {
+            groupGraphContainerList: groupContainers,
+            instanceGraphContainerList: groupInstanceContainers,
+            generalGraphObjects: objectLeft,
+        };
     }
 
     setValue(setValueProp: SetValueProp) {

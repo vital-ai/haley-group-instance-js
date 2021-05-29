@@ -11,6 +11,7 @@ import { EDGE_ROW,
     SHORT_NAME_HALEY_SECTION
 } from '../util/constant';
 import { createEdgeObject, createVitalObject } from '../util/util';
+import { MappingUtil } from '../util/mapping-util';
 
 export class SectionAPI {
 

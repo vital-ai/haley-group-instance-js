@@ -1,4 +1,8 @@
-import { GraphObject } from "../../util/type";
+import { TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP } from "../../util/constant";
+import { GraphObject } from '../../util/type';
+import { createVitalObject } from "../../util/util";
+
+const { vitaljs } = require('../../../test-util');
 
 export const data =  [
     {
@@ -2616,7 +2620,18 @@ export const group1 = {
   "http://vital.ai/ontology/haley-ai-question#hasGroupIndex": 0,
   "http://vital.ai/ontology/harbor-ai#hasHarborGroupTypeURI": "http://vital.ai/ontology/harbor-ai#GroupType_SUBMISSION",
   "http://vital.ai/ontology/vital-core#hasName": "Applicant Info"
-};
+} as any as GraphObject;
+export const group2 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyGroup",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyGroup"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyGroup/Policy",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-2",
+  "http://vital.ai/ontology/haley-ai-question#hasGroupIndex": 1,
+  "http://vital.ai/ontology/harbor-ai#hasHarborGroupTypeURI": "http://vital.ai/ontology/harbor-ai#GroupType_POLICY",
+  "http://vital.ai/ontology/vital-core#hasName": "Policy"
+} as any as GraphObject;
 export const edgeGroupToSection = {
   "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasSection",
   "types": [
@@ -2855,4 +2870,9 @@ export const dataTestNumberData: GraphObject[] = [
   rootQuestion1,
   edgeRootQuestionToNumberAnswer1,
   rootNumberAnswer1
+] as any as GraphObject[];
+
+export const mixMockData: GraphObject[] = [
+  group2,
+  createVitalObject(vitaljs, TYPE_HALEY_GROUP_INSTANCE, { [SHORT_NAME_HALEY_GROUP]: group2.URI }),
 ] as any as GraphObject[];

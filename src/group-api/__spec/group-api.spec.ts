@@ -15,6 +15,7 @@ import {
     secondLevelQuestion1,
     secondLevelAnswer1,
     dataTestNumberData,
+    mixMockData,
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
@@ -46,6 +47,7 @@ import {
 } from '../../util/constant';
 import { cloneDeep } from 'lodash';
 import { createVitalObject } from '../../util/util';
+import { SplitGraph } from '../type';
 
 const { vitaljs } = require('../../../test-util');
 
@@ -324,6 +326,55 @@ describe('GroupAPI', () => {
             groupAPI.setValueByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, rowRowInstanceCounter, rowRowTypeURI, answerTypeInRowRow, '999-999-9999');
             const valueReset = groupAPI.getValueByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowTypeURI, rowRowInstanceCounter, rowRowTypeURI, answerTypeInRowRow);
             expect(valueReset).toEqual('999-999-9999');
+        });
+    });
+
+    describe('splitGroupAndInstances', () => {
+        const cloneQaObjects = cloneDeep(mixMockData);
+        let qaObjects: GraphObject[];
+
+        let qaInstanceObjects: GraphObject[];
+        let qaInstanceObjects1: GraphObject[];
+        let groupAPI: GroupAPI;
+        const rowTypeURI = "http://vital.ai/ontology/haley-ai-question#RowType_Harbor_Policy";
+        const answerTypeInRow = "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_Contact_PrimaryEmailAddress"
+        const rowInstanceCounter = '1';
+
+        beforeAll(() => {
+            groupAPI = new GroupAPI(vitaljs);
+            dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
+            const rows = dataTestGroup.filter(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rows.forEach(obj => obj.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI));
+         });
+
+         beforeEach(() => {
+            qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
+            qaInstanceObjects1 = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
+            const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
+            const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
+            rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '1');
+         });
+
+        it('Should split into two graphContainer', () => {
+            const allObjects = [...dataTestGroup, ...qaInstanceObjects, ...qaInstanceObjects1];
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(allObjects);
+
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            console.log(groupGraphContainerList[0].all.map(obj => obj.URI));
+            console.log(instanceGraphContainerList[0].all.map(obj => obj.URI));
+            console.log(instanceGraphContainerList[1].all.map(obj => obj.URI));
+            console.log(generalGraphObjects.map(obj => obj.URI));
+
+            expect(groupGraphContainerList.length).toEqual(1);
+            expect(instanceGraphContainerList.length).toEqual(2);
+            expect(generalGraphObjects).toHaveLength(1);
+
         });
     });
     

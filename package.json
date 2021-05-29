@@ -5,6 +5,7 @@
   "dependencies": {
     "@types/lodash": "^4.14.168",
     "@vital-ai/haley": "0.0.7",
+    "@vital-ai/haley-js-scripts": "^1.0.1",
     "lodash": "^4.17.20",
     "node-sass": "^5.0.0",
     "ts-loader": "^8.0.17",
@@ -29,7 +30,8 @@
   },
   "scripts": {
     "test": "jest --runInBand",
-    "build": "npx webpack"
+    "build": "npx webpack",
+    "copy-domains": "node ./node_modules/@vital-ai/haley-js-scripts/share/copy-domains.js"
   },
   "repository": {
     "type": "git",

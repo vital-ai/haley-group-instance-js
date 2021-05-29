@@ -1,5 +1,6 @@
 import { VitalJs, GraphObject } from './type';
-import { SHORT_NAME_EDGE_SOURCE, SHORT_NAME_EDGE_DESTINATION } from './constant';
+import { SHORT_NAME_EDGE_SOURCE, SHORT_NAME_EDGE_DESTINATION, mappingTypeToDownStreamEdges } from './constant';
+import { MappingUtil } from './mapping-util';
 
 /**
  * Create vital Object based on the type given
@@ -58,4 +59,39 @@ export const getSourceObject = function(objects: GraphObject[], edgeType: string
         throw new Error(`No source object found based on the provided object ${destination.URI} and edgeType ${edgeType}`)
     }
     return source;
+}
+
+export const isEdge = function(vitaljs: VitalJs, type: string): boolean {
+    const rootEdge = 'http://vital.ai/ontology/vital-core#VITAL_Edge';
+    if (type === rootEdge) return true;
+    return vitaljs.isSubclassOf(type, rootEdge);
+}
+
+
+export const buildGraph = (root: GraphObject, graph: GraphObject[], mappingUtil: MappingUtil): void => {
+    if (!root) return;
+
+    graph.push(root);
+
+    const edgeTypes = mappingTypeToDownStreamEdges.get(root.type);
+
+    if (!edgeTypes) return;
+
+    edgeTypes.forEach(edgeType => {
+        let edges = mappingUtil.getObjectsByType(edgeType).filter(edge => edge.get(SHORT_NAME_EDGE_SOURCE) === root.URI);
+        edges.forEach(edge => {
+            const destinationObjectURI = edge.get(SHORT_NAME_EDGE_DESTINATION);
+            if (!destinationObjectURI) {
+                throw new Error(`Property ${SHORT_NAME_EDGE_DESTINATION} for edge ${edge.URI} is not set.`);
+            }
+            const destinationObject = mappingUtil.getObjectByURI(destinationObjectURI);
+            if (!destinationObject) {
+                throw new Error(`Could not find the destination object for edge ${edge.URI}`);
+            }
+
+            graph.push(edge);
+
+            buildGraph(destinationObject, graph, mappingUtil);
+        });
+    });
 }
