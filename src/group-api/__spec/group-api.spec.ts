@@ -45,7 +45,7 @@ import {
     SHORT_NAME_HALEY_ANSWER_DATA_TYPE,
     MAPPING_ANSWER_TO_ANSWER_INSTANCE
 } from '../../util/constant';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, shuffle } from 'lodash';
 import { createVitalObject } from '../../util/util';
 import { SplitGraph } from '../type';
 
@@ -345,19 +345,19 @@ describe('GroupAPI', () => {
             dataTestGroup.forEach(obj => vitaljs.graphObject(obj));
             const rows = dataTestGroup.filter(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
             rows.forEach(obj => obj.set(SHORT_NAME_HALEY_ROW_TYPE_URI, rowTypeURI));
-         });
+        });
 
-         beforeEach(() => {
+        beforeEach(() => {
             qaInstanceObjects = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[], true);
             qaInstanceObjects1 = groupAPI.createQaInstanceObjects(dataTestGroup as any as GraphObject[]);
             const answerInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
             answerInstance.set(SHORT_NAME_TEXT_ANSWER_VALUE, '666-666-66666');
             const rowInstance = qaInstanceObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE && obj.get(SHORT_NAME_HALEY_ROW) === 'http://vital.ai/haley.ai/harbor-saas/HaleyRow/mock-row');
             rowInstance.set(SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, '1');
-         });
+        });
 
         it('Should split into two graphContainer', () => {
-            const allObjects = [...dataTestGroup, ...qaInstanceObjects, ...qaInstanceObjects1];
+            const allObjects = shuffle([...dataTestGroup, ...qaInstanceObjects, ...qaInstanceObjects1]);
             const graph: SplitGraph = groupAPI.splitGroupAndInstances(allObjects);
 
             const {
@@ -366,14 +366,23 @@ describe('GroupAPI', () => {
                 generalGraphObjects,
             } = graph;
 
-            console.log(groupGraphContainerList[0].all.map(obj => obj.URI));
-            console.log(instanceGraphContainerList[0].all.map(obj => obj.URI));
-            console.log(instanceGraphContainerList[1].all.map(obj => obj.URI));
-            console.log(generalGraphObjects.map(obj => obj.URI));
-
             expect(groupGraphContainerList.length).toEqual(1);
+            expect(groupGraphContainerList[0].groupURI).toEqual('http://vital.ai/haley.ai/harbor-saas/HaleyGroup/ApplicantInfo');
             expect(instanceGraphContainerList.length).toEqual(2);
-            expect(generalGraphObjects).toHaveLength(1);
+            expect(instanceGraphContainerList[0].groupInstance.get(SHORT_NAME_HALEY_GROUP)).toEqual(groupGraphContainerList[0].groupURI);
+            expect(instanceGraphContainerList[1].groupInstance.get(SHORT_NAME_HALEY_GROUP)).toEqual(groupGraphContainerList[0].groupURI);
+            expect(generalGraphObjects.all).toHaveLength(1);
+
+            const qaInstanceObjectsSet1 = instanceGraphContainerList[0].all.length > instanceGraphContainerList[1].all.length ? instanceGraphContainerList[0].all : instanceGraphContainerList[1].all;
+            const qaObjects1 = groupGraphContainerList[0].all;
+
+            const answerInstance = qaInstanceObjectsSet1.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE && obj.get(SHORT_NAME_HALEY_ANSWER) === firstLevelAnswer1.URI);
+            const value = groupAPI.getValueByAnswerTypeInsideRow(qaObjects1, qaInstanceObjectsSet1, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            expect(value).toBe('666-666-66666');
+            groupAPI.setValueByAnswerTypeInsideRow(qaObjects1, qaInstanceObjectsSet1, rowInstanceCounter, rowTypeURI, answerTypeInRow, '999-999-9999');
+            const valueReset = groupAPI.getValueByAnswerTypeInsideRow(qaObjects1, qaInstanceObjectsSet1, rowInstanceCounter, rowTypeURI, answerTypeInRow);
+            expect(valueReset).toEqual('999-999-9999');
+            expect(answerInstance.get(SHORT_NAME_TEXT_ANSWER_VALUE)).toEqual('999-999-9999');
 
         });
     });

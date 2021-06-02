@@ -41,12 +41,13 @@ import { RowAPI } from '../row-api/index';
 import {
     createVitalObject,
     createEdgeObject,
-    buildGraph
+    buildQaGraph
 } from '../util/util';
 import { CreateQaInstancesOption, SplitGraph } from './type';
 import { MappingUtil } from '../util/mapping-util';
 import { GroupGraphContainer } from '../graph-container/group-graph-container';
 import { GroupInstanceGraphContainer } from '../graph-container/group-instance-graph-container';
+import { GeneralGraphContainer } from '../graph-container/general-graph-container';
 
 export class GroupAPI {
 
@@ -405,7 +406,7 @@ export class GroupAPI {
         // initialized graph containers.
         groupInstances.forEach(groupInstance => {
             let graph: GraphObject[] = [];
-            buildGraph(groupInstance, graph, mappingUtil);
+            buildQaGraph(groupInstance, graph, mappingUtil);
             const container = new GroupInstanceGraphContainer(graph, groupInstance);
             groupInstanceContainers.push(container);
 
@@ -414,7 +415,7 @@ export class GroupAPI {
 
         groups.forEach(group => {
             let graph: GraphObject[] = [];
-            buildGraph(group, graph, mappingUtil);
+            buildQaGraph(group, graph, mappingUtil);
             const container = new GroupGraphContainer(graph, group);
             groupContainers.push(container);
 
@@ -426,7 +427,7 @@ export class GroupAPI {
         return {
             groupGraphContainerList: groupContainers,
             instanceGraphContainerList: groupInstanceContainers,
-            generalGraphObjects: objectLeft,
+            generalGraphObjects: new GeneralGraphContainer(objectLeft),
         };
     }
 

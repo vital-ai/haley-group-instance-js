@@ -10,7 +10,7 @@ export class GroupGraphContainer extends GraphContainer{
     }
 
     get group(): GraphObject {
-        return this.group;
+        return this._group;
     }
 
     get groupURI(): string {

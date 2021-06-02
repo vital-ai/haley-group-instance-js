@@ -68,7 +68,7 @@ export const isEdge = function(vitaljs: VitalJs, type: string): boolean {
 }
 
 
-export const buildGraph = (root: GraphObject, graph: GraphObject[], mappingUtil: MappingUtil): void => {
+export const buildQaGraph = (root: GraphObject, graph: GraphObject[], mappingUtil: MappingUtil): void => {
     if (!root) return;
 
     graph.push(root);
@@ -91,7 +91,7 @@ export const buildGraph = (root: GraphObject, graph: GraphObject[], mappingUtil:
 
             graph.push(edge);
 
-            buildGraph(destinationObject, graph, mappingUtil);
+            buildQaGraph(destinationObject, graph, mappingUtil);
         });
     });
 }

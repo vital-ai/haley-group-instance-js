@@ -21,5 +21,4 @@ export class GraphContainer {
     get all(): GraphObject[] {
         return this._qaObjects;
     }
-
 }
