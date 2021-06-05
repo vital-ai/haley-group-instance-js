@@ -1,5 +1,5 @@
 import { VitalJs, GraphObject } from './type';
-import { SHORT_NAME_EDGE_SOURCE, SHORT_NAME_EDGE_DESTINATION, mappingTypeToDownStreamEdges } from './constant';
+import { SHORT_NAME_EDGE_SOURCE, SHORT_NAME_EDGE_DESTINATION, mappingTypeToDownStreamEdges } from './type-haley-ai-question';
 import { MappingUtil } from './mapping-util';
 
 /**

@@ -1,4 +1,4 @@
-import { TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP } from "../../util/constant";
+import { TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP } from "../../util/type-haley-ai-question";
 import { GraphObject } from '../../util/type';
 import { createVitalObject } from "../../util/util";
 

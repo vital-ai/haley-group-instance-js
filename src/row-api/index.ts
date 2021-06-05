@@ -18,7 +18,7 @@ import { EDGE_ROW,
     SHORT_NAME_HALEY_SECTION,
     TYPE_HALEY_SECTION_INSTANCE,
     TYPE_HALEY_SECTION,
-} from '../util/constant';
+} from '../util/type-haley-ai-question';
 import { createEdgeObject, createVitalObject, getDestinationObjects, getSourceObject } from '../util/util';
 import { flatten } from 'lodash';
 

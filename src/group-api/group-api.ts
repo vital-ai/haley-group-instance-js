@@ -35,7 +35,7 @@ import {
     TYPE_FOLLOWUP_FIRM_ANSWER,
     SHORT_NAME_FOLLOWUP_TYPE,
     mappingTypeToDownStreamEdges,
-} from '../util/constant';
+} from '../util/type-haley-ai-question';
 import { SectionAPI } from '../section-api/section-api';
 import { RowAPI } from '../row-api/index';
 import {

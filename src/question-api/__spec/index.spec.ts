@@ -31,7 +31,7 @@ import {
     TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE,
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER,
     TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE,
-} from '../../util/constant';
+} from '../../util/type-haley-ai-question';
 
 const { vitaljs } = require('../../../test-util');
 

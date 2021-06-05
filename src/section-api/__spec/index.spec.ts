@@ -26,7 +26,7 @@ import {
     TYPE_HALEY_SECTION,
     TYPE_HALEY_SECTION_INSTANCE,
     SHORT_NAME_HALEY_SECTION,
-} from '../../util/constant';
+} from '../../util/type-haley-ai-question';
 
 const { vitaljs } = require('../../../test-util');
 

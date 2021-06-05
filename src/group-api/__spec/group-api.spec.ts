@@ -44,10 +44,20 @@ import {
     TYPE_FOLLOWUP_NO_ANSWER,
     SHORT_NAME_HALEY_ANSWER_DATA_TYPE,
     MAPPING_ANSWER_TO_ANSWER_INSTANCE
-} from '../../util/constant';
+} from '../../util/type-haley-ai-question';
 import { cloneDeep, shuffle } from 'lodash';
 import { createVitalObject } from '../../util/util';
 import { SplitGraph } from '../type';
+import { TYPE_SUBMISSION_INQUIRY, TYPE_SUBMISSION } from '../../util/type-harbor-domains';
+import {
+    ANSWER_TYPE_AUTHOR_NAME,
+    ANSWER_TYPE_FORMATTED_ADDRESS,
+    ANSWER_TYPE_NAME,
+    ANSWER_TYPE_PHOTOS,
+    ANSWER_TYPE_PLACE_ID,
+    ANSWER_TYPE_REVIEW_RATING,
+    ROW_TYPE_PHOTO, ROW_TYPE_REVIEW
+} from '../../util/type-google-place';
 
 const { vitaljs } = require('../../../test-util');
 
@@ -384,6 +394,138 @@ describe('GroupAPI', () => {
             expect(valueReset).toEqual('999-999-9999');
             expect(answerInstance.get(SHORT_NAME_TEXT_ANSWER_VALUE)).toEqual('999-999-9999');
 
+        });
+    });
+
+    // need to generate the test-data.ndjson file to allow this test to pass.
+    describe('test to split a big dataset of mixObjects', () => {
+        let groupAPI: GroupAPI;
+        let ndjsonObjects: any;
+        let testObjects: GraphObject[];
+        const { placeResults, updatedPlaceResults } = require('./result-data'); 
+
+        beforeAll(async () => {
+            const fs = require('fs');
+            const path = require('path');
+            const ndjson = require('ndjson');
+
+            const readMisObjectsPromise = new Promise((resolve, reject) => {
+                let mixObjects: GraphObject[] = [];
+                fs.createReadStream(path.join(__dirname, '../../../test-data/test-data.ndjson'))
+                    .pipe(ndjson.parse())
+                    .on('data', (obj: GraphObject) => {
+                        mixObjects.push(vitaljs.graphObject(obj));
+                        if (mixObjects.length === 5489) {
+                            resolve(mixObjects);
+                        }
+                    });
+            });
+
+            groupAPI = new GroupAPI(vitaljs);
+            ndjsonObjects = await readMisObjectsPromise;
+        });
+
+        beforeEach(() => {
+            testObjects = cloneDeep(ndjsonObjects);
+        });
+
+        it('Should split objects', async () => {
+            const submission = createVitalObject(vitaljs, TYPE_SUBMISSION);
+            const submissionInquiry = createVitalObject(vitaljs, TYPE_SUBMISSION_INQUIRY);
+            testObjects = [submission, ...testObjects, submissionInquiry]
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            expect(groupGraphContainerList).toHaveLength(1);
+            expect(instanceGraphContainerList).toHaveLength(40);
+            expect(generalGraphObjects.all).toHaveLength(2);
+            expect(generalGraphObjects.all.map(obj => obj.type)).toEqual(expect.arrayContaining([
+                TYPE_SUBMISSION_INQUIRY,
+                TYPE_SUBMISSION,
+            ]));
+        });
+
+        it('Should get all values from instance', () => {
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+            } = graph;
+
+            const qaObjects = groupGraphContainerList[0].all;
+
+            const results = instanceGraphContainerList.map(instanceContainer => {
+                const qaInstanceObjects = instanceContainer.all;
+                const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
+                const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
+                const reviewRowCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_REVIEW);
+                let reviews = reviewRowCounters.map(counter => {
+                    const authorName = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_AUTHOR_NAME);
+                    const rating = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_REVIEW_RATING);
+                    return { authorName, rating };
+                })
+
+                const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
+                let photos = photoCounters.map(counter => {
+                    const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
+                    return photo;
+                })
+                return { name, formattedAddress, placeId, reviews, photos };
+            });
+
+            expect(results).toEqual(expect.arrayContaining(placeResults));
+        });
+
+        it('Should set values for instance', () => {
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+            } = graph;
+
+            const qaObjects = groupGraphContainerList[0].all;
+
+            instanceGraphContainerList.forEach(instanceContainer => {
+                const qaInstanceObjects = instanceContainer.all;
+                const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
+                const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
+                groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS, `updated-${formattedAddress}`);
+                groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME, `updated-${name}`);
+
+                const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
+                let photos = photoCounters.map(counter => {
+                    const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
+                    groupAPI.setValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS, `update-${photo}`);
+                })
+            });
+
+            const updatedResults = instanceGraphContainerList.map(instanceContainer => {
+                const qaInstanceObjects = instanceContainer.all;
+                const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
+                const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
+                const reviewRowCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_REVIEW);
+                let reviews = reviewRowCounters.map(counter => {
+                    const authorName = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_AUTHOR_NAME);
+                    const rating = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_REVIEW_RATING);
+                    return { authorName, rating };
+                })
+
+                const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
+                let photos = photoCounters.map(counter => {
+                    const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
+                    return photo;
+                })
+                return { name, formattedAddress, placeId, reviews, photos };
+            });
+
+            expect(updatedResults).toEqual(expect.arrayContaining(updatedPlaceResults));
         });
     });
     

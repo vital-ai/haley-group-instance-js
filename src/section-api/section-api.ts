@@ -9,7 +9,7 @@ import { EDGE_ROW,
     EDGE_ROW_INSTANCE,
     TYPE_HALEY_SECTION_INSTANCE,
     SHORT_NAME_HALEY_SECTION
-} from '../util/constant';
+} from '../util/type-haley-ai-question';
 import { createEdgeObject, createVitalObject } from '../util/util';
 import { MappingUtil } from '../util/mapping-util';
 

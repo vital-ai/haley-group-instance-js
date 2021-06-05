@@ -1,7 +1,9 @@
 import { CreateQuestionInstancesResult, GraphObject, VitalJs } from '../util/type';
 import { createVitalObject, createEdgeObject } from '../util/util';
-import { SHORT_NAME_FOLLOWUP_TYPE, TYPE_FOLLOWUP_NO_ANSWER } from '../util/constant';
-import { SHORT_NAME_HALEY_ANSWER,
+import {
+    SHORT_NAME_FOLLOWUP_TYPE,
+    TYPE_FOLLOWUP_NO_ANSWER,
+    SHORT_NAME_HALEY_ANSWER,
     SHORT_NAME_HALEY_QUESTION,
     TYPE_HALEY_QUESTION_INSTANCE,
     EDGE_ANSWER,
@@ -10,7 +12,7 @@ import { SHORT_NAME_HALEY_ANSWER,
     EDGE_ANSWER_INSTANCE,
     MAPPING_ANSWER_TO_ANSWER_INSTANCE,
     EDGE_QUESTION_INSTANCE,
-} from '../util/constant';
+} from '../util/type-haley-ai-question';
 
 
 export class QuestionAPI {

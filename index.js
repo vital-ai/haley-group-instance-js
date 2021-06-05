@@ -34,15 +34,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "GroupAPI": () => (/* binding */ GroupAPI)
 /* harmony export */ });
-/* harmony import */ var _util_constant__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 /* harmony import */ var _section_api_section_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
 /* harmony import */ var _row_api_index__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(6);
 /* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
+/* harmony import */ var _util_mapping_util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
+/* harmony import */ var _graph_container_group_graph_container__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(9);
+/* harmony import */ var _graph_container_group_instance_graph_container__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(11);
+/* harmony import */ var _graph_container_general_graph_container__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(12);
 var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
         to[j] = from[i];
     return to;
 };
+
+
+
+
 
 
 
@@ -80,13 +88,13 @@ var GroupAPI = /** @class */ (function () {
     };
     GroupAPI.getAnswerAndAnswerInstance = function (getValueProp, msgRL) {
         var rowType = getValueProp.rowType, rowCounter = getValueProp.rowCounter, answerType = getValueProp.answerType;
-        var answers = msgRL.iterator(_util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER);
-        var answerInstances = msgRL.iterator(_util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER_INSTANCE);
+        var answers = msgRL.iterator(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER);
+        var answerInstances = msgRL.iterator(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER_INSTANCE);
         var answer;
         var answerInstance;
         if (!rowType && !rowCounter && answerType) {
-            answer = answers.find(function (ans) { return ans.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
-            answerInstance = answerInstances.find(function (ins) { return ins.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
+            answer = answers.find(function (ans) { return ans.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
+            answerInstance = answerInstances.find(function (ins) { return ins.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
         }
         if (GroupAPI.logger)
             GroupAPI.logger.info('get answerURI', answer === null || answer === void 0 ? void 0 : answer.URI);
@@ -98,19 +106,19 @@ var GroupAPI = /** @class */ (function () {
         // console.log('_getAnswerValue');
         if (answerInstance) {
             switch (answerInstance.type) {
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TEXT_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TEXT_ANSWER_INSTANCE:
                     return answerInstance.get("textAnswerValue");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
                     return answerInstance.get("booleanAnswerValue");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
                     return answerInstance.get("choiceAnswerValue");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
                     return new Date(answerInstance.get("dateTimeAnswerValue"));
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
                     return answerInstance.get("longTextAnswerValue");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
                     return answerInstance.get("fileAnswerValueURI");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
                     var answerDataType = answer.get("haleyAnswerDataType");
                     if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
@@ -119,14 +127,14 @@ var GroupAPI = /** @class */ (function () {
                     else {
                         return answerInstance.get("doubleAnswerValue");
                     }
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
                     return answerInstance.get("multiChoiceAnswerValue");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE:
                     return answerInstance.get("signatureAnswerValue");
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
                     var taxonomy = answerInstance.get("taxonomyAnswerValue");
                     return taxonomy || "";
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
                     var taxonomies = answerInstance.get("multiTaxonomyAnswerValue");
                     taxonomies = taxonomies ? taxonomies : [];
                     return taxonomies.toString();
@@ -138,23 +146,23 @@ var GroupAPI = /** @class */ (function () {
     };
     ;
     GroupAPI.setAnswerValue = function (answerInstance, answerObj, value) {
-        var followupType = value === null ? _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_FOLLOWUP_NO_ANSWER : _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_FOLLOWUP_FIRM_ANSWER;
+        var followupType = value === null ? _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_FOLLOWUP_NO_ANSWER : _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_FOLLOWUP_FIRM_ANSWER;
         if (answerInstance) {
-            answerInstance.set(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_FOLLOWUP_TYPE, followupType);
+            answerInstance.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_FOLLOWUP_TYPE, followupType);
             switch (answerInstance.type) {
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TEXT_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TEXT_ANSWER_INSTANCE:
                     return answerInstance.set("textAnswerValue", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
                     return answerInstance.set("booleanAnswerValue", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
                     return answerInstance.set("choiceAnswerValue", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
                     return new Date(answerInstance.set("dateTimeAnswerValue", value));
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
                     return answerInstance.set("longTextAnswerValue", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
                     return answerInstance.set("fileAnswerValueURI", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
                     var answerDataType = answer.get("haleyAnswerDataType");
                     if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
@@ -166,14 +174,14 @@ var GroupAPI = /** @class */ (function () {
                     else {
                         return answerInstance.set("doubleAnswerValue", value);
                     }
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
                     return answerInstance.set("multiChoiceAnswerValue", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE:
                     return answerInstance.set("signatureAnswerValue", value);
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
                     var taxonomy = answerInstance.set("taxonomyAnswerValue", value);
                     return taxonomy || "";
-                case _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
+                case _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
                     var taxonomies = answerInstance.set("multiTaxonomyAnswerValue", value);
                     taxonomies = taxonomies ? taxonomies : [];
                     return taxonomies.toString();
@@ -262,7 +270,7 @@ var GroupAPI = /** @class */ (function () {
         if (option === void 0) { option = {}; }
         var createdQaInstances = [];
         // 1 get group and create groupInstance.
-        var groups = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP; });
+        var groups = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP; });
         if (groups.length !== 1) {
             if (groups.length === 0)
                 throw new Error('Passed in qaObjects should includes 1 HaleyGroup object. No detected');
@@ -270,16 +278,16 @@ var GroupAPI = /** @class */ (function () {
         }
         var group = groups[0];
         if (option.groupInstance)
-            option.groupInstance.set(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_GROUP, group.URI);
+            option.groupInstance.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_GROUP, group.URI);
         var groupInstance = option.groupInstance || this.createGroupInstance(group);
         createdQaInstances = __spreadArray([groupInstance], createdQaInstances);
-        var edgeToSections = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE) === group.URI; });
+        var edgeToSections = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE) === group.URI; });
         var edgeToSectionURIs = edgeToSections.map(function (obj) { return obj.URI; });
-        var allSections = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SECTION; });
+        var allSections = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_SECTION; });
         var sections = edgeToSections.map(function (edge) {
-            var findSections = qaObjects.filter(function (obj) { return obj.URI === edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION); });
+            var findSections = qaObjects.filter(function (obj) { return obj.URI === edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION); });
             if (!findSections.length) {
-                throw new Error("Could not find the section object connected to edge " + edge.URI + ", sectionURI: " + edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION));
+                throw new Error("Could not find the section object connected to edge " + edge.URI + ", sectionURI: " + edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION));
             }
             if (findSections.length > 1) {
                 throw new Error("Multiple section objects connected to edge " + edge.URI + "}");
@@ -297,7 +305,7 @@ var GroupAPI = /** @class */ (function () {
             var section = sections_1[_i];
             var _a = _section_api_section_api__WEBPACK_IMPORTED_MODULE_1__.SectionAPI.createQaInstanceObjects(this.vitaljs, section, qaObjectsLeft, withRow), sectionQaObjectsLeft = _a.qaObjectsLeft, createdInstances = _a.createdInstances, sectionInstance = _a.sectionInstance;
             qaObjectsLeft = sectionQaObjectsLeft;
-            var edgeToSectionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(this.vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION_INSTANCE, groupInstance, sectionInstance);
+            var edgeToSectionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(this.vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION_INSTANCE, groupInstance, sectionInstance);
             createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToSectionInstance]), createdInstances);
         }
         // if (qaObjectsLeft.length !== 0) {
@@ -313,6 +321,35 @@ var GroupAPI = /** @class */ (function () {
     };
     GroupAPI.prototype.generateRowInstanceCounter = function (index) {
         return _row_api_index__WEBPACK_IMPORTED_MODULE_2__.RowAPI.generateRowInstanceCounter(index);
+    };
+    GroupAPI.prototype.splitGroupAndInstances = function (qaObjects) {
+        var groupContainers = [];
+        var groupInstanceContainers = [];
+        var mappingUtil = new _util_mapping_util__WEBPACK_IMPORTED_MODULE_4__.MappingUtil(qaObjects);
+        var groups = mappingUtil.getObjectsByType(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP);
+        var groupInstances = mappingUtil.getObjectsByType(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP_INSTANCE);
+        var matched = new Map();
+        // initialized graph containers.
+        groupInstances.forEach(function (groupInstance) {
+            var graph = [];
+            (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.buildQaGraph)(groupInstance, graph, mappingUtil);
+            var container = new _graph_container_group_instance_graph_container__WEBPACK_IMPORTED_MODULE_6__.GroupInstanceGraphContainer(graph, groupInstance);
+            groupInstanceContainers.push(container);
+            graph.forEach(function (obj) { return matched.set(obj.URI, obj); });
+        });
+        groups.forEach(function (group) {
+            var graph = [];
+            (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.buildQaGraph)(group, graph, mappingUtil);
+            var container = new _graph_container_group_graph_container__WEBPACK_IMPORTED_MODULE_5__.GroupGraphContainer(graph, group);
+            groupContainers.push(container);
+            graph.forEach(function (obj) { return matched.set(obj.URI, obj); });
+        });
+        var objectLeft = qaObjects.filter(function (obj) { return !matched.has(obj.URI); });
+        return {
+            groupGraphContainerList: groupContainers,
+            instanceGraphContainerList: groupInstanceContainers,
+            generalGraphObjects: new _graph_container_general_graph_container__WEBPACK_IMPORTED_MODULE_7__.GeneralGraphContainer(objectLeft),
+        };
     };
     GroupAPI.prototype.setValue = function (setValueProp) {
         var value = setValueProp.value;
@@ -331,21 +368,21 @@ var GroupAPI = /** @class */ (function () {
     };
     GroupAPI.prototype.getAnswerAndAnswerInstance = function (getValueProp) {
         var rowType = getValueProp.rowType, rowCounter = getValueProp.rowCounter, answerType = getValueProp.answerType;
-        var answers = this.msgRL.iterator(_util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER);
-        var answerInstances = this.msgRL.iterator(_util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER_INSTANCE);
+        var answers = this.msgRL.iterator(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER);
+        var answerInstances = this.msgRL.iterator(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_ANSWER_INSTANCE);
         var answer;
         var answerInstance;
         if (!rowType && !rowCounter && answerType) {
-            answer = answers.find(function (ans) { return ans.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
-            answerInstance = answerInstances.find(function (ins) { return ins.get(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
+            answer = answers.find(function (ans) { return ans.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
+            answerInstance = answerInstances.find(function (ins) { return ins.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
         }
         this.logger.info('get answerURI', answer === null || answer === void 0 ? void 0 : answer.URI);
         this.logger.info('get answerInstanceURI', answerInstance === null || answerInstance === void 0 ? void 0 : answerInstance.URI);
         return [answer, answerInstance];
     };
     GroupAPI.prototype.createGroupInstance = function (group) {
-        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createVitalObject)(this.vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP_INSTANCE);
-        obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_GROUP, group.URI);
+        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createVitalObject)(this.vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP_INSTANCE);
+        obj.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_HALEY_GROUP, group.URI);
         return obj;
     };
     return GroupAPI;
@@ -423,10 +460,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "EDGE_ANSWER_OPTION": () => (/* binding */ EDGE_ANSWER_OPTION),
 /* harmony export */   "EDGE_ANSWER_OPTION_VALUE_DEPENDENCY": () => (/* binding */ EDGE_ANSWER_OPTION_VALUE_DEPENDENCY),
 /* harmony export */   "EDGE_ANSWER_OPTION_DEPENDENCY": () => (/* binding */ EDGE_ANSWER_OPTION_DEPENDENCY),
+/* harmony export */   "EDGE_ANSWER_CONSTRAINT": () => (/* binding */ EDGE_ANSWER_CONSTRAINT),
+/* harmony export */   "EDGE_ANSWER_DEPENDENCY": () => (/* binding */ EDGE_ANSWER_DEPENDENCY),
 /* harmony export */   "EDGE_QUESTION_DEPENDENCY": () => (/* binding */ EDGE_QUESTION_DEPENDENCY),
 /* harmony export */   "EDGE_TAXONOMY": () => (/* binding */ EDGE_TAXONOMY),
 /* harmony export */   "EDGE_ENHANCEMENT_RULE_DEPENDENCY": () => (/* binding */ EDGE_ENHANCEMENT_RULE_DEPENDENCY),
-/* harmony export */   "EDGE_DEFAULT_ANSWER": () => (/* binding */ EDGE_DEFAULT_ANSWER)
+/* harmony export */   "EDGE_DEFAULT_ANSWER": () => (/* binding */ EDGE_DEFAULT_ANSWER),
+/* harmony export */   "EDGE_VALIDATION_ANSWER_INSTANCE": () => (/* binding */ EDGE_VALIDATION_ANSWER_INSTANCE),
+/* harmony export */   "mappingTypeToDownStreamEdges": () => (/* binding */ mappingTypeToDownStreamEdges)
 /* harmony export */ });
 var TYPE_HALEY_SECTION = 'http://vital.ai/ontology/haley-ai-question#HaleySection';
 var TYPE_HALEY_ROW = 'http://vital.ai/ontology/haley-ai-question#HaleyRow';
@@ -504,10 +545,43 @@ var EDGE_ANSWER_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#Edge_hasA
 var EDGE_ANSWER_OPTION = 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswerOption';
 var EDGE_ANSWER_OPTION_VALUE_DEPENDENCY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswerOptionValueDependency';
 var EDGE_ANSWER_OPTION_DEPENDENCY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswerOptionDependency';
+var EDGE_ANSWER_CONSTRAINT = 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswerConstraint';
+var EDGE_ANSWER_DEPENDENCY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswerDependency';
 var EDGE_QUESTION_DEPENDENCY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasQuestionDependency';
 var EDGE_TAXONOMY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasTaxonomy';
 var EDGE_ENHANCEMENT_RULE_DEPENDENCY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasEnhancementRuleDependency';
 var EDGE_DEFAULT_ANSWER = 'http://vital.ai/ontology/haley-ai-question#Edge_hasDefaultAnswer';
+var EDGE_VALIDATION_ANSWER_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#Edge_hasValidationAnswerInstance';
+var mappingTypeToDownStreamEdges = new Map([
+    [TYPE_HALEY_GROUP, [EDGE_SECTION]],
+    [TYPE_HALEY_SECTION, [EDGE_QUESTION, EDGE_ROW]],
+    [TYPE_HALEY_ROW, [EDGE_QUESTION, EDGE_ROW]],
+    [TYPE_HALEY_QUESTION, [EDGE_ANSWER, EDGE_QUESTION_DEPENDENCY]],
+    [TYPE_HALEY_BOOLEAN_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_CHOICE_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY, EDGE_ANSWER_OPTION]],
+    [TYPE_HALEY_DATE_TIME_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_FILE_UPLOAD_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_LONG_TEXT_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_MULTI_CHOICE_ANSWER, [EDGE_ANSWER_OPTION, EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_MULTI_TAXONOMY_ANSWER, [EDGE_TAXONOMY, EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_NUMBER_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_TAXONOMY_ANSWER, [EDGE_TAXONOMY, EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_TEXT_ANSWER, [EDGE_ANSWER_OPTION_VALUE_DEPENDENCY, EDGE_ANSWER_OPTION_DEPENDENCY]],
+    [TYPE_HALEY_GROUP_INSTANCE, [EDGE_SECTION_INSTANCE]],
+    [TYPE_HALEY_SECTION_INSTANCE, [EDGE_QUESTION_INSTANCE, EDGE_ROW_INSTANCE]],
+    [TYPE_HALEY_ROW_INSTANCE, [EDGE_QUESTION_INSTANCE, EDGE_ROW_INSTANCE]],
+    [TYPE_HALEY_QUESTION_INSTANCE, [EDGE_ANSWER_INSTANCE]],
+    [TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_CHOICE_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_NUMBER_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE, []],
+    [TYPE_HALEY_TEXT_ANSWER_INSTANCE, []],
+]);
 
 
 /***/ }),
@@ -521,7 +595,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _question_api_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
 /* harmony import */ var _row_api_index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
-/* harmony import */ var _util_constant__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
+/* harmony import */ var _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
 /* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(5);
 var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
@@ -540,12 +614,12 @@ var SectionAPI = /** @class */ (function () {
         var createdQaInstances = [];
         var sectionInstance = this.createSectionInstance(vitaljs, section);
         createdQaInstances = __spreadArray([sectionInstance], createdQaInstances);
-        var edgeToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_QUESTION && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_SOURCE) === section.URI; });
+        var edgeToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.EDGE_QUESTION && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_SOURCE) === section.URI; });
         var edgeToQuestionURIs = edgeToQuestions.map(function (obj) { return obj.URI; });
         var questions = edgeToQuestions.map(function (edge) {
-            var findQuestions = qaObjects.filter(function (obj) { return obj.URI === edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION); });
+            var findQuestions = qaObjects.filter(function (obj) { return obj.URI === edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION); });
             if (!findQuestions.length) {
-                throw new Error("Could not find the question object connected to edge " + edge.URI + ", questionURI: " + edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION));
+                throw new Error("Could not find the question object connected to edge " + edge.URI + ", questionURI: " + edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION));
             }
             if (findQuestions.length > 1) {
                 throw new Error("Multiple question objects connected to edge " + edge.URI + "}");
@@ -557,14 +631,14 @@ var SectionAPI = /** @class */ (function () {
             var question = questions_1[_i];
             var _a = _question_api_index__WEBPACK_IMPORTED_MODULE_0__.QuestionAPI.createQaInstanceObjects(vitaljs, question, qaObjectsLeft), questionQaObjectsLeft = _a.qaObjectsLeft, createdInstances = _a.createdInstances, questionInstance = _a.questionInstance;
             qaObjectsLeft = questionQaObjectsLeft;
-            var edgeToQuestionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_QUESTION_INSTANCE, sectionInstance, questionInstance);
+            var edgeToQuestionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.EDGE_QUESTION_INSTANCE, sectionInstance, questionInstance);
             createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToQuestionInstance]), createdInstances);
         }
         if (withRow) {
-            var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_SOURCE) === section.URI; });
+            var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_SOURCE) === section.URI; });
             var edgeToRowURIs_1 = edgeToRows.map(function (obj) { return obj.URI; });
             var rows = edgeToRows.map(function (edge) {
-                var rowURI = edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION);
+                var rowURI = edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_EDGE_DESTINATION);
                 var findRows = qaObjects.filter(function (obj) { return obj.URI === rowURI; });
                 if (!findRows.length) {
                     throw new Error("Could not find the row object connected to edge " + edge.URI + ", rowURI " + rowURI);
@@ -580,7 +654,7 @@ var SectionAPI = /** @class */ (function () {
                 // if withRow then default to with RowRow.
                 var _c = _row_api_index__WEBPACK_IMPORTED_MODULE_1__.RowAPI.createQaInstanceObjects(vitaljs, row, qaObjectsLeft, undefined, undefined, true), rowQaObjectsLeft = _c.qaObjectsLeft, createdInstances = _c.createdInstances, rowInstance = _c.rowInstance;
                 qaObjectsLeft = rowQaObjectsLeft;
-                var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
+                var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createEdgeObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.EDGE_ROW_INSTANCE, sectionInstance, rowInstance);
                 createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToRowInstance]), createdInstances);
             }
         }
@@ -591,8 +665,8 @@ var SectionAPI = /** @class */ (function () {
         };
     };
     SectionAPI.createSectionInstance = function (vitaljs, section) {
-        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createVitalObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_2__.TYPE_HALEY_SECTION_INSTANCE);
-        obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_HALEY_SECTION, section.URI);
+        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_3__.createVitalObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.TYPE_HALEY_SECTION_INSTANCE);
+        obj.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_2__.SHORT_NAME_HALEY_SECTION, section.URI);
         return obj;
     };
     return SectionAPI;
@@ -610,7 +684,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "QuestionAPI": () => (/* binding */ QuestionAPI)
 /* harmony export */ });
 /* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
-/* harmony import */ var _util_constant__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
+/* harmony import */ var _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
 
 
 
@@ -618,25 +692,25 @@ var QuestionAPI = /** @class */ (function () {
     function QuestionAPI() {
     }
     QuestionAPI.createQuestionInstance = function (vitaljs, question) {
-        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_0__.createVitalObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_QUESTION_INSTANCE);
-        obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_QUESTION, question.URI);
+        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_0__.createVitalObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_QUESTION_INSTANCE);
+        obj.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_QUESTION, question.URI);
         return obj;
     };
     QuestionAPI.createAnswerInstance = function (vitaljs, answer) {
-        var instanceType = _util_constant__WEBPACK_IMPORTED_MODULE_1__.MAPPING_ANSWER_TO_ANSWER_INSTANCE.get(answer.type);
+        var instanceType = _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.MAPPING_ANSWER_TO_ANSWER_INSTANCE.get(answer.type);
         if (!instanceType) {
             throw new Error("No instanceType mapping for answerType: " + answer.type);
         }
         var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_0__.createVitalObject)(vitaljs, instanceType);
-        obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER, answer.URI);
-        obj.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_FOLLOWUP_TYPE, _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_FOLLOWUP_NO_ANSWER);
+        obj.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER, answer.URI);
+        obj.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_FOLLOWUP_TYPE, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_FOLLOWUP_NO_ANSWER);
         return obj;
     };
     QuestionAPI.createQaInstanceObjects = function (vitaljs, question, qaObjects) {
         var questionInstance = QuestionAPI.createQuestionInstance(vitaljs, question);
-        var edgeToAnswers = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === question.URI; });
+        var edgeToAnswers = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === question.URI; });
         var edgeToAnswerURIs = edgeToAnswers.map(function (obj) { return obj.URI; });
-        var answerURIs = edgeToAnswers.map(function (edge) { return edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var answerURIs = edgeToAnswers.map(function (edge) { return edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
         var answers = qaObjects.filter(function (obj) { return answerURIs.includes(obj.URI); });
         if (edgeToAnswers.length === 0 || answers.length === 0) {
             throw new Error("Question " + question.URI + " does not have any connected answer object. EdgeToAnswer=" + edgeToAnswers + ", answer=" + answers);
@@ -646,7 +720,7 @@ var QuestionAPI = /** @class */ (function () {
         }
         var qaObjectsLeft = qaObjects.filter(function (obj) { return obj.URI !== question.URI && !edgeToAnswerURIs.includes(obj.URI) && !answerURIs.includes(obj.URI); });
         var answerInstance = QuestionAPI.createAnswerInstance(vitaljs, answers[0]);
-        var edgeToAnswerInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_0__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE, questionInstance, answerInstance);
+        var edgeToAnswerInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_0__.createEdgeObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE, questionInstance, answerInstance);
         return {
             createdInstances: [questionInstance, edgeToAnswerInstance, answerInstance],
             questionInstance: questionInstance,
@@ -654,9 +728,9 @@ var QuestionAPI = /** @class */ (function () {
         };
     };
     QuestionAPI.getQaInstancesWithEdges = function (qaInstanceObjects, questionInstance) {
-        var edgeToQuestionInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === questionInstance.URI; });
-        var edgeToAnswerInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === questionInstance.URI; });
-        var answerInstanceURI = edgeToAnswerInstance.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION);
+        var edgeToQuestionInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === questionInstance.URI; });
+        var edgeToAnswerInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === questionInstance.URI; });
+        var answerInstanceURI = edgeToAnswerInstance.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION);
         var answerInstance = qaInstanceObjects.find(function (obj) { return obj.URI === answerInstanceURI; });
         return [edgeToQuestionInstance, questionInstance, edgeToAnswerInstance, answerInstance];
     };
@@ -675,9 +749,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "createVitalObject": () => (/* binding */ createVitalObject),
 /* harmony export */   "createEdgeObject": () => (/* binding */ createEdgeObject),
 /* harmony export */   "getDestinationObjects": () => (/* binding */ getDestinationObjects),
-/* harmony export */   "getSourceObject": () => (/* binding */ getSourceObject)
+/* harmony export */   "getSourceObject": () => (/* binding */ getSourceObject),
+/* harmony export */   "isEdge": () => (/* binding */ isEdge),
+/* harmony export */   "buildQaGraph": () => (/* binding */ buildQaGraph)
 /* harmony export */ });
-/* harmony import */ var _constant__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
+/* harmony import */ var _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 
 /**
  * Create vital Object based on the type given
@@ -703,27 +779,56 @@ var createVitalObject = function (vitaljs, type, properties) {
 var createEdgeObject = function (vitaljs, type, source, destination) {
     var edge = createVitalObject(vitaljs, type);
     if (source) {
-        edge.set(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE, (source === null || source === void 0 ? void 0 : source.URI) || null);
+        edge.set(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE, (source === null || source === void 0 ? void 0 : source.URI) || null);
     }
     if (destination) {
-        edge.set(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION, (destination === null || destination === void 0 ? void 0 : destination.URI) || null);
+        edge.set(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION, (destination === null || destination === void 0 ? void 0 : destination.URI) || null);
     }
     return edge;
 };
 var getDestinationObjects = function (objects, edgeType, source) {
-    var edges = objects.filter(function (obj) { return obj.type === edgeType && obj.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE) === source.URI; });
-    var destinationURIs = edges.map(function (edge) { return edge.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION); });
+    var edges = objects.filter(function (obj) { return obj.type === edgeType && obj.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE) === source.URI; });
+    var destinationURIs = edges.map(function (edge) { return edge.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION); });
     var set = new Set(destinationURIs);
     return objects.filter(function (obj) { return set.has(obj.URI); });
 };
 var getSourceObject = function (objects, edgeType, destination) {
-    var edge = objects.find(function (obj) { return obj.type === edgeType && obj.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION) === destination.URI; });
-    var sourceURI = edge.get(_constant__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE);
+    var edge = objects.find(function (obj) { return obj.type === edgeType && obj.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION) === destination.URI; });
+    var sourceURI = edge.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE);
     var source = objects.find(function (obj) { return obj.URI === sourceURI; });
     if (!source) {
         throw new Error("No source object found based on the provided object " + destination.URI + " and edgeType " + edgeType);
     }
     return source;
+};
+var isEdge = function (vitaljs, type) {
+    var rootEdge = 'http://vital.ai/ontology/vital-core#VITAL_Edge';
+    if (type === rootEdge)
+        return true;
+    return vitaljs.isSubclassOf(type, rootEdge);
+};
+var buildQaGraph = function (root, graph, mappingUtil) {
+    if (!root)
+        return;
+    graph.push(root);
+    var edgeTypes = _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.mappingTypeToDownStreamEdges.get(root.type);
+    if (!edgeTypes)
+        return;
+    edgeTypes.forEach(function (edgeType) {
+        var edges = mappingUtil.getObjectsByType(edgeType).filter(function (edge) { return edge.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE) === root.URI; });
+        edges.forEach(function (edge) {
+            var destinationObjectURI = edge.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            if (!destinationObjectURI) {
+                throw new Error("Property " + _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION + " for edge " + edge.URI + " is not set.");
+            }
+            var destinationObject = mappingUtil.getObjectByURI(destinationObjectURI);
+            if (!destinationObject) {
+                throw new Error("Could not find the destination object for edge " + edge.URI);
+            }
+            graph.push(edge);
+            buildQaGraph(destinationObject, graph, mappingUtil);
+        });
+    });
 };
 
 
@@ -737,7 +842,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "RowAPI": () => (/* binding */ RowAPI)
 /* harmony export */ });
 /* harmony import */ var _question_api_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
-/* harmony import */ var _util_constant__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
+/* harmony import */ var _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
 /* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(7);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_3__);
@@ -756,11 +861,11 @@ var RowAPI = /** @class */ (function () {
     RowAPI.createRowInstance = function (vitaljs, row, rowInstanceCounter) {
         var _a;
         if (rowInstanceCounter === void 0) { rowInstanceCounter = 'AA'; }
-        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createVitalObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE, (_a = {}, _a[_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW] = row.URI, _a[_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER] = rowInstanceCounter, _a));
+        var obj = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createVitalObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE, (_a = {}, _a[_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW] = row.URI, _a[_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER] = rowInstanceCounter, _a));
         return obj;
     };
     RowAPI.getRowByRowType = function (qaObjects, rowType) {
-        var rows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType; });
+        var rows = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType; });
         if (!rows.length) {
             throw new Error("No row found with rowType: " + rowType);
         }
@@ -772,7 +877,7 @@ var RowAPI = /** @class */ (function () {
     // This will only handle the row case not the row-row case. 
     // if rowInstanceCounter provided, then there should only be one rowInstance exists that meet the criteria.
     RowAPI.getRowInstanceByRowAndInstanceCounter = function (qaInstanceObjects, row, rowInstanceCounter) {
-        var rowInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === row.URI && (!rowInstanceCounter || obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter); });
+        var rowInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === row.URI && (!rowInstanceCounter || obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowInstanceCounter); });
         if (rowInstanceCounter && !rowInstances.length) {
             throw new Error("No rowInstance found to connect row " + row.URI + " with counter: " + rowInstanceCounter);
         }
@@ -782,21 +887,21 @@ var RowAPI = /** @class */ (function () {
         return rowInstances;
     };
     RowAPI.getSiblingRowInstances = function (qaInstanceObjects, row, rowInstance) {
-        var upperInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getSourceObject)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
-        var rowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, upperInstance);
-        var siblings = rowInstances.filter(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === row.URI; });
+        var upperInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getSourceObject)(qaInstanceObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
+        var rowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, upperInstance);
+        var siblings = rowInstances.filter(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === row.URI; });
         return siblings;
     };
     RowAPI.getInstancesUnderRowInstance = function (qaInstanceObjects, rowInstance) {
         var instances = [];
-        var edgeToProvidedRowInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === rowInstance.URI; });
+        var edgeToProvidedRowInstance = qaInstanceObjects.find(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === rowInstance.URI; });
         instances = [edgeToProvidedRowInstance, rowInstance];
-        var questionInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE, rowInstance);
+        var questionInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE, rowInstance);
         questionInstances.forEach(function (questionInstance) {
             var questionInstanceAndAnswerInstanceWithEdge = _question_api_index__WEBPACK_IMPORTED_MODULE_0__.QuestionAPI.getQaInstancesWithEdges(qaInstanceObjects, questionInstance);
             instances = __spreadArray(__spreadArray([], instances), questionInstanceAndAnswerInstanceWithEdge);
         });
-        var rowRowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
+        var rowRowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
         rowRowInstances.forEach(function (rowRowInstance) {
             var rowRowInstanceQaInstances = RowAPI.getInstancesUnderRowInstance(qaInstanceObjects, rowRowInstance);
             instances = __spreadArray(__spreadArray([], instances), rowRowInstanceQaInstances);
@@ -810,12 +915,12 @@ var RowAPI = /** @class */ (function () {
         var createdQaInstances = [];
         var rowInstance = this.createRowInstance(vitaljs, row, rowInstanceCounter);
         createdQaInstances = __spreadArray([rowInstance], createdQaInstances);
-        var edgeToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
+        var edgeToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
         var edgeToQuestionURIs = edgeToQuestions.map(function (obj) { return obj.URI; });
         var questions = edgeToQuestions.map(function (edge) {
-            var findQuestions = qaObjects.filter(function (obj) { return obj.URI === edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+            var findQuestions = qaObjects.filter(function (obj) { return obj.URI === edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
             if (!findQuestions.length) {
-                throw new Error("Could not find the question object connected to edge " + edge.URI + ", questionURI: " + edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION));
+                throw new Error("Could not find the question object connected to edge " + edge.URI + ", questionURI: " + edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION));
             }
             if (findQuestions.length > 1) {
                 throw new Error("Multiple question objects connected to edge " + edge.URI + "}");
@@ -827,14 +932,14 @@ var RowAPI = /** @class */ (function () {
             var question = questions_1[_i];
             var _a = _question_api_index__WEBPACK_IMPORTED_MODULE_0__.QuestionAPI.createQaInstanceObjects(vitaljs, question, qaObjectsLeft), questionQaObjectsLeft = _a.qaObjectsLeft, createdInstances = _a.createdInstances, questionInstance = _a.questionInstance;
             qaObjectsLeft = questionQaObjectsLeft;
-            var edgeToQuestionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE, rowInstance, questionInstance);
+            var edgeToQuestionInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE, rowInstance, questionInstance);
             createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToQuestionInstance]), createdInstances);
         }
         if (handleRowRow && level <= RowAPI.maxLevel) {
-            var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
+            var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
             var edgeToRowURIs_1 = edgeToRows.map(function (obj) { return obj.URI; });
             var rows = edgeToRows.map(function (edge) {
-                var rowURI = edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION);
+                var rowURI = edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION);
                 var findRows = qaObjects.filter(function (obj) { return obj.URI === rowURI; });
                 if (!findRows.length) {
                     throw new Error("Could not find the row object connected to edge " + edge.URI + ", rowURI " + rowURI);
@@ -849,7 +954,7 @@ var RowAPI = /** @class */ (function () {
                 var row_1 = rows_1[_b];
                 var _c = RowAPI.createQaInstanceObjects(vitaljs, row_1, qaObjectsLeft, undefined, level + 1), rowQaObjectsLeft = _c.qaObjectsLeft, createdInstances = _c.createdInstances, secondLevelRowInstance = _c.rowInstance;
                 qaObjectsLeft = rowQaObjectsLeft;
-                var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance, secondLevelRowInstance);
+                var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance, secondLevelRowInstance);
                 createdQaInstances = __spreadArray(__spreadArray(__spreadArray([], createdQaInstances), [edgeToRowInstance]), createdInstances);
             }
         }
@@ -865,18 +970,18 @@ var RowAPI = /** @class */ (function () {
         var upperInstance;
         var level;
         if (!providedUpperInstance) {
-            var edgeToProvideRow_1 = qaObjects.find(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === row.URI; });
+            var edgeToProvideRow_1 = qaObjects.find(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION) === row.URI; });
             if (!edgeToProvideRow_1) {
                 throw new Error('Could not find any edges that pointed to the provided row');
             }
-            var rowOrSection_1 = qaObjects.find(function (obj) { return obj.URI === edgeToProvideRow_1.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE); });
+            var rowOrSection_1 = qaObjects.find(function (obj) { return obj.URI === edgeToProvideRow_1.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE); });
             if (!rowOrSection_1) {
-                throw new Error("Could not find the upper object that pointed to the provided row. upper object URI: " + edgeToProvideRow_1.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE));
+                throw new Error("Could not find the upper object that pointed to the provided row. upper object URI: " + edgeToProvideRow_1.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE));
             }
-            var shortNameToMatchUpperObject_1 = rowOrSection_1.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? _util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW : _util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_SECTION;
-            var upperInstanceType_1 = rowOrSection_1.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE : _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_SECTION_INSTANCE;
+            var shortNameToMatchUpperObject_1 = rowOrSection_1.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW : _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_SECTION;
+            var upperInstanceType_1 = rowOrSection_1.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE : _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_SECTION_INSTANCE;
             upperInstance = qaInstanceObjects.find(function (obj) { return obj.type === upperInstanceType_1 && obj.get(shortNameToMatchUpperObject_1) === rowOrSection_1.URI; });
-            level = rowOrSection_1.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? 2 : 1;
+            level = rowOrSection_1.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW ? 2 : 1;
         }
         else {
             upperInstance = providedUpperInstance;
@@ -886,7 +991,7 @@ var RowAPI = /** @class */ (function () {
             throw new Error("Could not find the upper instance object.");
         }
         var _a = RowAPI.createQaInstanceObjects(vitaljs, row, qaObjects, rowInstanceCounter, level, option.handleRowRow), createdInstances = _a.createdInstances, createdRowInstance = _a.rowInstance;
-        var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, upperInstance, createdRowInstance);
+        var edgeToRowInstance = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.createEdgeObject)(vitaljs, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, upperInstance, createdRowInstance);
         return __spreadArray([edgeToRowInstance], createdInstances);
     };
     RowAPI.getRowAndRowInstancePair = function (qaObjects, qaInstanceObjects, rowInstanceCounter, rowType) {
@@ -895,11 +1000,11 @@ var RowAPI = /** @class */ (function () {
         return [row, rowInstance];
     };
     RowAPI.getRowRowPairUnderRowPair = function (qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType) {
-        var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
-        var rowRowURIs = edgeToRows.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var edgeToRows = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
+        var rowRowURIs = edgeToRows.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
         // 1 get row based on rowRowType
         var rowRows = qaObjects.filter(function (obj) {
-            return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW && rowRowURIs.includes(obj.URI) && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowRowType;
+            return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW && rowRowURIs.includes(obj.URI) && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowRowType;
         });
         if (!rowRows.length) {
             throw new Error("No row found with rowRowType: " + rowRowType + " under row (" + row.URI + ")");
@@ -909,10 +1014,10 @@ var RowAPI = /** @class */ (function () {
         }
         var rowRow = rowRows[0];
         // 3 get rowInstance based on rowInstanceCounter
-        var edgeFromRowInstanceToRowRowInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === rowInstance.URI; });
-        var rowRowInstanceUnderProvidedRowInstanceURIs = edgeFromRowInstanceToRowRowInstances.map(function (edge) { return edge.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
-        var rowRowInstancesUnderProvidedRowInstance = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE && rowRowInstanceUnderProvidedRowInstanceURIs.includes(obj.URI); });
-        var rowRowInstances = rowRowInstancesUnderProvidedRowInstance.filter(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === rowRow.URI && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowRowInstanceCounter; });
+        var edgeFromRowInstanceToRowRowInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === rowInstance.URI; });
+        var rowRowInstanceUnderProvidedRowInstanceURIs = edgeFromRowInstanceToRowRowInstances.map(function (edge) { return edge.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var rowRowInstancesUnderProvidedRowInstance = qaInstanceObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_ROW_INSTANCE && rowRowInstanceUnderProvidedRowInstanceURIs.includes(obj.URI); });
+        var rowRowInstances = rowRowInstancesUnderProvidedRowInstance.filter(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW) === rowRow.URI && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER) === rowRowInstanceCounter; });
         if (!rowRowInstances.length) {
             throw new Error("No rowInstance found to connect row " + rowRow.URI + " with counter: " + rowRowInstanceCounter);
         }
@@ -925,12 +1030,12 @@ var RowAPI = /** @class */ (function () {
     };
     RowAPI.getAnswerPairByAnswerTypeUnderRowPair = function (qaObjects, qaInstanceObjects, row, rowInstance, answerType) {
         // 2 get answerObject based on answerType and row;
-        var edgeFromRowToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
-        var questionURIs = edgeFromRowToQuestions.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
-        var edgeFromRowToAnswers = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER && questionURIs.includes(obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE)); });
-        var answerURIs = edgeFromRowToAnswers.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
-        var answers = qaObjects.filter(function (obj) { return answerURIs.includes(obj.URI) && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
-        var rowType = row.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI);
+        var edgeFromRowToQuestions = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === row.URI; });
+        var questionURIs = edgeFromRowToQuestions.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var edgeFromRowToAnswers = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER && questionURIs.includes(obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE)); });
+        var answerURIs = edgeFromRowToAnswers.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var answers = qaObjects.filter(function (obj) { return answerURIs.includes(obj.URI) && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER_TYPE) === answerType; });
+        var rowType = row.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI);
         if (!answers.length) {
             throw new Error("No answer object found with answerType: " + rowType + " under rowType: " + rowType + ". Any of the following could be missing: edgeFromRowToQuestionObject, EdgeFromQuestionToAnswer, AnswerObject.");
         }
@@ -939,11 +1044,11 @@ var RowAPI = /** @class */ (function () {
         }
         var answer = answers[0];
         // 4 get answerInstance based on answerObject and rowInstance
-        var edgeFromRowToQuestionInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === rowInstance.URI; });
-        var questionInstanceURIs = edgeFromRowToQuestionInstances.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
-        var edgeToAnswerInstances = qaInstanceObjects.filter(function (obj) { var _a; return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE && questionInstanceURIs.includes((_a = obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE)) !== null && _a !== void 0 ? _a : ''); });
-        var answerInstanceURIs = edgeToAnswerInstances.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
-        var answerInstances = qaInstanceObjects.filter(function (obj) { return answerInstanceURIs.includes(obj.URI) && obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
+        var edgeFromRowToQuestionInstances = qaInstanceObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_QUESTION_INSTANCE && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE) === rowInstance.URI; });
+        var questionInstanceURIs = edgeFromRowToQuestionInstances.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var edgeToAnswerInstances = qaInstanceObjects.filter(function (obj) { var _a; return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ANSWER_INSTANCE && questionInstanceURIs.includes((_a = obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_SOURCE)) !== null && _a !== void 0 ? _a : ''); });
+        var answerInstanceURIs = edgeToAnswerInstances.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_EDGE_DESTINATION); });
+        var answerInstances = qaInstanceObjects.filter(function (obj) { return answerInstanceURIs.includes(obj.URI) && obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ANSWER) === answer.URI; });
         if (!answerInstances.length) {
             throw new Error("No matched answerInstance object found.");
         }
@@ -970,7 +1075,7 @@ var RowAPI = /** @class */ (function () {
     RowAPI.getRowInstanceCountersByRowType = function (qaObjects, qaInstanceObjects, rowType) {
         var row = RowAPI.getRowByRowType(qaObjects, rowType);
         var rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
-        return rowInstances.map(function (ins) { return ins.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
+        return rowInstances.map(function (ins) { return ins.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
     };
     RowAPI.updateRowInstanceCounterByRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, counter) {
         var counters = RowAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, rowType);
@@ -978,16 +1083,16 @@ var RowAPI = /** @class */ (function () {
             throw new Error("The rowInstance with counter as " + counter + " is already exists");
         }
         var _a = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType), row = _a[0], rowInstance = _a[1];
-        rowInstance.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, counter);
+        rowInstance.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, counter);
         return rowInstance;
     };
     RowAPI.getRowRowInstanceCountersByRowRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType) {
         var row = RowAPI.getRowByRowType(qaObjects, rowType);
         var rowRow = RowAPI.getRowByRowType(qaObjects, rowRowType);
         var rowInstance = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row, rowInstanceCounter)[0];
-        var rowRowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
+        var rowRowInstances = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaInstanceObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW_INSTANCE, rowInstance);
         var rowInstancesConnectedToRowRow = RowAPI.getRowInstanceByRowAndInstanceCounter(rowRowInstances, rowRow);
-        return rowInstancesConnectedToRowRow.map(function (ins) { return ins.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
+        return rowInstancesConnectedToRowRow.map(function (ins) { return ins.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
     };
     RowAPI.updateRowRowInstanceCountersByRowRowType = function (qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType, rowRowInstanceCounter, counter) {
         var rowRowInstanceCounters = RowAPI.getRowRowInstanceCountersByRowRowType(qaObjects, qaInstanceObjects, rowType, rowInstanceCounter, rowRowType);
@@ -996,7 +1101,7 @@ var RowAPI = /** @class */ (function () {
         }
         var _a = RowAPI.getRowAndRowInstancePair(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType), row = _a[0], rowInstance = _a[1];
         var _b = RowAPI.getRowRowPairUnderRowPair(qaObjects, qaInstanceObjects, row, rowInstance, rowRowInstanceCounter, rowRowType), rowRow = _b[0], rowRowInstance = _b[1];
-        rowRowInstance.set(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, counter);
+        rowRowInstance.set(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER, counter);
         return rowRowInstance;
     };
     // handleRowRow set to true will create rowRowInstance within the result.
@@ -1004,7 +1109,7 @@ var RowAPI = /** @class */ (function () {
         if (handleRowRow === void 0) { handleRowRow = false; }
         var row = RowAPI.getRowByRowType(qaObjects, rowType);
         var rowInstances = RowAPI.getRowInstanceByRowAndInstanceCounter(qaInstanceObjects, row);
-        var rowInstanceCounters = rowInstances.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
+        var rowInstanceCounters = rowInstances.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER); });
         if (rowInstanceCounter) {
             if (rowInstanceCounters.includes(rowInstanceCounter)) {
                 throw new Error("The generated rowInstanceCounters has already existed, existing rowInstanceCounters: " + rowInstanceCounters + ". The rowInstanceCounter provided: " + rowInstanceCounter);
@@ -1061,22 +1166,22 @@ var RowAPI = /** @class */ (function () {
         return instancesLeft;
     };
     RowAPI.getFirstLevelRows = function (qaObjects) {
-        var sections = qaObjects.filter(function (obj) { return obj.type === _util_constant__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_SECTION; });
-        var rows = (0,lodash__WEBPACK_IMPORTED_MODULE_3__.flatten)(sections.map(function (section) { return (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW, section); }));
+        var sections = qaObjects.filter(function (obj) { return obj.type === _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.TYPE_HALEY_SECTION; });
+        var rows = (0,lodash__WEBPACK_IMPORTED_MODULE_3__.flatten)(sections.map(function (section) { return (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW, section); }));
         return rows;
     };
     RowAPI.getRowTypes = function (qaObjects) {
         var rows = RowAPI.getFirstLevelRows(qaObjects);
-        return rows.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI); });
+        return rows.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI); });
     };
     RowAPI.getRowTypesInRow = function (qaObjects, rowType) {
         var rows = RowAPI.getFirstLevelRows(qaObjects);
-        var row = rows.find(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType; });
+        var row = rows.find(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI) === rowType; });
         if (!row) {
             throw new Error("Couldn't find any row with rowType: " + rowType);
         }
-        var rowRows = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaObjects, _util_constant__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW, row);
-        return rowRows.map(function (obj) { return obj.get(_util_constant__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI); });
+        var rowRows = (0,_util_util__WEBPACK_IMPORTED_MODULE_2__.getDestinationObjects)(qaObjects, _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.EDGE_ROW, row);
+        return rowRows.map(function (obj) { return obj.get(_util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__.SHORT_NAME_HALEY_ROW_TYPE_URI); });
     };
     RowAPI.generateRowInstanceCounter = function (index) {
         if (index > 26 * 26) {
@@ -1121,6 +1226,277 @@ var RowAPI = /** @class */ (function () {
 
 "use strict";
 module.exports = require("lodash");;
+
+/***/ }),
+/* 8 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MappingUtil": () => (/* binding */ MappingUtil)
+/* harmony export */ });
+var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+var MappingUtil = /** @class */ (function () {
+    function MappingUtil(qaObjects) {
+        var _this = this;
+        this._mapUriToObject = new Map();
+        this._mapTypeToObjects = new Map();
+        this._mappingQuestionUriToQuestionTree = new Map();
+        this._mappingQuestionInstanceUriToQuestionInstanceTree = new Map();
+        this._mappingQuestionURIToItsSourceEdge = new Map();
+        this._mappingQuestionURIToItsAnswerEdge = new Map();
+        this._mappingQuestionInstanceURIToItsSourceEdge = new Map();
+        this._mappingQuestionInstanceURIToItsAnswerInstanceEdge = new Map();
+        qaObjects.forEach(function (obj) {
+            if (!obj.type || !obj.URI) {
+                throw new Error("Graph object should have properties of URI and type. This object in the list has the following value URI=" + obj.URI + ", type=" + obj.type);
+            }
+            _this._mapUriToObject.set(obj.URI, obj);
+            var objectsOfType = _this._mapTypeToObjects.get(obj.type) || [];
+            _this._mapTypeToObjects.set(obj.type, __spreadArray(__spreadArray([], objectsOfType), [obj]));
+        });
+        // const toQuestionEdges = this.mapTypeToObjects.get(EDGE_QUESTION) || [];
+        // const toQuestionInstanceEdges = this.mapTypeToObjects.get(EDGE_QUESTION_INSTANCE) || [];
+        // const toAnswerEdges = this.mapTypeToObjects.get(EDGE_ANSWER) || [];
+        // toQuestionEdges.forEach(edgeToQuestion => {
+        //     const questionURI = edgeToQuestion.get(SHORT_NAME_EDGE_DESTINATION);
+        //     if (!questionURI) {
+        //         throw Error(`Edge ${edgeToQuestion.URI} does not target to any object`);
+        //     }
+        //     const question = this._mapUriToObject.get(questionURI);
+        //     if (!question) {
+        //         throw Error(`Could not find the destination object of Edge ${edgeToQuestion.URI}`);
+        //     }
+        // });
+    }
+    ;
+    Object.defineProperty(MappingUtil.prototype, "mapUriToObject", {
+        get: function () {
+            return this._mapUriToObject;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MappingUtil.prototype, "mapTypeToObjects", {
+        get: function () {
+            return this._mapTypeToObjects;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    MappingUtil.prototype.getObjectByURI = function (uri) {
+        return this._mapUriToObject.get(uri) || null;
+    };
+    MappingUtil.prototype.getObjectsByType = function (type) {
+        return this._mapTypeToObjects.get(type) || [];
+    };
+    MappingUtil.prototype.has = function (uri) {
+        return !!this.getObjectByURI(uri);
+    };
+    return MappingUtil;
+}());
+
+
+
+/***/ }),
+/* 9 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GroupGraphContainer": () => (/* binding */ GroupGraphContainer)
+/* harmony export */ });
+/* harmony import */ var _graph_container__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var GroupGraphContainer = /** @class */ (function (_super) {
+    __extends(GroupGraphContainer, _super);
+    function GroupGraphContainer(qaObjects, group) {
+        var _this = _super.call(this, qaObjects) || this;
+        _this._group = group;
+        return _this;
+    }
+    Object.defineProperty(GroupGraphContainer.prototype, "group", {
+        get: function () {
+            return this._group;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(GroupGraphContainer.prototype, "groupURI", {
+        get: function () {
+            return this._group.URI;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(GroupGraphContainer.prototype, "type", {
+        get: function () {
+            return 'GroupGraph';
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return GroupGraphContainer;
+}(_graph_container__WEBPACK_IMPORTED_MODULE_0__.GraphContainer));
+
+
+
+/***/ }),
+/* 10 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GraphContainer": () => (/* binding */ GraphContainer)
+/* harmony export */ });
+/* harmony import */ var _util_mapping_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+
+var GraphContainer = /** @class */ (function () {
+    function GraphContainer(qaObjects) {
+        this._qaObjects = qaObjects;
+        this.mappingUtil = new _util_mapping_util__WEBPACK_IMPORTED_MODULE_0__.MappingUtil(qaObjects);
+    }
+    GraphContainer.prototype.has = function (uri) {
+        return this.mappingUtil.has(uri);
+    };
+    GraphContainer.prototype.getObjectByURI = function (uri) {
+        return this.mappingUtil.getObjectByURI(uri);
+    };
+    Object.defineProperty(GraphContainer.prototype, "all", {
+        get: function () {
+            return this._qaObjects;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return GraphContainer;
+}());
+
+
+
+/***/ }),
+/* 11 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GroupInstanceGraphContainer": () => (/* binding */ GroupInstanceGraphContainer)
+/* harmony export */ });
+/* harmony import */ var _graph_container__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var GroupInstanceGraphContainer = /** @class */ (function (_super) {
+    __extends(GroupInstanceGraphContainer, _super);
+    function GroupInstanceGraphContainer(qaInstanceObjects, groupInstance) {
+        var _this = _super.call(this, qaInstanceObjects) || this;
+        _this._groupInstance = groupInstance;
+        return _this;
+    }
+    Object.defineProperty(GroupInstanceGraphContainer.prototype, "groupInstance", {
+        get: function () {
+            return this._groupInstance;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(GroupInstanceGraphContainer.prototype, "groupInstanceURI", {
+        get: function () {
+            return this._groupInstance.URI;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(GroupInstanceGraphContainer.prototype, "type", {
+        get: function () {
+            return 'GroupInstanceGraph';
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return GroupInstanceGraphContainer;
+}(_graph_container__WEBPACK_IMPORTED_MODULE_0__.GraphContainer));
+
+
+
+/***/ }),
+/* 12 */
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "GeneralGraphContainer": () => (/* binding */ GeneralGraphContainer)
+/* harmony export */ });
+/* harmony import */ var _graph_container__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(10);
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var GeneralGraphContainer = /** @class */ (function (_super) {
+    __extends(GeneralGraphContainer, _super);
+    function GeneralGraphContainer(qaObjects) {
+        return _super.call(this, qaObjects) || this;
+    }
+    Object.defineProperty(GeneralGraphContainer.prototype, "type", {
+        get: function () {
+            return 'GeneralGraph';
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return GeneralGraphContainer;
+}(_graph_container__WEBPACK_IMPORTED_MODULE_0__.GraphContainer));
+
+
 
 /***/ })
 /******/ 	]);

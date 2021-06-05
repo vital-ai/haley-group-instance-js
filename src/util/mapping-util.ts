@@ -1,5 +1,5 @@
 import { GraphObject } from './type';
-import { EDGE_QUESTION, SHORT_NAME_EDGE_DESTINATION, EDGE_QUESTION_INSTANCE, EDGE_ANSWER } from './constant';
+import { EDGE_QUESTION, SHORT_NAME_EDGE_DESTINATION, EDGE_QUESTION_INSTANCE, EDGE_ANSWER } from './type-haley-ai-question';
 
 interface QuestionTree {
     question: GraphObject;
@@ -32,7 +32,7 @@ export class MappingUtil {
     constructor(qaObjects: GraphObject[]) {
         qaObjects.forEach(obj => {
             if (!obj.type || !obj.URI) {
-                throw new Error(`Graph object should have properties of URI and type. This object in the list has the following value URI=${obj.URI}, type=${obj.type}`, obj);
+                throw new Error(`Graph object should have properties of URI and type. This object in the list has the following value URI=${obj.URI}, type=${obj.type}`);
             }
             this._mapUriToObject.set(obj.URI, obj);
             const objectsOfType: GraphObject[] = this._mapTypeToObjects.get(obj.type) as unknown as GraphObject[] || [];
