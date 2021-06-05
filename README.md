@@ -103,3 +103,42 @@ use command: **npm publish**
     const rowTypes: string[] = groupAPI. getRowTypesInRow(qaObjects, rowType);
 
 ```
+
+### Split api
+
+```
+    const graph: SplitGraph = groupAPI.splitGroupAndInstances(mixGroupGraphAndGroupInstanceGraphObjects GraphObject[]);
+
+    interface SplitGraph {
+        groupGraphContainerList: GroupGraphContainer[],
+        instanceGraphContainerList: GroupInstanceGraphContainer[],
+        generalGraphObjects: GeneralGraphContainer,
+    }
+
+    interface GroupGraphContainer {
+        type: 'GroupGraph'
+        all: obj[]                                    // all objects
+        group: obj                                    // the group object
+        groupURI: string                              // the uri of the group object
+        getObjectByURI: (uri: string) => obj | null   // method to get the obj by uri;
+        has: (uri: string) => boolean                 // method to detect whether the container has the obj with uri
+    }
+
+    interface instanceGraphContainerList {
+        type: 'GroupInstanceGraph'
+        all: obj[]                                    // all objects
+        groupInstance: obj                            // the groupInstance object
+        groupInstanceURI: string                      // the uri of the groupInstance object
+        groupURI: string                              // the uri of the group object
+        getObjectByURI: (uri: string) => obj | null   // method to get the obj by uri;
+        has: (uri: string) => boolean                 // method to detect whether the container has the obj with uri
+    }
+
+    interface generalGraphObjects {
+        type: 'GeneralGraph'
+        all: obj[]                                    // all objects
+        getObjectByURI: (uri: string) => obj | null   // method to get the obj by uri;
+        has: (uri: string) => boolean                 // method to detect whether the container has the obj with uri
+    }
+
+```
