@@ -18,6 +18,10 @@ export class GraphContainer {
         return this.mappingUtil.getObjectByURI(uri);
     }
 
+    getObjectsByType(type: string): GraphObject[] {
+        return this.mappingUtil.getObjectsByType(type);
+    }
+
     get all(): GraphObject[] {
         return this._qaObjects;
     }
