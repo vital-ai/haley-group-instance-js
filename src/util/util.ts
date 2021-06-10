@@ -86,7 +86,7 @@ export const buildQaGraph = (root: GraphObject, graph: GraphObject[], mappingUti
             }
             const destinationObject = mappingUtil.getObjectByURI(destinationObjectURI);
             if (!destinationObject) {
-                throw new Error(`Could not find the destination object for edge ${edge.URI}`);
+                console.error(`Could not find the destination object for edge ${edge.URI}`);
             }
 
             graph.push(edge);

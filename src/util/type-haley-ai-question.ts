@@ -89,6 +89,28 @@ export const EDGE_ENHANCEMENT_RULE_DEPENDENCY = 'http://vital.ai/ontology/haley-
 export const EDGE_DEFAULT_ANSWER = 'http://vital.ai/ontology/haley-ai-question#Edge_hasDefaultAnswer';
 export const EDGE_VALIDATION_ANSWER_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#Edge_hasValidationAnswerInstance';
 
+export const EDGE_SETS = new Set([
+    EDGE_GROUP_INSTANCE,
+    EDGE_SECTION,
+    EDGE_ROW,
+    EDGE_QUESTION,
+    EDGE_ANSWER,
+    EDGE_SECTION_INSTANCE,
+    EDGE_ROW_INSTANCE,
+    EDGE_QUESTION_INSTANCE,
+    EDGE_ANSWER_INSTANCE,
+    EDGE_ANSWER_OPTION,
+    EDGE_ANSWER_OPTION_VALUE_DEPENDENCY,
+    EDGE_ANSWER_OPTION_DEPENDENCY,
+    EDGE_ANSWER_CONSTRAINT,
+    EDGE_ANSWER_DEPENDENCY,
+    EDGE_QUESTION_DEPENDENCY,
+    EDGE_TAXONOMY,
+    EDGE_ENHANCEMENT_RULE_DEPENDENCY,
+    EDGE_DEFAULT_ANSWER,
+    EDGE_VALIDATION_ANSWER_INSTANCE,
+]);
+
 export const mappingTypeToDownStreamEdges = new Map<string, string[]>([
     [TYPE_HALEY_GROUP, [EDGE_SECTION]],
     [TYPE_HALEY_SECTION, [EDGE_QUESTION, EDGE_ROW]],
