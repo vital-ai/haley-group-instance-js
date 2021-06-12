@@ -1,7 +1,7 @@
 import { GraphObject } from '../util/type';
 import { GraphContainer } from './graph-container';
 
-export class GeneralGraphContainer extends GraphContainer{
+export class GeneralGraphContainer extends GraphContainer {
 
     constructor(qaObjects: GraphObject[]) {
         super(qaObjects);

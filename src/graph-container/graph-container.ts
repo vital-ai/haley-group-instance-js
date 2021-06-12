@@ -14,6 +14,14 @@ export class GraphContainer {
         return this.mappingUtil.has(uri);
     }
 
+    get isComplete(): boolean {
+        return this.mappingUtil.isComplete;
+    }
+
+    get incompleteMessages(): string[] {
+        return this.mappingUtil.incompleteMessages;
+    }
+
     getObjectByURI(uri: string): GraphObject | null {
         return this.mappingUtil.getObjectByURI(uri);
     }
