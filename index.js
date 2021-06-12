@@ -467,6 +467,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "EDGE_ENHANCEMENT_RULE_DEPENDENCY": () => (/* binding */ EDGE_ENHANCEMENT_RULE_DEPENDENCY),
 /* harmony export */   "EDGE_DEFAULT_ANSWER": () => (/* binding */ EDGE_DEFAULT_ANSWER),
 /* harmony export */   "EDGE_VALIDATION_ANSWER_INSTANCE": () => (/* binding */ EDGE_VALIDATION_ANSWER_INSTANCE),
+/* harmony export */   "EDGE_SETS": () => (/* binding */ EDGE_SETS),
 /* harmony export */   "mappingTypeToDownStreamEdges": () => (/* binding */ mappingTypeToDownStreamEdges)
 /* harmony export */ });
 var TYPE_HALEY_SECTION = 'http://vital.ai/ontology/haley-ai-question#HaleySection';
@@ -552,6 +553,27 @@ var EDGE_TAXONOMY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasTaxonomy
 var EDGE_ENHANCEMENT_RULE_DEPENDENCY = 'http://vital.ai/ontology/haley-ai-question#Edge_hasEnhancementRuleDependency';
 var EDGE_DEFAULT_ANSWER = 'http://vital.ai/ontology/haley-ai-question#Edge_hasDefaultAnswer';
 var EDGE_VALIDATION_ANSWER_INSTANCE = 'http://vital.ai/ontology/haley-ai-question#Edge_hasValidationAnswerInstance';
+var EDGE_SETS = new Set([
+    EDGE_GROUP_INSTANCE,
+    EDGE_SECTION,
+    EDGE_ROW,
+    EDGE_QUESTION,
+    EDGE_ANSWER,
+    EDGE_SECTION_INSTANCE,
+    EDGE_ROW_INSTANCE,
+    EDGE_QUESTION_INSTANCE,
+    EDGE_ANSWER_INSTANCE,
+    EDGE_ANSWER_OPTION,
+    EDGE_ANSWER_OPTION_VALUE_DEPENDENCY,
+    EDGE_ANSWER_OPTION_DEPENDENCY,
+    EDGE_ANSWER_CONSTRAINT,
+    EDGE_ANSWER_DEPENDENCY,
+    EDGE_QUESTION_DEPENDENCY,
+    EDGE_TAXONOMY,
+    EDGE_ENHANCEMENT_RULE_DEPENDENCY,
+    EDGE_DEFAULT_ANSWER,
+    EDGE_VALIDATION_ANSWER_INSTANCE,
+]);
 var mappingTypeToDownStreamEdges = new Map([
     [TYPE_HALEY_GROUP, [EDGE_SECTION]],
     [TYPE_HALEY_SECTION, [EDGE_QUESTION, EDGE_ROW]],
@@ -685,7 +707,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _util_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
 /* harmony import */ var _util_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(2);
-
 
 
 var QuestionAPI = /** @class */ (function () {
@@ -823,7 +844,7 @@ var buildQaGraph = function (root, graph, mappingUtil) {
             }
             var destinationObject = mappingUtil.getObjectByURI(destinationObjectURI);
             if (!destinationObject) {
-                throw new Error("Could not find the destination object for edge " + edge.URI);
+                console.error("Could not find the destination object for edge " + edge.URI);
             }
             graph.push(edge);
             buildQaGraph(destinationObject, graph, mappingUtil);
@@ -1236,22 +1257,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "MappingUtil": () => (/* binding */ MappingUtil)
 /* harmony export */ });
+/* harmony import */ var _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 var __spreadArray = (undefined && undefined.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
         to[j] = from[i];
     return to;
 };
+
+
 var MappingUtil = /** @class */ (function () {
     function MappingUtil(qaObjects) {
         var _this = this;
         this._mapUriToObject = new Map();
         this._mapTypeToObjects = new Map();
+        this._isComplete = true;
+        this._incompleteMessages = [];
+        this._mappingSourceUriToEdges = new Map();
+        this._mappingDestinationUriToEdges = new Map();
         this._mappingQuestionUriToQuestionTree = new Map();
         this._mappingQuestionInstanceUriToQuestionInstanceTree = new Map();
-        this._mappingQuestionURIToItsSourceEdge = new Map();
-        this._mappingQuestionURIToItsAnswerEdge = new Map();
-        this._mappingQuestionInstanceURIToItsSourceEdge = new Map();
-        this._mappingQuestionInstanceURIToItsAnswerInstanceEdge = new Map();
+        this._qaObjects = qaObjects;
         qaObjects.forEach(function (obj) {
             if (!obj.type || !obj.URI) {
                 throw new Error("Graph object should have properties of URI and type. This object in the list has the following value URI=" + obj.URI + ", type=" + obj.type);
@@ -1259,22 +1284,184 @@ var MappingUtil = /** @class */ (function () {
             _this._mapUriToObject.set(obj.URI, obj);
             var objectsOfType = _this._mapTypeToObjects.get(obj.type) || [];
             _this._mapTypeToObjects.set(obj.type, __spreadArray(__spreadArray([], objectsOfType), [obj]));
+            if (_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_SETS.has(obj.type)) {
+                var sourceURI = obj.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_SOURCE);
+                var destinationURI = obj.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+                var sourceEdges = _this._mappingSourceUriToEdges.get(sourceURI) || [];
+                _this._mappingSourceUriToEdges.set(sourceURI, __spreadArray(__spreadArray([], sourceEdges), [obj]));
+                _this._mappingDestinationUriToEdges.set(destinationURI, obj);
+            }
         });
-        // const toQuestionEdges = this.mapTypeToObjects.get(EDGE_QUESTION) || [];
-        // const toQuestionInstanceEdges = this.mapTypeToObjects.get(EDGE_QUESTION_INSTANCE) || [];
-        // const toAnswerEdges = this.mapTypeToObjects.get(EDGE_ANSWER) || [];
-        // toQuestionEdges.forEach(edgeToQuestion => {
-        //     const questionURI = edgeToQuestion.get(SHORT_NAME_EDGE_DESTINATION);
-        //     if (!questionURI) {
-        //         throw Error(`Edge ${edgeToQuestion.URI} does not target to any object`);
-        //     }
-        //     const question = this._mapUriToObject.get(questionURI);
-        //     if (!question) {
-        //         throw Error(`Could not find the destination object of Edge ${edgeToQuestion.URI}`);
-        //     }
-        // });
+        this.mapGroupGraph();
+        this.mapGroupInstanceGraph();
     }
     ;
+    MappingUtil.prototype.mapGroupGraph = function () {
+        var _a, _b;
+        var group = (_a = this.getObjectsByType(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.TYPE_HALEY_GROUP)) === null || _a === void 0 ? void 0 : _a[0];
+        if (!group)
+            return;
+        var toQuestionEdges = this.getObjectsByType(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_QUESTION) || [];
+        for (var i = 0; i < toQuestionEdges.length; i++) {
+            var edgeToQuestion = toQuestionEdges[i];
+            var questionURI = edgeToQuestion.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            var question = void 0;
+            question = this._mapUriToObject.get(questionURI);
+            if (!question) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find the question object URI=" + questionURI + ", which is the destination of edge " + edgeToQuestion.URI);
+                continue;
+            }
+            var edgeToAnswer = (_b = this._mappingSourceUriToEdges.get(questionURI)) === null || _b === void 0 ? void 0 : _b[0];
+            if (!edgeToAnswer) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find any edge from question " + questionURI + " to answer.");
+                continue;
+            }
+            var answerURI = edgeToAnswer.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            var answer = this._mapUriToObject.get(answerURI);
+            if (!answer) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find the answer object " + answerURI + ", which is the destination of edge " + edgeToAnswer.URI);
+                continue;
+            }
+            var fromAnswerEdges = this._mappingSourceUriToEdges.get(answerURI) || [];
+            var answerTree = [];
+            for (var i_1 = 0; i_1 < fromAnswerEdges.length; i_1++) {
+                var edge = fromAnswerEdges[i_1];
+                var destinationURI = edge.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+                var destination = this._mapUriToObject.get(destinationURI);
+                if (!destination) {
+                    this._isComplete = false;
+                    this._incompleteMessages.push("Could not find the object URI " + destinationURI + ", which is the destination object of edge " + edge.URI);
+                    continue;
+                }
+                answerTree.push(edge);
+                answerTree.push(destination);
+            }
+            ;
+            this._mappingQuestionUriToQuestionTree.set(questionURI, {
+                edgeToQuestion: edgeToQuestion,
+                question: question,
+                edgeToAnswer: edgeToAnswer,
+                answer: answer,
+                answerTree: answerTree,
+            });
+        }
+        ;
+        var edgeToSections = this.getObjectsByType(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION);
+        for (var i = 0; i < edgeToSections.length; i++) {
+            var edgeToSection = edgeToSections[i];
+            var sectionURI = edgeToSection.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            var section = this.getObjectByURI(sectionURI);
+            if (!section) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find section object " + sectionURI + ", which is the destination object of Edge " + edgeToSection.URI);
+                continue;
+            }
+            var edgesFromSection = this._mappingSourceUriToEdges.get(sectionURI) || [];
+            for (var j = 0; j < edgesFromSection.length; j++) {
+                var edgeFromSection = edgesFromSection[j];
+                var objectURI = edgeFromSection.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+                var obj = this.getObjectByURI(objectURI);
+                // question object will be detect by the code above this for loop
+                if ((edgeFromSection === null || edgeFromSection === void 0 ? void 0 : edgeFromSection.type) === _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_QUESTION)
+                    continue;
+                if (!obj) {
+                    this._isComplete = false;
+                    this._incompleteMessages.push("Could not find object " + objectURI + ", which is the destination object of Edge " + edgeFromSection.URI);
+                    continue;
+                }
+                var rowURI = objectURI;
+                var edgesFromRow = this._mappingSourceUriToEdges.get(rowURI) || [];
+                for (var k = 0; k < edgesFromRow.length; k++) {
+                    var edgeFromRow = edgesFromRow[k];
+                    var objectURI_1 = edgeFromRow.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+                    var obj_1 = this.getObjectByURI(objectURI_1);
+                    if ((edgeFromRow === null || edgeFromRow === void 0 ? void 0 : edgeFromRow.type) === _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_QUESTION)
+                        continue;
+                    if (!obj_1) {
+                        this._isComplete = false;
+                        this._incompleteMessages.push("Could not find object " + objectURI_1 + ", which is the destination object of Edge " + edgeFromRow.URI);
+                        continue;
+                    }
+                }
+            }
+        }
+    };
+    MappingUtil.prototype.mapGroupInstanceGraph = function () {
+        var _a;
+        var toQuestionInstanceEdges = this.mapTypeToObjects.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_QUESTION_INSTANCE) || [];
+        for (var i = 0; i < toQuestionInstanceEdges.length; i++) {
+            var edgeToQuestionInstance = toQuestionInstanceEdges[i];
+            var questionInstanceURI = edgeToQuestionInstance.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            var questionInstance = this._mapUriToObject.get(questionInstanceURI);
+            if (!questionInstance) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find the questionInstance object URI=" + questionInstanceURI + ", which is the destination of edge " + edgeToQuestionInstance.URI);
+                continue;
+            }
+            var edgeToAnswerInstance = (_a = this._mappingSourceUriToEdges.get(questionInstanceURI)) === null || _a === void 0 ? void 0 : _a[0];
+            if (!edgeToAnswerInstance) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find any edge from questionInstance " + questionInstanceURI + " to answer.");
+                continue;
+            }
+            var answerInstanceURI = edgeToAnswerInstance.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            var answerInstance = this._mapUriToObject.get(answerInstanceURI);
+            if (!answerInstance) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find the answerInstance object " + answerInstanceURI + ", which is the destination of edge " + edgeToAnswerInstance.URI);
+                continue;
+            }
+            this._mappingQuestionInstanceUriToQuestionInstanceTree.set(questionInstanceURI, {
+                edgeToQuestionInstance: edgeToQuestionInstance,
+                questionInstance: questionInstance,
+                edgeToAnswerInstance: edgeToAnswerInstance,
+                answerInstance: answerInstance
+            });
+        }
+        ;
+        var edgeToSectionInstances = this.getObjectsByType(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_SECTION_INSTANCE);
+        for (var i = 0; i < edgeToSectionInstances.length; i++) {
+            var edgeToSectionInstance = edgeToSectionInstances[i];
+            var sectionInstanceURI = edgeToSectionInstance.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+            var sectionInstance = this.getObjectByURI(sectionInstanceURI);
+            if (!sectionInstance) {
+                this._isComplete = false;
+                this._incompleteMessages.push("Could not find sectionInstance object " + sectionInstanceURI + ", which is the destination object of Edge " + edgeToSectionInstance.URI);
+                continue;
+            }
+            var edgesFromSectionInstance = this._mappingSourceUriToEdges.get(sectionInstanceURI) || [];
+            for (var j = 0; j < edgesFromSectionInstance.length; j++) {
+                var edgeFromSectionInstance = edgesFromSectionInstance[j];
+                var objectURI = edgeFromSectionInstance.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+                var obj = this.getObjectByURI(objectURI);
+                // question object will be detect by the code above this for loop
+                if ((edgeFromSectionInstance === null || edgeFromSectionInstance === void 0 ? void 0 : edgeFromSectionInstance.type) === _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_QUESTION_INSTANCE)
+                    continue;
+                if (!obj) {
+                    this._isComplete = false;
+                    this._incompleteMessages.push("Could not find object " + objectURI + ", which is the destination object of Edge " + edgeFromSectionInstance.URI);
+                    continue;
+                }
+                var rowInstanceURI = objectURI;
+                var edgesFromRowInstance = this._mappingSourceUriToEdges.get(rowInstanceURI) || [];
+                for (var k = 0; k < edgesFromRowInstance.length; k++) {
+                    var edgeFromRowInstance = edgesFromRowInstance[k];
+                    var objectURI_2 = edgeFromRowInstance.get(_type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.SHORT_NAME_EDGE_DESTINATION);
+                    var obj_2 = this.getObjectByURI(objectURI_2);
+                    if ((edgeFromRowInstance === null || edgeFromRowInstance === void 0 ? void 0 : edgeFromRowInstance.type) === _type_haley_ai_question__WEBPACK_IMPORTED_MODULE_0__.EDGE_QUESTION_INSTANCE)
+                        continue;
+                    if (!obj_2) {
+                        this._isComplete = false;
+                        this._incompleteMessages.push("Could not find object " + objectURI_2 + ", which is the destination object of Edge " + edgeFromRowInstance.URI);
+                        continue;
+                    }
+                }
+            }
+        }
+    };
     Object.defineProperty(MappingUtil.prototype, "mapUriToObject", {
         get: function () {
             return this._mapUriToObject;
@@ -1285,6 +1472,20 @@ var MappingUtil = /** @class */ (function () {
     Object.defineProperty(MappingUtil.prototype, "mapTypeToObjects", {
         get: function () {
             return this._mapTypeToObjects;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MappingUtil.prototype, "isComplete", {
+        get: function () {
+            return this._isComplete;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MappingUtil.prototype, "incompleteMessages", {
+        get: function () {
+            return this._incompleteMessages;
         },
         enumerable: false,
         configurable: true
@@ -1381,8 +1582,25 @@ var GraphContainer = /** @class */ (function () {
     GraphContainer.prototype.has = function (uri) {
         return this.mappingUtil.has(uri);
     };
+    Object.defineProperty(GraphContainer.prototype, "isComplete", {
+        get: function () {
+            return this.mappingUtil.isComplete;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(GraphContainer.prototype, "incompleteMessages", {
+        get: function () {
+            return this.mappingUtil.incompleteMessages;
+        },
+        enumerable: false,
+        configurable: true
+    });
     GraphContainer.prototype.getObjectByURI = function (uri) {
         return this.mappingUtil.getObjectByURI(uri);
+    };
+    GraphContainer.prototype.getObjectsByType = function (type) {
+        return this.mappingUtil.getObjectsByType(type);
     };
     Object.defineProperty(GraphContainer.prototype, "all", {
         get: function () {
