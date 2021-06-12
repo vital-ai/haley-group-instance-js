@@ -153,7 +153,7 @@ describe('MappingUtil', () => {
             const mappingUtil = new MappingUtil(testData);
     
             expect(mappingUtil.isComplete).toBe(false)
-            expect(mappingUtil.incompleteMessages).toEqual(['Could not find any edge from question http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber to answer.']);
+            expect(mappingUtil.incompleteMessages).toEqual(['Could not find any edge from questionInstance http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber to answer.']);
         });
     
         it('Should detect data miss a answerInstance object', () => {

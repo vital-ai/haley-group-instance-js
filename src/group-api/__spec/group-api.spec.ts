@@ -31,6 +31,7 @@ import {
     SHORT_NAME_HALEY_ANSWER,
     EDGE_ROW_INSTANCE,
     TYPE_HALEY_ROW_INSTANCE,
+    TYPE_HALEY_ROW,
     SHORT_NAME_HALEY_ROW,
     TYPE_HALEY_GROUP,
     TYPE_HALEY_GROUP_INSTANCE,
@@ -43,12 +44,14 @@ import {
     TYPE_FOLLOWUP_FIRM_ANSWER,
     TYPE_FOLLOWUP_NO_ANSWER,
     SHORT_NAME_HALEY_ANSWER_DATA_TYPE,
-    MAPPING_ANSWER_TO_ANSWER_INSTANCE
+    MAPPING_ANSWER_TO_ANSWER_INSTANCE,
+    TYPE_HALEY_QUESTION,
 } from '../../util/type-haley-ai-question';
 import { cloneDeep, shuffle } from 'lodash';
 import { createVitalObject } from '../../util/util';
 import { SplitGraph } from '../type';
 import { TYPE_SUBMISSION_INQUIRY, TYPE_SUBMISSION } from '../../util/type-harbor-domains';
+import { TYPE_HALEY_TEXT_ANSWER, TYPE_HALEY_SECTION, EDGE_ANSWER } from '../../util/type-haley-ai-question';
 import {
     ANSWER_TYPE_AUTHOR_NAME,
     ANSWER_TYPE_FORMATTED_ADDRESS,
@@ -394,10 +397,14 @@ describe('GroupAPI', () => {
             expect(valueReset).toEqual('999-999-9999');
             expect(answerInstance.get(SHORT_NAME_TEXT_ANSWER_VALUE)).toEqual('999-999-9999');
 
+            expect(groupGraphContainerList[0].isComplete).toBe(true);
+            expect(instanceGraphContainerList[0].isComplete).toBe(true);
+            expect(instanceGraphContainerList[1].isComplete).toBe(true);
         });
     });
 
-    // need to generate the test-data.ndjson file to allow this test to pass.
+    // need to generate the test-data.ndjson file to allow this test to pass. If non file ../../../test-data/test-data.ndjson and ./result-data exist. Then
+    // the code below could be commented out.
     describe('test to split a big dataset of mixObjects', () => {
         let groupAPI: GroupAPI;
         let ndjsonObjects: any;
@@ -447,6 +454,135 @@ describe('GroupAPI', () => {
                 TYPE_SUBMISSION_INQUIRY,
                 TYPE_SUBMISSION,
             ]));
+
+            expect(groupGraphContainerList.every(obj => obj.isComplete)).toBe(true);
+            expect(instanceGraphContainerList.every(obj => obj.isComplete)).toBe(true);
+            expect(generalGraphObjects.isComplete).toBe(true);
+        });
+
+        it('Should detect incomplete graph if and question or questionInstance missing', () => {
+            const firstQuestionObject = testObjects.find(obj => obj.type === TYPE_HALEY_QUESTION);
+            const firstQuestionInstance = testObjects.find(obj => obj.type === TYPE_HALEY_QUESTION_INSTANCE);
+            testObjects = testObjects.filter(obj => obj.URI !== firstQuestionObject.URI && obj.URI !== firstQuestionInstance.URI);
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            const incompleteGroupGraph = groupGraphContainerList.find(obj => !obj.isComplete);
+            const incompleteGroupInstanceGraph = instanceGraphContainerList.find(obj => !obj.isComplete);
+
+            expect(incompleteGroupInstanceGraph).toBeDefined();
+            expect(incompleteGroupInstanceGraph.incompleteMessages).toEqual([
+                'Could not find the questionInstance object URI=http://vital.ai/haley.ai/haley-saas/HaleyQuestionInstance/1622685545148-5839883140, which is the destination of edge http://vital.ai/haley.ai/haley-saas/Edge_hasQuestionInstance/1622685545148-94583355075'
+            ]);
+
+            expect(incompleteGroupGraph).toBeDefined();
+            expect(incompleteGroupGraph.incompleteMessages).toEqual([
+                'Could not find the question object URI=http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/GooglePlace-Place-AddressComponent-AddressComponentShortValue, which is the destination of edge http://vital.ai/haley.ai/harbor-saas/Edge_hasQuestion/1617479903389_1076869165'
+            ]);
+        });
+
+        it('Should detect incomplete graph if and answer or answerInstance missing', () => {
+            const firstAnswerObject = testObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER);
+            const firstAnswerInstance = testObjects.find(obj => obj.type === TYPE_HALEY_TEXT_ANSWER_INSTANCE);
+            testObjects = testObjects.filter(obj => obj.URI !== firstAnswerObject.URI && obj.URI !== firstAnswerInstance.URI);
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            const incompleteGroupGraph = groupGraphContainerList.find(obj => !obj.isComplete);
+            const incompleteGroupInstanceGraph = instanceGraphContainerList.find(obj => !obj.isComplete);
+
+            expect(incompleteGroupInstanceGraph).toBeDefined();
+            expect(incompleteGroupInstanceGraph.incompleteMessages).toEqual([
+                'Could not find the answerInstance object http://vital.ai/haley.ai/haley-saas/HaleyTextAnswerInstance/1622685536057-56464373785, which is the destination of edge http://vital.ai/haley.ai/haley-saas/Edge_hasAnswerInstance/1622685536057-92343368853'
+            ]);
+
+            expect(incompleteGroupGraph).toBeDefined();
+            expect(incompleteGroupGraph.incompleteMessages).toEqual([
+                'Could not find the answer object http://vital.ai/haley.ai/harbor-saas/HaleyTextAnswer/1617479903403_1076869196, which is the destination of edge http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1617479903404_1076869197'
+            ]);
+        });
+
+        it('Should detect incomplete graph if and section or sectionInstance missing', () => {
+            const firstSectionObject = testObjects.find(obj => obj.type === TYPE_HALEY_SECTION);
+            const firstSectionInstance = testObjects.find(obj => obj.type === TYPE_HALEY_SECTION_INSTANCE);
+            testObjects = testObjects.filter(obj => obj.URI !== firstSectionObject.URI && obj.URI !== firstSectionInstance.URI);
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            const incompleteGroupGraph = groupGraphContainerList.find(obj => !obj.isComplete);
+            const incompleteGroupInstanceGraph = instanceGraphContainerList.find(obj => !obj.isComplete);
+
+            expect(incompleteGroupInstanceGraph).toBeDefined();
+            expect(incompleteGroupInstanceGraph.incompleteMessages).toEqual([
+                'Could not find sectionInstance object http://vital.ai/haley.ai/haley-saas/HaleySectionInstance/1622685535392-94544122146, which is the destination object of Edge http://vital.ai/haley.ai/haley-saas/Edge_hasSectionInstance/1622685535393-26761544792'
+            ]);
+
+            expect(incompleteGroupGraph).toBeDefined();
+            expect(incompleteGroupGraph.incompleteMessages).toEqual([
+                'Could not find section object http://vital.ai/haley.ai/harbor-saas/HaleySection/GooglePlace-Place, which is the destination object of Edge http://vital.ai/haley.ai/harbor-saas/Edge_hasSection/1617479903227_1076869071'
+            ]);
+        });
+
+        it('Should detect incomplete graph if and Row or RowInstance missing', () => {
+            const firstRowObject = testObjects.find(obj => obj.type === TYPE_HALEY_ROW);
+            const firstRowInstance = testObjects.find(obj => obj.type === TYPE_HALEY_ROW_INSTANCE);
+            testObjects = testObjects.filter(obj => obj.URI !== firstRowObject.URI && obj.URI !== firstRowInstance.URI);
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            const incompleteGroupGraph = groupGraphContainerList.find(obj => !obj.isComplete);
+            const incompleteGroupInstanceGraph = instanceGraphContainerList.find(obj => !obj.isComplete);
+
+            expect(incompleteGroupInstanceGraph).toBeDefined();
+            expect(incompleteGroupInstanceGraph.incompleteMessages).toEqual([
+                'Could not find object http://vital.ai/haley.ai/haley-saas/HaleyRowInstance/1622685548972-8891125646, which is the destination object of Edge http://vital.ai/haley.ai/haley-saas/Edge_hasRowInstance/1622685548976-73628385060'
+            ]);
+
+            expect(incompleteGroupGraph).toBeDefined();
+            expect(incompleteGroupGraph.incompleteMessages).toEqual([
+                'Could not find object http://vital.ai/haley.ai/harbor-saas/HaleyRow/GooglePlace-Place-AddressComponent, which is the destination object of Edge http://vital.ai/haley.ai/harbor-saas/Edge_hasRow/1617479903322_1076869085'
+            ]);
+        });
+
+        it('Should detect incomplete graph if and edgeToAnswer and edgeToAnswerInstance missing', () => {
+            const firstEdgeToAnswer = testObjects.find(obj => obj.type === EDGE_ANSWER);
+            const firstEdgeToAnswerInstance = testObjects.find(obj => obj.type === EDGE_ANSWER_INSTANCE);
+            testObjects = testObjects.filter(obj => obj.URI !== firstEdgeToAnswer.URI && obj.URI !== firstEdgeToAnswerInstance.URI);
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+                generalGraphObjects,
+            } = graph;
+
+            const incompleteGroupGraph = groupGraphContainerList.find(obj => !obj.isComplete);
+            const incompleteGroupInstanceGraph = instanceGraphContainerList.find(obj => !obj.isComplete);
+
+            expect(incompleteGroupInstanceGraph).toBeDefined();
+            expect(incompleteGroupInstanceGraph.incompleteMessages).toEqual([
+                'Could not find any edge from questionInstance http://vital.ai/haley.ai/haley-saas/HaleyQuestionInstance/1622685546630-72672198392 to answer.'
+            ]);
+
+            expect(incompleteGroupGraph).toBeDefined();
+            expect(incompleteGroupGraph.incompleteMessages).toEqual([
+                'Could not find any edge from question http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/GooglePlace-Hours-Weekday-CloseDay to answer.'
+            ]);
         });
 
         it('Should get all values from instance', () => {

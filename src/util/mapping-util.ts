@@ -194,7 +194,7 @@ export class MappingUtil {
 
             if (!edgeToAnswerInstance) {
                 this._isComplete = false;
-                this._incompleteMessages.push(`Could not find any edge from question ${questionInstanceURI} to answer.`);
+                this._incompleteMessages.push(`Could not find any edge from questionInstance ${questionInstanceURI} to answer.`);
                 continue;
             }
             const answerInstanceURI = edgeToAnswerInstance.get(SHORT_NAME_EDGE_DESTINATION);
