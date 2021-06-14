@@ -117,27 +117,34 @@ use command: **npm publish**
 
     interface GroupGraphContainer {
         type: 'GroupGraph'
+        isCompete: boolean                            // indicating the graph is complete or not
+        incompleteMessages: string[]                  // indicating what objects are missing in the graph
         all: obj[]                                    // all objects
         group: obj                                    // the group object
         groupURI: string                              // the uri of the group object
         getObjectByURI: (uri: string) => obj | null   // method to get the obj by uri;
+        getObjectsByType: (type: string) => obj[]     // method to get all the objects with provided type in the container
         has: (uri: string) => boolean                 // method to detect whether the container has the obj with uri
     }
 
-    interface instanceGraphContainerList {
+    interface GroupInstanceGraphContainer {
         type: 'GroupInstanceGraph'
+        isCompete: boolean                            // indicating the graph is complete or not
+        incompleteMessages: string[]                  // indicating what objects are missing in the graph
         all: obj[]                                    // all objects
         groupInstance: obj                            // the groupInstance object
         groupInstanceURI: string                      // the uri of the groupInstance object
         groupURI: string                              // the uri of the group object
         getObjectByURI: (uri: string) => obj | null   // method to get the obj by uri;
+        getObjectsByType: (type: string) => obj[]     // method to get all the objects with provided type in the container
         has: (uri: string) => boolean                 // method to detect whether the container has the obj with uri
     }
 
-    interface generalGraphObjects {
+    interface GeneralGraphContainer {
         type: 'GeneralGraph'
         all: obj[]                                    // all objects
         getObjectByURI: (uri: string) => obj | null   // method to get the obj by uri;
+        getObjectsByType: (type: string) => obj[]     // method to get all the objects with provided type in the container
         has: (uri: string) => boolean                 // method to detect whether the container has the obj with uri
     }
 
