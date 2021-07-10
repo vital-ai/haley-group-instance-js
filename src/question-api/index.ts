@@ -12,6 +12,10 @@ import {
     EDGE_ANSWER_INSTANCE,
     MAPPING_ANSWER_TO_ANSWER_INSTANCE,
     EDGE_QUESTION_INSTANCE,
+    TYPE_HALEY_ANSWER_OPTION,
+    EDGE_ANSWER_OPTION,
+    TYPE_HALEY_CHOICE_ANSWER,
+    TYPE_HALEY_MULTI_CHOICE_ANSWER,
 } from '../util/type-haley-ai-question';
 
 
@@ -68,6 +72,14 @@ export class QuestionAPI {
         const answerInstanceURI = edgeToAnswerInstance.get(SHORT_NAME_EDGE_DESTINATION);
         const answerInstance = qaInstanceObjects.find(obj => obj.URI === answerInstanceURI);
         return [edgeToQuestionInstance, questionInstance, edgeToAnswerInstance, answerInstance];
+    }
+
+    static getAnswerOptions(qaObjects: GraphObject[], answer: GraphObject) {
+        if (![TYPE_HALEY_CHOICE_ANSWER, TYPE_HALEY_MULTI_CHOICE_ANSWER].includes(answer.type)) return [];
+        const edgeToOptions = qaObjects.filter(edge => edge.type === EDGE_ANSWER_OPTION && edge.get(SHORT_NAME_EDGE_SOURCE) === answer.URI);
+        const optionsSet: Set<string> = new Set(edgeToOptions.map(edge => edge.get(SHORT_NAME_EDGE_DESTINATION)));
+        const options = qaObjects.filter(obj => obj.type === TYPE_HALEY_ANSWER_OPTION && optionsSet.has(obj.URI));
+        return options;
     }
 
 }

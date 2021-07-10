@@ -34,7 +34,6 @@ import {
     TYPE_FOLLOWUP_NO_ANSWER,
     TYPE_FOLLOWUP_FIRM_ANSWER,
     SHORT_NAME_FOLLOWUP_TYPE,
-    mappingTypeToDownStreamEdges,
 } from '../util/type-haley-ai-question';
 import { SectionAPI } from '../section-api/section-api';
 import { RowAPI } from '../row-api/index';
@@ -43,11 +42,12 @@ import {
     createEdgeObject,
     buildQaGraph
 } from '../util/util';
-import { CreateQaInstancesOption, SplitGraph } from './type';
+import { CreateQaInstancesOption, SetAnswerResponseType, SetAnswerValueOptions, SplitGraph } from './type';
 import { MappingUtil } from '../util/mapping-util';
 import { GroupGraphContainer } from '../graph-container/group-graph-container';
 import { GroupInstanceGraphContainer } from '../graph-container/group-instance-graph-container';
 import { GeneralGraphContainer } from '../graph-container/general-graph-container';
+import { QuestionAPI } from '../question-api/index';
 
 export class GroupAPI {
 
@@ -80,7 +80,7 @@ export class GroupAPI {
         return GroupAPI.getAnswerValue(answerInstance, answer);
     }
 
-    static setValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string, value: any, vitaljs?: VitalJs) {
+    static setValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string, value: any, vitaljs?: VitalJs): SetAnswerResponseType {
         if (!vitaljs && !GroupAPI.vitaljs) {
             throw new Error('vitaljs should be initialize first either by the constructor or by assign the value to the class directly');
         }
@@ -89,12 +89,11 @@ export class GroupAPI {
         (qaInstanceObjects || []).forEach(obj => msgRL.addResult(obj));
 
         const [answer, answerInstance] =  GroupAPI.getAnswerAndAnswerInstance({ answerType }, msgRL);
+        const answerOptions = QuestionAPI.getAnswerOptions(qaObjects, answer);
 
         if (GroupAPI.logger) GroupAPI.logger.info(`setting value ${value} for instance: `, answerInstance?.URI)
 
-        GroupAPI.setAnswerValue(answerInstance, answer, value);
-
-        return answerInstance;
+        return GroupAPI.setAnswerValue(answerInstance, answer, value, { answerOptions });
     }
 
     private static getAnswerAndAnswerInstance(getValueProp: GetValueProp, msgRL: MsgRL) {
@@ -170,62 +169,109 @@ export class GroupAPI {
         return null;
     };
 
-    private static setAnswerValue(answerInstance: GraphObject, answerObj: GraphObject, value: any) {
+    private static setAnswerValue(answerInstance: GraphObject, answerObj: GraphObject, value: any, options: SetAnswerValueOptions = {}) {
+        const { answerOptions } = options;
+        let dataValidationResult = SetAnswerResponseType.OK;
+        let dataValidationMessage = '';
+
         const followupType = value === null ? TYPE_FOLLOWUP_NO_ANSWER : TYPE_FOLLOWUP_FIRM_ANSWER;
         if (answerInstance) {
             answerInstance.set(SHORT_NAME_FOLLOWUP_TYPE, followupType);
             switch (answerInstance.type) {
                 case TYPE_HALEY_TEXT_ANSWER_INSTANCE:
-                    return answerInstance.set("textAnswerValue", value);
-    
+                    answerInstance.set("textAnswerValue", value);
+                    break;
                 case TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
-                    return answerInstance.set("booleanAnswerValue", value);
-    
+                    if (value !== null && value !== undefined && value !== true && value !== false) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is not a valid boolean value for booleanAnswerValue`;
+                    } else {
+                        answerInstance.set("booleanAnswerValue", value);
+                    }
+                    break;
                 case TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
-                    return answerInstance.set("choiceAnswerValue", value);
+                    if (answerOptions && answerOptions.length && value) {
+                        if (!answerOptions.map(option => option.URI).includes(value)) {
+                            dataValidationResult = SetAnswerResponseType.ERROR;
+                            dataValidationMessage = `${value} is not a valid choice value for choiceAnswerValue. It should be any of the following value ${answerOptions.map(option => option.URI)}`;
+                            break;
+                        }
+                    }
+                    answerInstance.set("choiceAnswerValue", value);
+                    break;
     
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
-                    return new Date(answerInstance.set("dateTimeAnswerValue", value));
-    
+                    new Date(answerInstance.set("dateTimeAnswerValue", value));
+                    break;
                 case TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
-                    return answerInstance.set("longTextAnswerValue", value);
-    
+                    answerInstance.set("longTextAnswerValue", value);
+                    break;
                 case TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
-                    return answerInstance.set("fileAnswerValueURI", value);
-    
+                    answerInstance.set("fileAnswerValueURI", value);
+                    break;
                 case TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
                     var answerDataType = answer.get("haleyAnswerDataType");
                     if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
                         if (value !== null && !Number.isInteger(value)) {
-                            throw new Error(`The passed value should be an integer for and answer with HaleyIntegerDataType datatype. value: ${value}, answer: ${JSON.stringify(answer)}, answerInstance: ${JSON.stringify(answerInstance)}`)
+                            dataValidationResult = SetAnswerResponseType.ERROR;
+                            dataValidationMessage = `The passed value should be an integer for and answer with HaleyIntegerDataType datatype. value: ${value}. answerURI: ${answer.URI}, answerInstanceURI: ${answerInstance.URI}`;
+                            break;
                         }
-                        return answerInstance.set("integerAnswerValue", value);
+                        answerInstance.set("integerAnswerValue", value);
                     } else {
-                        return answerInstance.set("doubleAnswerValue", value);
+                        if (value !== undefined && value !== null && Number.isNaN(value)) {
+                            dataValidationResult = SetAnswerResponseType.ERROR;
+                            dataValidationMessage = `value: ${value} is not an number, answer: ${JSON.stringify(answer)}, answerInstance: ${JSON.stringify(answerInstance)}`;
+                            break;
+                        }
+                        answerInstance.set("doubleAnswerValue", value);
                     }
-    
+                    break;
                 case TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
-                    return answerInstance.set("multiChoiceAnswerValue", value);
-    
+                    if (value !== null && value !== undefined && !Array.isArray(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `value ${value} is not an array multiChoiceAnswerValue.`;
+                        break;
+                    } else if (answerOptions && answerOptions.length && value) {
+                        let shouldBreak = false
+                        for (let v of value) {
+                            if (!answerOptions.map(option => option.URI).includes(v)) {
+                                dataValidationResult = SetAnswerResponseType.ERROR;
+                                dataValidationMessage = `${v} is not a valid choice value for multiChoiceAnswerValue. It should be any of the following value ${answerOptions.map(option => option.URI)}`;
+                                shouldBreak = true;
+                                break;
+                            }
+                        }
+                        if (shouldBreak) break;
+                    }
+                    answerInstance.set("multiChoiceAnswerValue", value);
+                    break;
                 case TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE:
-                    return answerInstance.set("signatureAnswerValue", value);
-    
+                    answerInstance.set("signatureAnswerValue", value);
+                    break;
                 case TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
                     var taxonomy = answerInstance.set("taxonomyAnswerValue", value);
-                    return taxonomy || "";
+                    break;
     
                 case TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
                     var taxonomies = answerInstance.set("multiTaxonomyAnswerValue", value);
                     taxonomies = taxonomies ? taxonomies : [];
-    
-                    return taxonomies.toString();
-    
+                    taxonomies.toString();
+                    break;
                 default:
                     console.error("No such questionType exists", answerInstance);
             }
+        } else {
+            dataValidationResult = 'Error';
+            dataValidationMessage = 'No Answer Instance found';
         }
-        return null;
+
+        return {
+            dataValidationResult,
+            dataValidationMessage,
+            answerInstance,
+        }
     };
 
     createVitalObject(vitaljs: VitalJs, type: string, properties: { [key: string]: any }={}): GraphObject {
@@ -249,9 +295,10 @@ export class GroupAPI {
         return GroupAPI.getAnswerValue(answerInstance, answer);
     }
 
-    setValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string, value: any) {
+    setValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string, value: any): SetAnswerResponseType {
         const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, answerType);
-        return GroupAPI.setAnswerValue(answerInstance, answer, value);
+        const answerOptions = QuestionAPI.getAnswerOptions(qaObjects, answer);
+        return GroupAPI.setAnswerValue(answerInstance, answer, value, { answerOptions });
     }
 
     resetValueByAnswerTypeInsideRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, answerType: string) {
@@ -264,9 +311,10 @@ export class GroupAPI {
         return GroupAPI.getAnswerValue(answerInstance, answer);
     }
 
-    setValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string, value: any) {
+    setValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string, value: any): SetAnswerResponseType {
         const [answer, answerInstance] =  RowAPI.getAnswerPairByAnswerTypeInsideRowRow(qaObjects, qaInstanceObjects, rowInstanceCounter, rowType, rowRowInstanceCounter, rowRowType, answerType);
-        return GroupAPI.setAnswerValue(answerInstance, answer, value);
+        const answerOptions = QuestionAPI.getAnswerOptions(qaObjects, answer);
+        return GroupAPI.setAnswerValue(answerInstance, answer, value, { answerOptions });
     }
 
     resetValueByAnswerTypeInsideRowRow (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], rowInstanceCounter: string, rowType: string, rowRowInstanceCounter: string, rowRowType: string, answerType: string) {

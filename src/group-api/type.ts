@@ -12,3 +12,13 @@ export interface SplitGraph {
     instanceGraphContainerList: GroupInstanceGraphContainer[],
     generalGraphObjects: GeneralGraphContainer,
 }
+
+export interface SetAnswerValueOptions {
+    answerOptions?: GraphObject[],
+}
+
+export class SetAnswerResponseType {
+    static readonly ERROR = 'Error';
+    static readonly OK = 'Ok';
+    static readonly WARNING = 'Warning';
+}
