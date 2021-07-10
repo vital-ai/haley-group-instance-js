@@ -530,11 +530,11 @@ describe('GroupAPI', () => {
             });
 
             groupAPI = new GroupAPI(vitaljs);
-            ndjsonObjects = await readMisObjectsPromise;
+            ndjsonObjects = (await readMisObjectsPromise) as any as GraphObject[];
         });
 
         beforeEach(() => {
-            testObjects = cloneDeep(ndjsonObjects);
+            testObjects = (cloneDeep(ndjsonObjects) as any as GraphObject[]).map(obj => vitaljs.graphObject(JSON.parse(JSON.stringify(obj))));
         });
 
         it('Should split objects', async () => {
@@ -686,86 +686,86 @@ describe('GroupAPI', () => {
             ]);
         });
 
-        // it('Should get all values from instance', () => {
-        //     const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
-        //     const {
-        //         groupGraphContainerList,
-        //         instanceGraphContainerList,
-        //     } = graph;
+        it('Should get all values from instance', () => {
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+            } = graph;
 
-        //     const qaObjects = groupGraphContainerList[0].all;
+            const qaObjects = groupGraphContainerList[0].all;
 
-        //     const results = instanceGraphContainerList.map(instanceContainer => {
-        //         const qaInstanceObjects = instanceContainer.all;
-        //         const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
-        //         const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
-        //         const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
-        //         const reviewRowCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_REVIEW);
-        //         let reviews = reviewRowCounters.map(counter => {
-        //             const authorName = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_AUTHOR_NAME);
-        //             const rating = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_REVIEW_RATING);
-        //             return { authorName, rating };
-        //         })
+            const results = instanceGraphContainerList.map(instanceContainer => {
+                const qaInstanceObjects = instanceContainer.all;
+                const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
+                const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
+                const reviewRowCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_REVIEW);
+                let reviews = reviewRowCounters.map(counter => {
+                    const authorName = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_AUTHOR_NAME);
+                    const rating = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_REVIEW_RATING);
+                    return { authorName, rating };
+                })
 
-        //         const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
-        //         let photos = photoCounters.map(counter => {
-        //             const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
-        //             return photo;
-        //         })
-        //         return { name, formattedAddress, placeId, reviews, photos };
-        //     });
+                const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
+                let photos = photoCounters.map(counter => {
+                    const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
+                    return photo;
+                })
+                return { name, formattedAddress, placeId, reviews, photos };
+            });
 
-        //     console.log(JSON.stringify(placeResults));
+            expect(results).toEqual(expect.arrayContaining(placeResults));
+        });
 
-        //     expect(results).toEqual(expect.arrayContaining(placeResults));
-        // });
+        it('Should set values for instance', () => {
+            const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
+            const {
+                groupGraphContainerList,
+                instanceGraphContainerList,
+            } = graph;
 
-        // it('Should set values for instance', () => {
-        //     const graph: SplitGraph = groupAPI.splitGroupAndInstances(testObjects as any as GraphObject[]);
-        //     const {
-        //         groupGraphContainerList,
-        //         instanceGraphContainerList,
-        //     } = graph;
+            const qaObjects = groupGraphContainerList[0].all;
 
-        //     const qaObjects = groupGraphContainerList[0].all;
+            instanceGraphContainerList.forEach(instanceContainer => {
+                const qaInstanceObjects = instanceContainer.all;
+                const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
+                const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
+                const result: any = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS, `updated-${formattedAddress}`);
 
-        //     instanceGraphContainerList.forEach(instanceContainer => {
-        //         const qaInstanceObjects = instanceContainer.all;
-        //         const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
-        //         const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
-        //         const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
-        //         groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS, `updated-${formattedAddress}`);
-        //         groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME, `updated-${name}`);
+                var value = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME, `updated-${name}`);
 
-        //         const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
-        //         let photos = photoCounters.map(counter => {
-        //             const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
-        //             groupAPI.setValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS, `update-${photo}`);
-        //         })
-        //     });
+                const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
+                let photos = photoCounters.map(counter => {
+                    const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
+                    groupAPI.setValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS, `update-${photo}`);
+                });
+            });
 
-        //     const updatedResults = instanceGraphContainerList.map(instanceContainer => {
-        //         const qaInstanceObjects = instanceContainer.all;
-        //         const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
-        //         const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
-        //         const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
-        //         const reviewRowCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_REVIEW);
-        //         let reviews = reviewRowCounters.map(counter => {
-        //             const authorName = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_AUTHOR_NAME);
-        //             const rating = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_REVIEW_RATING);
-        //             return { authorName, rating };
-        //         })
+            const updatedResults = instanceGraphContainerList.map(instanceContainer => {
+                const qaInstanceObjects = instanceContainer.all;
+                const placeId = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_PLACE_ID);
+                const formattedAddress = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_FORMATTED_ADDRESS);
+                const name = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, ANSWER_TYPE_NAME);
+                const reviewRowCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_REVIEW);
+                let reviews = reviewRowCounters.map(counter => {
+                    const authorName = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_AUTHOR_NAME);
+                    const rating = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_REVIEW, ANSWER_TYPE_REVIEW_RATING);
+                    return { authorName, rating };
+                });
 
-        //         const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
-        //         let photos = photoCounters.map(counter => {
-        //             const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
-        //             return photo;
-        //         })
-        //         return { name, formattedAddress, placeId, reviews, photos };
-        //     });
-        //     console.log(JSON.stringify(updatedPlaceResults));
-        //     expect(updatedResults).toEqual(expect.arrayContaining(updatedPlaceResults));
-        // });
+                const photoCounters = groupAPI.getRowInstanceCountersByRowType(qaObjects, qaInstanceObjects, ROW_TYPE_PHOTO);
+                let photos = photoCounters.map(counter => {
+                    const photo = groupAPI.getValueByAnswerTypeInsideRow(qaObjects, qaInstanceObjects, counter, ROW_TYPE_PHOTO, ANSWER_TYPE_PHOTOS);
+                    return photo;
+                });
+                return { name, formattedAddress, placeId, reviews, photos };
+            });
+
+            expect(updatedResults).toEqual(expect.arrayContaining(updatedPlaceResults));
+        });
     });
     
 });

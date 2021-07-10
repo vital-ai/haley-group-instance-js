@@ -48,6 +48,7 @@ import { GroupGraphContainer } from '../graph-container/group-graph-container';
 import { GroupInstanceGraphContainer } from '../graph-container/group-instance-graph-container';
 import { GeneralGraphContainer } from '../graph-container/general-graph-container';
 import { QuestionAPI } from '../question-api/index';
+const moment = require('moment');
 
 export class GroupAPI {
 
@@ -201,6 +202,11 @@ export class GroupAPI {
                     break;
     
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
+                    if (value !== null && value !== undefined && !moment.isDate(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is not a valid date`;
+                        break;
+                    }
                     new Date(answerInstance.set("dateTimeAnswerValue", value));
                     break;
                 case TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
@@ -282,7 +288,7 @@ export class GroupAPI {
         return GroupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType, this.vitaljs);
     }
 
-    setValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string, value: any) {
+    setValueByAnswerType (qaObjects: GraphObject[], qaInstanceObjects: GraphObject[], answerType: string, value: any): SetAnswerResponseType {
         return GroupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, value, this.vitaljs);
     }
 
