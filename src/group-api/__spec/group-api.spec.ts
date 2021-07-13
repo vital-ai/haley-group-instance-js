@@ -19,6 +19,7 @@ import {
     dataTestBooleanData,
     dataTestChoiceData,
     dataTestMultiChoiceData,
+    dataTestDateTimeData,
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
@@ -65,6 +66,7 @@ import {
     ROW_TYPE_PHOTO, ROW_TYPE_REVIEW
 } from '../../util/type-google-place';
 
+const moment = require('moment');
 const { vitaljs } = require('../../../test-util');
 
 describe('GroupAPI', () => {
@@ -100,6 +102,7 @@ describe('GroupAPI', () => {
         let testBooleanData = cloneDeep(dataTestBooleanData);
         let testChoiceData = cloneDeep(dataTestChoiceData);
         let testMultiChoiceData = cloneDeep(dataTestMultiChoiceData);
+        let testDateTimeData = cloneDeep(dataTestDateTimeData);
         const logger = {
             info: console.log,
             error: console.error,
@@ -247,6 +250,52 @@ describe('GroupAPI', () => {
             const value = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType);
 
             expect(value).toEqual(['http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/2']);
+        });
+
+        it.each([
+            '',
+            '1111111-2221-2121212',
+            'aaaabbbbccccdddd',
+            '2000/2000/3000000',
+        ])('Should return error message for invalid date passed', (val) => {
+            const qaObjects = cloneDeep(testDateTimeData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_DATE';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyDateTimeAnswer/1');
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, val);
+            const value = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType);
+
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: expect.stringContaining(`${val} is not a valid date`),
+                dataValidationResult: "Error",
+            }));
+
+            expect(value).toBe(undefined);
+        });
+
+        it.each([
+            new Date().toLocaleDateString(),
+            new Date().toISOString(),
+            '10/10/2000',
+            '2021-07-13T01:19:54.507Z',
+        ])('Should set the datetime answer %s', (val) => {
+            const qaObjects = cloneDeep(testDateTimeData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_DATE';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyDateTimeAnswer/1');
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, val);
+            const value = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType);
+
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: '',
+                dataValidationResult: "Ok",
+            }));
+            console.log(value, val, moment(value).isSame(val));
+            expect(moment(value).isSame(val)).toBe(true);
         });
     });
 

@@ -3029,6 +3029,36 @@ export const dataTestMultiChoiceData: GraphObject[] = [
   answerOption2
 ] as any as GraphObject[];
 
+export const edgeRootQuestionToDateTimeAnswer1 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220322_957219730",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyDateTimeAnswer/1"
+};
+export const rootDateTimeAnswer1 = {
+  "type": "http://vital.ai/ontology/haley-ai-question#HaleyDateTimeAnswer",
+  "types": [
+    "http://vital.ai/ontology/haley-ai-question#HaleyDateTimeAnswer"
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyDateTimeAnswer/1",
+  "http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue": false,
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1"
+};
+
+export const dataTestDateTimeData: GraphObject[] = [
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToDateTimeAnswer1,
+  rootDateTimeAnswer1
+] as any as GraphObject[];
+
 export const mixMockData: GraphObject[] = [
   group2,
   createVitalObject(vitaljs, TYPE_HALEY_GROUP_INSTANCE, { [SHORT_NAME_HALEY_GROUP]: group2.URI }),

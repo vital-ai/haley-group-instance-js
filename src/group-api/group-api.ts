@@ -130,7 +130,7 @@ export class GroupAPI {
                     return answerInstance.get("choiceAnswerValue");
     
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
-                    return new Date(answerInstance.get("dateTimeAnswerValue"));
+                    return answerInstance.get("dateTimeAnswerValue");
     
                 case TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
                     return answerInstance.get("longTextAnswerValue");
@@ -198,16 +198,21 @@ export class GroupAPI {
                             break;
                         }
                     }
+                    if (value !== null && value !== undefined && typeof value !== 'string') {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is Must be a string`;
+                        break;
+                    }
                     answerInstance.set("choiceAnswerValue", value);
                     break;
     
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
-                    if (value !== null && value !== undefined && !moment.isDate(value)) {
+                    if (value !== null && value !== undefined && !moment(value).isValid()) {
                         dataValidationResult = SetAnswerResponseType.ERROR;
                         dataValidationMessage = `${value} is not a valid date`;
                         break;
                     }
-                    new Date(answerInstance.set("dateTimeAnswerValue", value));
+                    answerInstance.set("dateTimeAnswerValue", new Date(value).getTime());
                     break;
                 case TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
                     answerInstance.set("longTextAnswerValue", value);
@@ -246,6 +251,11 @@ export class GroupAPI {
                                 dataValidationResult = SetAnswerResponseType.ERROR;
                                 dataValidationMessage = `${v} is not a valid choice value for multiChoiceAnswerValue. It should be any of the following value ${answerOptions.map(option => option.URI)}`;
                                 shouldBreak = true;
+                                break;
+                            }
+                            if (typeof v !== 'string') {
+                                dataValidationResult = SetAnswerResponseType.ERROR;
+                                dataValidationMessage = `${value} Should be an array of string`;
                                 break;
                             }
                         }
