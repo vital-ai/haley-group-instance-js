@@ -156,6 +156,51 @@ describe('GroupAPI', () => {
             expect(groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType)).toEqual(3);
         });
 
+        it.each([
+            'aaaa',
+            '$lll',
+            '$22.3a',
+        ])('Should throw error if it is not an valid currency %s', (value) => {
+            const qaObjects = cloneDeep(testData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_NUMBER';
+            const dataType = 'http://vital.ai/ontology/haley-ai-question#HaleyCurrencyDataType';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyNumberAnswer/1597780220321_957219729');
+
+            answer.set(SHORT_NAME_HALEY_ANSWER_DATA_TYPE, dataType);
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, value);
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: expect.stringContaining(`${value} is not a valid CurrencyDataType`),
+                dataValidationResult: "Error",
+            }));
+        });
+
+        it.each([
+            ['$22.3', 22.30],
+            [2222.4, 2222.40],
+            ['$444444.3', 444444.30],
+        ])('Should pass the value for: %s', (value, expectedValue) => {
+            const qaObjects = cloneDeep(testData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/NamedInsured_NUMBER';
+            const dataType = 'http://vital.ai/ontology/haley-ai-question#HaleyCurrencyDataType';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyNumberAnswer/1597780220321_957219729');
+
+            answer.set(SHORT_NAME_HALEY_ANSWER_DATA_TYPE, dataType);
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, value);
+            const v = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType);
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: '',
+                dataValidationResult: "Ok",
+            }));
+
+            expect(v).toEqual(expectedValue);
+        });
+
         it('Should throw error if the passed value is not boolean or null value for boolean answers', () => {
             const qaObjects = cloneDeep(testBooleanData);
             qaObjects.forEach(obj => vitaljs.graphObject(obj));

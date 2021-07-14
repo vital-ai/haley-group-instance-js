@@ -48,6 +48,7 @@ import { GroupGraphContainer } from '../graph-container/group-graph-container';
 import { GroupInstanceGraphContainer } from '../graph-container/group-instance-graph-container';
 import { GeneralGraphContainer } from '../graph-container/general-graph-container';
 import { QuestionAPI } from '../question-api/index';
+import { isNumber } from 'lodash';
 const moment = require('moment');
 
 export class GroupAPI {
@@ -205,7 +206,6 @@ export class GroupAPI {
                     }
                     answerInstance.set("choiceAnswerValue", value);
                     break;
-    
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
                     if (value !== null && value !== undefined && !moment(value).isValid()) {
                         dataValidationResult = SetAnswerResponseType.ERROR;
@@ -223,7 +223,17 @@ export class GroupAPI {
                 case TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
                     var answerDataType = answer.get("haleyAnswerDataType");
-                    if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
+                    if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyCurrencyDataType") {
+                        const v = typeof value === 'number'
+                            ? value : typeof value === 'string' && (value || '')?.[0] === '$'
+                            ? Number(value.slice(1).trim()) : Number(value);
+                        if (Number.isNaN(v) || (value !== null && !isNumber(v))) {
+                            dataValidationResult = SetAnswerResponseType.ERROR;
+                            dataValidationMessage = `${value} is not a valid CurrencyDataType`;
+                            break;
+                        }
+                        answerInstance.set("doubleAnswerValue", Number(v.toFixed(2)));
+                    } else if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyIntegerDataType") {
                         if (value !== null && !Number.isInteger(value)) {
                             dataValidationResult = SetAnswerResponseType.ERROR;
                             dataValidationMessage = `The passed value should be an integer for and answer with HaleyIntegerDataType datatype. value: ${value}. answerURI: ${answer.URI}, answerInstanceURI: ${answerInstance.URI}`;
