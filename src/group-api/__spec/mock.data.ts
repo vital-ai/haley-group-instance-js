@@ -2944,6 +2944,17 @@ export const edgeFromAnswerToOption2 = {
   "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/2"
 }
 
+export const edgeFromAnswerToOption3 = {
+  "type": EDGE_ANSWER_OPTION,
+  "types": [
+    EDGE_ANSWER_OPTION
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswerOption/1",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyChoiceAnswer/1",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "httpaaaaaaa"
+}
+
 export const answerOption1 = {
   "type": TYPE_HALEY_ANSWER_OPTION,
   "types": [
@@ -2960,6 +2971,14 @@ export const answerOption2 = {
   "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/2",
 }
 
+export const answerOption3 = {
+  "type": TYPE_HALEY_ANSWER_OPTION,
+  "types": [
+    TYPE_HALEY_ANSWER_OPTION
+  ],
+  "URI": "httpaaaaaaa",
+}
+
 export const dataTestChoiceData: GraphObject[] = [
   group1,
   edgeGroupToSection,
@@ -2970,8 +2989,10 @@ export const dataTestChoiceData: GraphObject[] = [
   rootChoiceAnswer1,
   edgeFromAnswerToOption1,
   edgeFromAnswerToOption2,
+  edgeFromAnswerToOption3,
   answerOption1,
-  answerOption2
+  answerOption2,
+  answerOption3
 ] as any as GraphObject[];
 
 export const edgeRootQuestionToMultiChoiceAnswer1 = {

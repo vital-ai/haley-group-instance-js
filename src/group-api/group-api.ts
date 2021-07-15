@@ -50,7 +50,7 @@ import { GeneralGraphContainer } from '../graph-container/general-graph-containe
 import { QuestionAPI } from '../question-api/index';
 import { isNumber } from 'lodash';
 const moment = require('moment');
-
+var isUri = require('isuri');
 export class GroupAPI {
 
     static logger: Logger;
@@ -181,6 +181,12 @@ export class GroupAPI {
             answerInstance.set(SHORT_NAME_FOLLOWUP_TYPE, followupType);
             switch (answerInstance.type) {
                 case TYPE_HALEY_TEXT_ANSWER_INSTANCE:
+                    let v = value;
+                    if (value !== null && value !== undefined && typeof value !== 'string') {
+                        dataValidationResult = SetAnswerResponseType.WARNING;
+                        dataValidationMessage = `${value} is not a string`;
+                        v = `${value}`;
+                    }
                     answerInstance.set("textAnswerValue", value);
                     break;
                 case TYPE_HALEY_BOOLEAN_ANSWER_INSTANCE:
@@ -204,6 +210,12 @@ export class GroupAPI {
                         dataValidationMessage = `${value} is Must be a string`;
                         break;
                     }
+                    if (value !== null && value !== undefined && !isUri.isValid(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is not a valid URI`;
+                        break;
+                    }
+
                     answerInstance.set("choiceAnswerValue", value);
                     break;
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:

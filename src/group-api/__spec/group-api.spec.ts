@@ -238,7 +238,21 @@ describe('GroupAPI', () => {
             answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
             const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
             expect(result).toEqual(expect.objectContaining({
-                dataValidationMessage: 'aaaaa is not a valid choice value for choiceAnswerValue. It should be any of the following value http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/1,http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/2',
+                dataValidationMessage: 'aaaaa is not a valid choice value for choiceAnswerValue. It should be any of the following value http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/1,http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/2,httpaaaaaaa',
+                dataValidationResult: "Error",
+            }));
+        });
+
+        it('Should throw error if the passed value is not a valid URI', () => {
+            const qaObjects = cloneDeep(testChoiceData);
+            qaObjects.forEach(obj => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_INSURED';
+            const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyChoiceAnswer/1');
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'httpaaaaaaa');
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: 'httpaaaaaaa is not a valid URI',
                 dataValidationResult: "Error",
             }));
         });
