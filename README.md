@@ -1,20 +1,37 @@
 # haley-group-instance-js
 
 ## develop
-install npx: 
+install npx:
+```js
     npm install -g npx
+```
 
 ## unit test set up
 should copy all the domains file into vitalservice/domains, domains files are only use for testing. will not be compiled and published to npm.
-use command: **npm run test**
+use command to run test: 
+```js
+    npm run test
+```
 
 ## build
-use command: **npm run build**
+use command to compile the package:
+```js
+    npm run build
+```
+
+## output
+The above build command will generate two file:
+```js
+    index.js      // for server env
+    index.web.js  // for browswer env
+```
 
 
 ## publish to npm  // should update the package version every time we publish a package.
-use command: **npm publish**
-
+use command: 
+```js
+    npm publish
+```
 
 ## install
 ```js
