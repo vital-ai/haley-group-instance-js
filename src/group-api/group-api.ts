@@ -26,6 +26,7 @@ import {
     TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE,
     TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE,
     TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE,
+    TYPE_HALEY_OBJECT_ANSWER_INSTANCE,
     TYPE_HALEY_NUMBER_ANSWER_INSTANCE,
     TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE,
     TYPE_HALEY_SIGNATURE_ANSWER_INSTANCE,
@@ -175,7 +176,9 @@ export class GroupAPI {
         const { answerOptions } = options;
         let dataValidationResult = SetAnswerResponseType.OK;
         let dataValidationMessage = '';
-
+console.log('answerIns:', answerInstance)
+console.log('answerObj:', answerObj)
+console.log('value:', value)
         const followupType = value === null ? TYPE_FOLLOWUP_NO_ANSWER : TYPE_FOLLOWUP_FIRM_ANSWER;
         if (answerInstance) {
             answerInstance.set(SHORT_NAME_FOLLOWUP_TYPE, followupType);
@@ -198,39 +201,62 @@ export class GroupAPI {
                     }
                     break;
                 case TYPE_HALEY_CHOICE_ANSWER_INSTANCE:
+                    if (value !== null && value !== undefined && typeof value !== 'string') {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `Value: ${value} must be a string`;
+                        break;
+                    }
                     if (answerOptions && answerOptions.length && value) {
-                        if (!answerOptions.map(option => option.URI).includes(value)) {
-                            dataValidationResult = SetAnswerResponseType.ERROR;
-                            dataValidationMessage = `${value} is not a valid choice value for choiceAnswerValue. It should be any of the following value ${answerOptions.map(option => option.URI)}`;
+                        if (!answerOptions.map(option => option.get('optionValue')).includes(value)) {
+                            dataValidationResult = SetAnswerResponseType.WARNING;
+                            dataValidationMessage = `Value: ${value} should be any of the following values ${answerOptions.map(option => option.get('optionValue'))}`;
+                            answerInstance.set("choiceAnswerValue", value);
                             break;
                         }
                     }
-                    if (value !== null && value !== undefined && typeof value !== 'string') {
-                        dataValidationResult = SetAnswerResponseType.ERROR;
-                        dataValidationMessage = `${value} is Must be a string`;
-                        break;
-                    }
-                    if (value !== null && value !== undefined && !isUri.isValid(value)) {
-                        dataValidationResult = SetAnswerResponseType.ERROR;
-                        dataValidationMessage = `${value} is not a valid URI`;
-                        break;
-                    }
-
                     answerInstance.set("choiceAnswerValue", value);
                     break;
                 case TYPE_HALEY_DATE_TIME_ANSWER_INSTANCE:
-                    if (value !== null && value !== undefined && !moment(value).isValid()) {
-                        dataValidationResult = SetAnswerResponseType.ERROR;
-                        dataValidationMessage = `${value} is not a valid date`;
-                        break;
+                    if (value !== null && value !== undefined && Number.isInteger(value)) {
+                        if ((new Date(value)).getTime() > 0) {
+                            answerInstance.set("dateTimeAnswerValue", new Date(value).getTime());
+                            break;
+                        } else {
+                            dataValidationResult = SetAnswerResponseType.ERROR;
+                            dataValidationMessage = `${value} is not a valid date`;
+                            break;
+                        }
                     }
-                    answerInstance.set("dateTimeAnswerValue", new Date(value).getTime());
-                    break;
+                    if (value !== null && value !== undefined && typeof value === "string") {
+                        if (!new Date(value).getTime()) {
+                            dataValidationResult = SetAnswerResponseType.ERROR;
+                            dataValidationMessage = `${value} is not a valid date`;
+                            break;
+                        } else {
+                            dataValidationResult = SetAnswerResponseType.WARNING;
+                            dataValidationMessage = `${value} is not a unix timestamp. Converting ${value} to ${new Date(value).getTime()}`;
+                            answerInstance.set("dateTimeAnswerValue", new Date(value).getTime());
+                            break;
+                        }
+                    }
                 case TYPE_HALEY_LONG_TEXT_ANSWER_INSTANCE:
                     answerInstance.set("longTextAnswerValue", value);
                     break;
                 case TYPE_HALEY_FILE_UPLOAD_ANSWER_INSTANCE:
+                    if (value !== null && value !== undefined && !isUri.isValid(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is not a valid FileUploadURIDataType`;
+                        break;
+                    }
                     answerInstance.set("fileAnswerValueURI", value);
+                    break;
+                case TYPE_HALEY_OBJECT_ANSWER_INSTANCE:
+                    if (value !== null && value !== undefined && !isUri.isValid(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is not a valid ObjectURIDataType`;
+                        break;
+                    }
+                    answerInstance.set('objectAnswerValueURI', value);
                     break;
                 case TYPE_HALEY_NUMBER_ANSWER_INSTANCE:
                     var answer = answerObj;
@@ -252,6 +278,28 @@ export class GroupAPI {
                             break;
                         }
                         answerInstance.set("integerAnswerValue", value);
+                    } else if (answerDataType === "http://vital.ai/ontology/haley-ai-question#HaleyDoubleDataType") {
+                        if (value !== null && !isNumber(value)) {
+                            const trim = value.replace(/[,$]/g, '');
+                            const parsed = parseFloat(trim);
+                            if (isNaN(parsed)) {
+                                dataValidationResult = SetAnswerResponseType.ERROR;
+                                dataValidationMessage = `${value} is not a valid DoubleDataType`;
+                                break;
+                            } 
+                            if (trim.includes('%')) {
+                                const parsed = parseFloat(trim) / 100;
+                                dataValidationResult = SetAnswerResponseType.WARNING;
+                                dataValidationMessage = `The passed value should be a double for the answer with HaleyDoubleDataType datatype. Converting the value to match. value: ${value}, converted: ${parsed}, answerURI: ${answer.URI}, answerInstanceURI: ${answerInstance.URI}`;
+                                answerInstance.set("doubleAnswerValue", parsed);
+                                break;
+                            }
+                            dataValidationResult = SetAnswerResponseType.WARNING;
+                            dataValidationMessage = `The passed value should be a double for the answer with HaleyDoubleDataType datatype. Converting the value to match. value: ${value}, converted: ${parsed}, answerURI: ${answer.URI}, answerInstanceURI: ${answerInstance.URI}`;
+                            answerInstance.set("doubleAnswerValue", parsed);
+                            break;
+                        } 
+                        answerInstance.set("doubleAnswerValue", value);
                     } else {
                         if (value !== undefined && value !== null && Number.isNaN(value)) {
                             dataValidationResult = SetAnswerResponseType.ERROR;
@@ -264,24 +312,25 @@ export class GroupAPI {
                 case TYPE_HALEY_MULTI_CHOICE_ANSWER_INSTANCE:
                     if (value !== null && value !== undefined && !Array.isArray(value)) {
                         dataValidationResult = SetAnswerResponseType.ERROR;
-                        dataValidationMessage = `value ${value} is not an array multiChoiceAnswerValue.`;
+                        dataValidationMessage = `Value: ${value} is not an array multiChoiceAnswerValue.`;
                         break;
-                    } else if (answerOptions && answerOptions.length && value) {
-                        let shouldBreak = false
-                        for (let v of value) {
-                            if (!answerOptions.map(option => option.URI).includes(v)) {
+                    }
+                    if (answerOptions && answerOptions.length && value) {
+                        for (let i = 0; i < value.length; i++) {
+                            if (typeof value[i] !== 'string') {
                                 dataValidationResult = SetAnswerResponseType.ERROR;
-                                dataValidationMessage = `${v} is not a valid choice value for multiChoiceAnswerValue. It should be any of the following value ${answerOptions.map(option => option.URI)}`;
-                                shouldBreak = true;
+                                dataValidationMessage = `Value: ${value[i]} must be string.`;
                                 break;
                             }
-                            if (typeof v !== 'string') {
-                                dataValidationResult = SetAnswerResponseType.ERROR;
-                                dataValidationMessage = `${value} Should be an array of string`;
+                            if (!answerOptions.map(option => option.get('optionValue')).includes(value[i])) {
+                                dataValidationResult = SetAnswerResponseType.WARNING;
+                                dataValidationMessage = `Value: ${value} should be any of the following values ${answerOptions.map(
+                                  (option) => option.get('optionValue')
+                                )}`;
+                                answerInstance.set('multiChoiceAnswerValue', value);
                                 break;
                             }
                         }
-                        if (shouldBreak) break;
                     }
                     answerInstance.set("multiChoiceAnswerValue", value);
                     break;
@@ -289,10 +338,20 @@ export class GroupAPI {
                     answerInstance.set("signatureAnswerValue", value);
                     break;
                 case TYPE_HALEY_TAXONOMY_ANSWER_INSTANCE:
-                    var taxonomy = answerInstance.set("taxonomyAnswerValue", value);
+                    if (value !== null && value !== undefined && !isUri.isValid(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `${value} is not a valid taxonomy URI`;
+                        break;
+                    }
+                    answerInstance.set("taxonomyAnswerValue", value);
                     break;
     
                 case TYPE_HALEY_MULTI_TAXONOMY_ANSWER_INSTANCE:
+                    if (value !== null && value !== undefined && !Array.isArray(value)) {
+                        dataValidationResult = SetAnswerResponseType.ERROR;
+                        dataValidationMessage = `Value: ${value} must be an array.`;
+                        break;
+                    }
                     var taxonomies = answerInstance.set("multiTaxonomyAnswerValue", value);
                     taxonomies = taxonomies ? taxonomies : [];
                     taxonomies.toString();

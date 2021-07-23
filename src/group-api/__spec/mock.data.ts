@@ -1,4 +1,4 @@
-import { TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP, EDGE_ANSWER_OPTION, TYPE_HALEY_ANSWER_OPTION } from "../../util/type-haley-ai-question";
+import { TYPE_HALEY_GROUP_INSTANCE, SHORT_NAME_HALEY_GROUP, EDGE_ANSWER_OPTION, TYPE_HALEY_ANSWER_OPTION, EDGE_TAXONOMY, TYPE_HALEY_TAXONOMY } from "../../util/type-haley-ai-question";
 import { GraphObject } from '../../util/type';
 import { createVitalObject } from "../../util/util";
 
@@ -3060,6 +3060,7 @@ export const edgeRootQuestionToDateTimeAnswer1 = {
   "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber",
   "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyDateTimeAnswer/1"
 };
+
 export const rootDateTimeAnswer1 = {
   "type": "http://vital.ai/ontology/haley-ai-question#HaleyDateTimeAnswer",
   "types": [
@@ -3079,6 +3080,187 @@ export const dataTestDateTimeData: GraphObject[] = [
   edgeRootQuestionToDateTimeAnswer1,
   rootDateTimeAnswer1
 ] as any as GraphObject[];
+
+export const edgeRootQuestionToObjectAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220322_957219730',
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1',
+  'http://vital.ai/ontology/vital-core#hasEdgeSource':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber',
+  'http://vital.ai/ontology/vital-core#hasEdgeDestination':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyObjectAnswer/1597780220321_957219729'
+};
+export const rootObjectAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#HaleyObjectAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#HaleyObjectAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/HaleyObjectAnswer/1597780220321_957219729',
+  'http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue': false,
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1'
+};
+
+export const dataTestObjectData: GraphObject[] = ([
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToObjectAnswer1,
+  rootObjectAnswer1
+] as any) as GraphObject[];
+
+export const edgeRootQuestionToFileUploadAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220322_957219730',
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1',
+  'http://vital.ai/ontology/vital-core#hasEdgeSource':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber',
+  'http://vital.ai/ontology/vital-core#hasEdgeDestination':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyFileUploadAnswer/1597780220321_957219729'
+};
+
+export const rootFileUploadAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#HaleyFileUploadAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#HaleyFileUploadAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/HaleyFileUploadAnswer/1597780220321_957219729',
+  'http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue': false,
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1'
+};
+
+export const dataTestFileUploadData: GraphObject[] = ([
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToFileUploadAnswer1,
+  rootFileUploadAnswer1
+] as any) as GraphObject[];
+
+export const edgeRootQuestionToTaxonomyAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220322_957219730',
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1',
+  'http://vital.ai/ontology/vital-core#hasEdgeSource':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber',
+  'http://vital.ai/ontology/vital-core#hasEdgeDestination':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyAnswer/1'
+};
+
+export const rootTaxonomyAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#HaleyTaxonomyAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#HaleyTaxonomyAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyAnswer/1',
+  'http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue': false,
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1'
+};
+
+export const edgeFromAnswerToTaxonomy1 = {
+  "type": EDGE_TAXONOMY,
+  "types": [
+    EDGE_TAXONOMY
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasTaxonomy/1",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyAnswer/1",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyNode/1"
+}
+
+export const edgeFromAnswerToTaxonomy2 = {
+  "type": EDGE_TAXONOMY,
+  "types": [
+    EDGE_TAXONOMY
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasTaxonomy/2",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyAnswer/2",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyNode/2"
+}
+
+export const taxonomy1 = {
+  "type": TYPE_HALEY_TAXONOMY,
+  "types": [
+    TYPE_HALEY_TAXONOMY
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyNode/1"
+}
+
+export const taxonomy2 = {
+  "type": TYPE_HALEY_TAXONOMY,
+  "types": [
+    TYPE_HALEY_TAXONOMY
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyNode/2"
+}
+
+export const dataTestTaxonomyData: GraphObject[] = ([
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToTaxonomyAnswer1,
+  rootTaxonomyAnswer1,
+  edgeFromAnswerToTaxonomy1,
+  taxonomy1,
+] as any) as GraphObject[];
+
+export const edgeRootQuestionToMultiTaxonomyAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#Edge_hasAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/Edge_hasAnswer/1597780220322_957219730',
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1',
+  'http://vital.ai/ontology/vital-core#hasEdgeSource':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyQuestion/Applicant-Info-ContactInfo-ContactPhoneNumber',
+  'http://vital.ai/ontology/vital-core#hasEdgeDestination':
+    'http://vital.ai/haley.ai/harbor-saas/HaleyMultiTaxonomyAnswer/1'
+};
+
+export const rootMultiTaxonomyAnswer1 = {
+  type: 'http://vital.ai/ontology/haley-ai-question#HaleyMultiTaxonomyAnswer',
+  types: ['http://vital.ai/ontology/haley-ai-question#HaleyMultiTaxonomyAnswer'],
+  URI: 'http://vital.ai/haley.ai/harbor-saas/HaleyMultiTaxonomyAnswer/1',
+  'http://vital.ai/ontology/haley-ai-question#isReadOnlyAnswerValue': false,
+  'http://vital.ai/ontology/vital-core#hasProvenance': 'http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1'
+};
+
+export const edgeFromAnswerToMultiTaxonomy1 = {
+  "type": EDGE_TAXONOMY,
+  "types": [
+    EDGE_TAXONOMY
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasTaxonomy/1",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyMultiTaxonomyAnswer/1",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyNode/1"
+}
+
+export const edgeFromAnswerToMultiTaxonomy2 = {
+  "type": EDGE_TAXONOMY,
+  "types": [
+    EDGE_TAXONOMY
+  ],
+  "URI": "http://vital.ai/haley.ai/harbor-saas/Edge_hasTaxonomy/2",
+  "http://vital.ai/ontology/vital-core#hasProvenance": "http://vital.ai/haley.ai/haley-saas/Dataset/harbor-applicantinfo-group-1",
+  "http://vital.ai/ontology/vital-core#hasEdgeSource": "http://vital.ai/haley.ai/harbor-saas/HaleyMultiTaxonomyAnswer/2",
+  "http://vital.ai/ontology/vital-core#hasEdgeDestination": "http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyNode/2"
+}
+
+export const dataTestMultiTaxonomyData: GraphObject[] = ([
+  group1,
+  edgeGroupToSection,
+  rootSection1,
+  edgeSectionToQuestion1,
+  rootQuestion1,
+  edgeRootQuestionToMultiTaxonomyAnswer1,
+  rootMultiTaxonomyAnswer1,
+  edgeFromAnswerToMultiTaxonomy1,
+  edgeFromAnswerToMultiTaxonomy2,
+  taxonomy1,
+  taxonomy2
+] as any) as GraphObject[];
 
 export const mixMockData: GraphObject[] = [
   group2,

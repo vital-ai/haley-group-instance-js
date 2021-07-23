@@ -20,6 +20,10 @@ import {
     dataTestChoiceData,
     dataTestMultiChoiceData,
     dataTestDateTimeData,
+    dataTestObjectData,
+    dataTestFileUploadData,
+    dataTestTaxonomyData,
+    dataTestMultiTaxonomyData
 } from './mock.data';
 import {
     SHORT_NAME_HALEY_ROW_INSTANCE_COUNTER,
@@ -103,6 +107,10 @@ describe('GroupAPI', () => {
         let testChoiceData = cloneDeep(dataTestChoiceData);
         let testMultiChoiceData = cloneDeep(dataTestMultiChoiceData);
         let testDateTimeData = cloneDeep(dataTestDateTimeData);
+        let testObjectData = cloneDeep(dataTestObjectData);
+        let testFileUploadData = cloneDeep(dataTestFileUploadData);
+        let testTaxonomyData = cloneDeep(dataTestTaxonomyData);
+        let testMultiTaxonomyData = cloneDeep(dataTestMultiTaxonomyData);
         const logger = {
             info: console.log,
             error: console.error,
@@ -229,7 +237,77 @@ describe('GroupAPI', () => {
             expect(value).toBe(true);
         });
 
-        it('Should throw error if the passed value is not in option list for choice answers', () => {
+        it('Should throw error if the passed object answer value is not URI or null value', () => {
+            const qaObjects = cloneDeep(testObjectData);
+            qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_DATE';
+            const answer = qaObjects.find(
+              (obj) => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyObjectAnswer/1597780220321_957219729'
+            );
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
+
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: 'aaaaa is not a valid ObjectURIDataType',
+                dataValidationResult: "Error",
+            }));
+        })
+
+        it('Should throw error if the passed file upload answer value is not URI or null value', () => {
+            const qaObjects = cloneDeep(testFileUploadData);
+            qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_DATE';
+            const answer = qaObjects.find(
+              (obj) => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyFileUploadAnswer/1597780220321_957219729'
+            );
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
+
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: 'aaaaa is not a valid FileUploadURIDataType',
+                dataValidationResult: "Error",
+            }));
+        })
+
+        it('Should throw error if the passed taoxnomy answer value is not URI or null value', () => {
+            const qaObjects = cloneDeep(testTaxonomyData);
+            qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_DATE';
+            const answer = qaObjects.find(
+              (obj) => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyTaxonomyAnswer/1'
+            );
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
+
+            expect(result).toEqual(expect.objectContaining({
+                dataValidationMessage: 'aaaaa is not a valid taxonomy URI',
+                dataValidationResult: "Error",
+            }));
+        })
+
+        it('Should throw error if the passed multi taoxnomy answer value is not an array', () => {
+            const qaObjects = cloneDeep(testMultiTaxonomyData);
+            qaObjects.forEach((obj) => vitaljs.graphObject(obj));
+            const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
+            const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_DATE';
+            const answer = qaObjects.find(
+              (obj) => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyMultiTaxonomyAnswer/1'
+            );
+            answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
+
+            expect(result).toEqual(
+              expect.objectContaining({
+                dataValidationMessage: 'Value: aaaaa must be an array.',
+                dataValidationResult: 'Error'
+              })
+            );
+        })
+
+        it('Should throw warning if the passed value is not in option list for choice answers', () => {
             const qaObjects = cloneDeep(testChoiceData);
             qaObjects.forEach(obj => vitaljs.graphObject(obj));
             const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
@@ -238,21 +316,21 @@ describe('GroupAPI', () => {
             answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
             const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
             expect(result).toEqual(expect.objectContaining({
-                dataValidationMessage: 'aaaaa is not a valid choice value for choiceAnswerValue. It should be any of the following value http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/1,http://vital.ai/haley.ai/harbor-saas/HaleyAnswerOption/2,httpaaaaaaa',
-                dataValidationResult: "Error",
+                dataValidationMessage: `Value: aaaaa should be any of the following values ,,`,
+                dataValidationResult: "Warning",
             }));
         });
 
-        it('Should throw error if the passed value is not a valid URI', () => {
+        it('Should throw error if the passed value is not a valid string', () => {
             const qaObjects = cloneDeep(testChoiceData);
             qaObjects.forEach(obj => vitaljs.graphObject(obj));
             const qaInstanceObjects = groupAPI.createQaInstanceObjects(qaObjects);
             const answerType = 'http://vital.ai/haley.ai/harbor-saas/HaleyAnswerType/TYPE_INSURED';
             const answer = qaObjects.find(obj => obj.URI === 'http://vital.ai/haley.ai/harbor-saas/HaleyChoiceAnswer/1');
             answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
-            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'httpaaaaaaa');
+            const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 1000);
             expect(result).toEqual(expect.objectContaining({
-                dataValidationMessage: 'httpaaaaaaa is not a valid URI',
+                dataValidationMessage: 'Value: 1000 must be a string',
                 dataValidationResult: "Error",
             }));
         });
@@ -279,7 +357,7 @@ describe('GroupAPI', () => {
             answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
             const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, 'aaaaa');
             expect(result).toEqual(expect.objectContaining({
-                dataValidationMessage: 'value aaaaa is not an array multiChoiceAnswerValue.',
+                dataValidationMessage: 'Value: aaaaa is not an array multiChoiceAnswerValue.',
                 dataValidationResult: "Error",
             }));
         });
@@ -293,8 +371,8 @@ describe('GroupAPI', () => {
             answer.set(SHORT_NAME_HALEY_ANSWER_TYPE, answerType);
             const result = groupAPI.setValueByAnswerType(qaObjects, qaInstanceObjects, answerType, ['aaaaa']);
             expect(result).toEqual(expect.objectContaining({
-                dataValidationMessage: expect.stringContaining('aaaaa is not a valid choice value for multiChoiceAnswerValue. It should be any of the following value'),
-                dataValidationResult: "Error",
+                dataValidationMessage: expect.stringContaining('Value: aaaaa should be any of the following values ,'),
+                dataValidationResult: "Warning",
             }));
         });
 
@@ -350,8 +428,8 @@ describe('GroupAPI', () => {
             const value = groupAPI.getValueByAnswerType(qaObjects, qaInstanceObjects, answerType);
 
             expect(result).toEqual(expect.objectContaining({
-                dataValidationMessage: '',
-                dataValidationResult: "Ok",
+                dataValidationMessage: `${val} is not a unix timestamp. Converting ${val} to ${new Date(value).getTime()}`,
+                dataValidationResult: "Warning",
             }));
             console.log(value, val, moment(value).isSame(val));
             expect(moment(value).isSame(val)).toBe(true);
